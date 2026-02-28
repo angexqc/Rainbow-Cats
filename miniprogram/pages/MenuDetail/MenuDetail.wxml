@@ -1,0 +1,41 @@
+<view class="page">
+  <view class="header">
+    <text bindtap="handleBack">←</text>
+    <text>菜品详情</text>
+  </view>
+
+  <view class="content" wx:if="{{menu}}">
+    <image class="big-image" src="{{menu.image}}" mode="aspectFill" bindtap="previewImage"></image>
+
+    <view class="info-card">
+      <view class="info-row">
+        <text class="name">{{menu.title}}</text>
+      </view>
+      <view class="info-row">
+        <text class="label">分类：</text>
+        <text class="value">{{categoryMap[menu.category]}}</text>
+      </view>
+      <view class="info-row">
+        <text class="label">创建者：</text>
+        <text class="value">{{menu.owner === 'me' ? '我' : 'TA'}}</text>
+      </view>
+    </view>
+
+    <view class="desc-section" wx:if="{{menu.desc}}">
+      <view class="section-title">菜品描述</view>
+      <text class="desc-text">{{menu.desc}}</text>
+    </view>
+
+    <view class="actions">
+      <button wx:if="{{isCreator}}" class="btn btn-secondary" bindtap="handleEdit">编辑</button>
+      <button class="btn {{menu.available ? 'btn-toggle-off' : 'btn-toggle-on'}}" bindtap="handleToggleAvailable">
+        {{menu.available ? '下架' : '上架'}}
+      </button>
+      <button wx:if="{{isCreator}}" class="btn btn-danger" bindtap="handleDelete">删除</button>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+</view>

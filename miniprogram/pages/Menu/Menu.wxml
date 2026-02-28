@@ -1,0 +1,67 @@
+<view class="page">
+  <view class="header">
+    <view class="title">菜单列表</view>
+    <view class="header-right">
+      <view class="cart-mini" bindtap="goOrder">
+        <text>🛒</text>
+        <view wx:if="{{cartCount > 0}}" class="mini-count">{{cartCount}}</view>
+      </view>
+      <view class="add-icon" bindtap="handleAdd">＋</view>
+    </view>
+  </view>
+
+  <view class="content">
+    <view class="search-bar">
+      <text class="search-icon">🔍</text>
+      <input
+        class="search-input"
+        type="text"
+        placeholder="搜索菜品名称..."
+        placeholder-class="placeholder"
+        bindinput="onSearchInput"
+        value="{{keyword}}"
+      />
+    </view>
+
+    <view class="category-filters">
+      <view class="chip {{currentCategory === '' ? 'active' : ''}}" bindtap="filterCategory" data-category="">全部</view>
+      <view class="chip {{currentCategory === 'main' ? 'active' : ''}}" bindtap="filterCategory" data-category="main">主食</view>
+      <view class="chip {{currentCategory === 'drink' ? 'active' : ''}}" bindtap="filterCategory" data-category="drink">饮品</view>
+      <view class="chip {{currentCategory === 'dessert' ? 'active' : ''}}" bindtap="filterCategory" data-category="dessert">甜点</view>
+      <view class="chip {{currentCategory === 'other' ? 'active' : ''}}" bindtap="filterCategory" data-category="other">其他</view>
+    </view>
+
+    <view class="menu-list">
+      <view wx:for="{{menuList}}" wx:key="_id" class="menu-item" bindtap="onMenuTap" data-id="{{item._id}}">
+        <view class="menu-item-inner">
+          <image class="thumb" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="info">
+            <view class="row-top">
+              <text class="name">{{item.title}}</text>
+            </view>
+            <view class="row-bottom">
+              <text class="category">{{categoryMap[item.category]}}</text>
+              <view class="row-actions">
+                <view class="tag-{{item.owner === 'me' ? 'me' : 'ta'}}">{{item.owner === 'me' ? '我' : 'TA'}}</view>
+                <view wx:if="{{cartMap[item._id] && cartMap[item._id].count > 0}}" class="qty-inline">
+                  <view class="qty-op" catchtap="cancelOrderItem" data-id="{{item._id}}">-</view>
+                  <text class="qty-val">{{cartMap[item._id].count}}</text>
+                  <view class="qty-op" catchtap="addToCart" data-id="{{item._id}}">+</view>
+                </view>
+                <view wx:else class="order-btn" catchtap="addToCart" data-id="{{item._id}}">下单</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{menuList.length === 0 && !loading}}" class="empty-state">
+      <text>暂无菜品，快来添加吧</text>
+      <button class="add-btn" bindtap="handleAdd">添加菜品</button>
+    </view>
+
+    <view wx:if="{{hasMore}}" class="load-more">上拉加载更多...</view>
+    <view wx:if="{{!hasMore && menuList.length > 0}}" class="load-more">已加载全部</view>
+  </view>
+</view>

@@ -1,0 +1,57 @@
+<view class="page">
+  <view class="header">
+    <text bindtap="handleBack">←</text>
+    <text>确认订单</text>
+    <text></text>
+  </view>
+
+  <view class="content" wx:if="{{cartItems && cartItems.length > 0}}">
+    <view class="section-title">订单明细</view>
+
+    <view class="order-items">
+      <view wx:for="{{cartItems}}" wx:key="menuId" class="order-item">
+        <image class="item-thumb" src="{{item.image}}" mode="aspectFill"></image>
+        <view class="item-info">
+          <text class="item-name">{{item.title}}</text>
+          <text class="item-credit">x {{item.count}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="divider"></view>
+
+    <view class="remark-section">
+      <view class="section-title">备注</view>
+      <textarea
+        class="remark-input"
+        placeholder="如：少辣"
+        value="{{remark}}"
+        bindinput="onRemarkInput"
+        maxlength="100"
+      ></textarea>
+    </view>
+
+    <view class="divider"></view>
+
+    <view class="summary-section">
+      <view class="summary-row">
+        <text class="label">菜品总份数：</text>
+        <text class="amount">{{totalCount}} 份</text>
+      </view>
+    </view>
+
+    <view class="confirm-tip">
+      <text>确认后将生成订单并进入待确认状态</text>
+    </view>
+
+    <button class="btn btn-primary" bindtap="handleConfirm">确认下单</button>
+  </view>
+
+  <view wx:if="{{cartItems ? (cartItems.length === 0) : true}}" class="empty-state">
+    <text>购物车为空</text>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+</view>

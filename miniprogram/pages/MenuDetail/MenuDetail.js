@@ -1,0 +1,91 @@
+const app = getApp()
+const apiStore = require('../../utils/apiStore')
+
+Page({
+  data: {
+    menuId: '',
+    menu: null,
+    isCreator: false,
+    categoryMap: app.globalData ? app.globalData.menuCategoryMap : {
+      main: '主食',
+      drink: '饮品',
+      dessert: '甜点',
+      other: '其他'
+    }
+  },
+
+  onLoad(options) {
+    const { id } = options
+    this.setData({ menuId: id })
+    this.loadMenuDetail(id)
+  },
+
+  onShow() {
+    if (this.data.menuId) this.loadMenuDetail(this.data.menuId)
+  },
+
+  async loadMenuDetail(id) {
+    try {
+      const menu = await apiStore.getMenuById(id)
+      if (!menu) {
+        wx.showToast({ title: '菜品不存在', icon: 'none' })
+        setTimeout(() => wx.navigateBack(), 500)
+        return
+      }
+
+      this.setData({
+        menu,
+        isCreator: menu.owner === 'me'
+      })
+    } catch (err) {
+      wx.showToast({ title: '加载菜品失败', icon: 'none' })
+      setTimeout(() => wx.navigateBack(), 500)
+    }
+  },
+
+  handleBack() {
+    wx.navigateBack()
+  },
+
+  previewImage() {
+    const { menu } = this.data
+    if (!menu || !menu.image) return
+    wx.previewImage({
+      urls: [menu.image],
+      current: menu.image
+    })
+  },
+
+  handleEdit() {
+    wx.navigateTo({ url: `/pages/MenuEdit/MenuEdit?id=${this.data.menuId}` })
+  },
+
+  async handleToggleAvailable() {
+    const { menu } = this.data
+    const next = !menu.available
+    try {
+      await apiStore.toggleMenuStatus(this.data.menuId, next)
+      wx.showToast({ title: next ? '已上架' : '已下架', icon: 'success' })
+      this.loadMenuDetail(this.data.menuId)
+    } catch (err) {
+      wx.showToast({ title: '状态更新失败', icon: 'none' })
+    }
+  },
+
+  handleDelete() {
+    wx.showModal({
+      title: '确认删除',
+      content: '删除后不可恢复，是否继续？',
+      success: async (res) => {
+        if (!res.confirm) return
+        try {
+          await apiStore.deleteMenu(this.data.menuId)
+          wx.showToast({ title: '已删除', icon: 'success' })
+          setTimeout(() => wx.navigateBack(), 500)
+        } catch (err) {
+          wx.showToast({ title: '删除失败', icon: 'none' })
+        }
+      }
+    })
+  }
+})

@@ -1,0 +1,162 @@
+page {
+  background-color: var(--rc-bg);
+}
+
+.page {
+  min-height: 100vh;
+}
+
+.header {
+  height: 56px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--rc-border);
+  background-color: var(--rc-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.header text {
+  font-size: 16px;
+  color: var(--rc-text);
+}
+
+.header text:first-child {
+  position: absolute;
+  left: 16px;
+  font-size: 20px;
+}
+
+.header text:last-child {
+  width: 20px;
+}
+
+.content {
+  padding: 16px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--rc-text);
+  margin-bottom: 12px;
+}
+
+.order-items,
+.remark-section,
+.summary-section {
+  background-color: var(--rc-surface);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.order-items {
+  margin-bottom: 12px;
+}
+
+.order-item {
+  display: flex;
+  gap: 12px;
+}
+
+.order-item + .order-item {
+  margin-top: 12px;
+}
+
+.item-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background-color: #f3f3f3;
+}
+
+.item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.item-name {
+  font-size: 14px;
+  color: var(--rc-text);
+}
+
+.item-credit {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--rc-text-secondary);
+}
+
+.label {
+  font-size: 14px;
+  color: var(--rc-text-secondary);
+}
+
+.amount {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--rc-text);
+}
+
+.remark-section {
+  margin-bottom: 12px;
+}
+
+.remark-input {
+  margin-top: 8px;
+  border: 1px solid var(--rc-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  min-height: 80px;
+}
+
+.summary-section {
+  margin-bottom: 12px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.divider {
+  display: none;
+}
+
+.confirm-tip {
+  font-size: 12px;
+  color: var(--rc-text-secondary);
+  text-align: center;
+  margin: 10px 0 14px;
+}
+
+.btn {
+  height: 44px;
+  border-radius: 22px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background-color: var(--rc-primary);
+  color: #ffffff;
+}
+
+.empty-state,
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 90px 0;
+  font-size: 14px;
+  color: var(--rc-text-secondary);
+}

@@ -2,6 +2,23 @@
 @import './miniprogram_npm/weui-miniprogram/weui-wxss/dist/style/weui.wxss';
 
 page {
+  --rc-bg: #f7f7f7;
+  --rc-surface: #ffffff;
+  --rc-text: #000000;
+  --rc-text-secondary: #888888;
+  --rc-border: #eeeeee;
+  --rc-primary: #ff99aa;
+  --rc-primary-strong: #ff6688;
+  --rc-warning-bg: #fff0e0;
+  --rc-warning: #ff9500;
+  --rc-success-bg: #e6f7ed;
+  --rc-success: #07c160;
+  --rc-muted-bg: #f5f5f5;
+  --rc-muted: #c8c9cc;
+  --rc-chip-bg: #f0f0f0;
+  --rc-radius-card: 12px;
+  --rc-radius-field: 8px;
+  --rc-shadow-fab: 0 8px 20px rgba(255, 153, 170, 0.32);
   --footer-height: 10vh;
   --button-size: 16vw;
   --button-color: #353535;
@@ -9,7 +26,7 @@ page {
 }
 
 page {
-  background: #f6f6f6;
+  background: var(--rc-bg);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;

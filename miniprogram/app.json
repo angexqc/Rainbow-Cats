@@ -1,49 +1,54 @@
 {
   "pages": [
-    "pages/MainPage/index",
-    "pages/Mission/index",
-    "pages/MissionAdd/index",
-    "pages/MissionDetail/index",
-    "pages/Market/index",
-    "pages/MarketAdd/index",
-    "pages/MarketDetail/index",
-    "pages/Account/index",
-    "pages/ItemDetail/index"
+    "pages/Home/index",
+    "pages/Pair/Pair",
+    "pages/Menu/Menu",
+    "pages/MenuAdd/MenuAdd",
+    "pages/MenuEdit/MenuEdit",
+    "pages/MenuDetail/MenuDetail",
+    "pages/Order/Order",
+    "pages/OrderConfirm/OrderConfirm",
+    "pages/OrderHistory/OrderHistory",
+    "pages/OrderDetail/OrderDetail"
   ],
   "window": {
-    "backgroundColor": "#F6F6F6",
+    "backgroundColor": "#F7F7F7",
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#ff99aa",
-    "navigationBarTitleText": "卡比们的任务",
+    "navigationBarTitleText": "情侣点餐",
     "navigationBarTextStyle": "black"
   },
   "tabBar": {
     "color": "#1a1a1a",
     "selectedColor": "#ff99aa",
-    "list": [{
-      "pagePath": "pages/MainPage/index",
-      "selectedIconPath": "images/TabBar/HomeIconColor.jpg",
-      "iconPath": "images/TabBar/HomeIconGrey.jpg",
-      "text": "首页"
-    }, {
-      "pagePath": "pages/Mission/index",
-      "selectedIconPath": "images/TabBar/MissionIconColor.jpg",
-      "iconPath": "images/TabBar/MissionIconGrey.jpg",
-      "text": "任务"
-    },{
-      "pagePath": "pages/Market/index",
-      "selectedIconPath": "images/TabBar/MarketIconColor.jpg",
-      "iconPath": "images/TabBar/MarketIconGrey.jpg",
-      "text": "商城"
-    },{
-      "pagePath": "pages/Account/index",
-      "selectedIconPath": "images/TabBar/AccountIconColor.jpg",
-      "iconPath": "images/TabBar/AccountIconGrey.jpg",
-      "text": "仓库"
-    }]
+    "list": [
+      {
+        "pagePath": "pages/Home/index",
+        "selectedIconPath": "images/TabBar/HomeIconColor.jpg",
+        "iconPath": "images/TabBar/HomeIconGrey.jpg",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/Menu/Menu",
+        "selectedIconPath": "images/TabBar/MarketIconColor.jpg",
+        "iconPath": "images/TabBar/MarketIconGrey.jpg",
+        "text": "菜单"
+      },
+      {
+        "pagePath": "pages/Order/Order",
+        "selectedIconPath": "images/TabBar/AccountIconColor.jpg",
+        "iconPath": "images/TabBar/AccountIconGrey.jpg",
+        "text": "点单"
+      },
+      {
+        "pagePath": "pages/OrderHistory/OrderHistory",
+        "selectedIconPath": "images/TabBar/MissionIconColor.jpg",
+        "iconPath": "images/TabBar/MissionIconGrey.jpg",
+        "text": "订单"
+      }
+    ]
   },
   "lazyCodeLoading": "requiredComponents",
-  "cloud": true,
   "sitemapLocation": "sitemap.json",
   "style": "v2"
 }

@@ -1,0 +1,56 @@
+<view class="page">
+  <view class="header">
+    <view class="back-btn" bindtap="handleBack">←</view>
+    <view class="title">情侣配对</view>
+    <view class="header-space"></view>
+  </view>
+
+  <view class="content">
+    <view wx:if="{{!isPaired}}" class="unpaired-card">
+      <view class="card-title">暂未绑定情侣</view>
+      <view class="card-desc">与TA绑定后可共享菜单和点餐</view>
+    </view>
+
+    <view wx:if="{{!isPaired}}" class="section-title">生成配对码</view>
+    <view wx:if="{{!isPaired}}" class="qr-card">
+      <view class="qr-placeholder">二维码占位</view>
+      <view class="qr-text">{{pairCode ? ('配对码: ' + pairCode) : '生成中...'}}</view>
+    </view>
+
+    <view wx:if="{{!isPaired}}" class="section-title">或输入对方配对码</view>
+    <view wx:if="{{!isPaired}}" class="input-row">
+      <view class="code-input">
+        <input
+          type="number"
+          maxlength="6"
+          placeholder="输入6位配对码"
+          placeholder-class="placeholder"
+          bindinput="onCodeInput"
+          value="{{inputCode}}"
+        />
+      </view>
+      <button class="bind-btn" bindtap="handleBind" disabled="{{inputCode ? (inputCode.length === 6 ? false : true) : true}}">绑定</button>
+    </view>
+
+    <view wx:if="{{!isPaired}}" class="expire-tip">配对码24小时内有效</view>
+
+    <view wx:if="{{isPaired}}" class="paired-card">
+      <image class="avatar" src="{{partnerInfo.avatarUrl}}" mode="aspectFill"></image>
+      <view class="partner-info">
+        <view class="partner-name">{{partnerInfo.nickName}}</view>
+        <view class="bind-time">绑定时间：{{partnerInfo.bindTime}}</view>
+      </view>
+    </view>
+
+    <view wx:if="{{isPaired}}" class="paired-actions">
+      <button class="regen-btn" bindtap="generatePairCode">重新生成配对码</button>
+    </view>
+
+    <view wx:if="{{isPaired}}" class="code-card">
+      <view class="code-label">当前配对码</view>
+      <view class="code-text">{{pairCode ? pairCode : '点击上方按钮生成新配对码'}}</view>
+    </view>
+
+    <button wx:if="{{isPaired}}" class="unbind-btn" bindtap="handleUnbind">解除绑定</button>
+  </view>
+</view>

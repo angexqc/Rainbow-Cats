@@ -1,0 +1,75 @@
+<view class="page">
+  <view class="header">
+    <view class="back-btn" bindtap="handleBack">←</view>
+    <view class="title">订单历史</view>
+    <view class="header-space">⌕</view>
+  </view>
+
+  <view class="content">
+    <view class="status-tabs">
+      <view class="chip {{currentStatus === '' ? 'active' : ''}}" bindtap="filterStatus" data-status="">全部</view>
+      <view class="chip {{currentStatus === 'pending' ? 'active' : ''}}" bindtap="filterStatus" data-status="pending">待确认</view>
+      <view class="chip {{currentStatus === 'confirmed' ? 'active' : ''}}" bindtap="filterStatus" data-status="confirmed">已确认</view>
+      <view class="chip {{currentStatus === 'completed' ? 'active' : ''}}" bindtap="filterStatus" data-status="completed">已完成</view>
+      <view class="chip {{currentStatus === 'cancelled' ? 'active' : ''}}" bindtap="filterStatus" data-status="cancelled">已取消</view>
+    </view>
+
+    <view class="order-list">
+      <view wx:for="{{orderList}}" wx:key="_id" class="order-item" bindtap="viewOrderDetail" data-id="{{item._id}}">
+        <view class="order-header">
+          <text class="order-time">{{item.dateStr}}</text>
+          <view class="status-tag status-{{item.status}}">{{statusMap[item.status]}}</view>
+        </view>
+        <view class="divider"></view>
+        <view class="order-items">{{item.itemsText}}</view>
+        <view class="timeline-flow">
+          <view wx:for="{{item.timeline}}" wx:key="index" wx:for-item="step" class="flow-node">
+            <view class="flow-left">
+              <view class="flow-point {{step.isLast ? 'active' : ''}}"></view>
+              <view wx:if="{{!step.isLast}}" class="flow-line"></view>
+            </view>
+            <view class="flow-texts">
+              <view class="flow-row">
+                <text class="flow-title">{{step.label}}</text>
+                <view class="flow-actor-time">
+                  <image wx:if="{{step.actorAvatar}}" class="actor-avatar" src="{{step.actorAvatar}}" mode="aspectFill"></image>
+                  <view wx:else class="actor-avatar actor-avatar-text">{{step.actorInitial}}</view>
+                  <text class="flow-meta actor-name">{{step.actorName}}</text>
+                  <text class="flow-meta time">{{step.timeStr}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="order-footer">
+          <text class="order-credit">共 {{item.totalCount}} 份</text>
+        </view>
+        <view class="feedback-row" catchtap="handleNoop">
+          <view
+            class="like-icon-btn {{item.liked ? 'active' : ''}}"
+            catchtap="toggleLike"
+            data-id="{{item._id}}"
+            aria-label="点赞"
+          >
+            <text class="like-icon">{{item.liked ? '❤' : '♡'}}</text>
+          </view>
+          <view
+            class="feedback-btn review-btn"
+            catchtap="editReview"
+            data-id="{{item._id}}"
+          >
+            {{item.review ? '修改评价' : '评价'}}
+          </view>
+        </view>
+        <view wx:if="{{item.review}}" class="review-box" catchtap="handleNoop">
+          <text class="review-label">评价：</text>
+          <text class="review-text">{{item.review}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{orderList.length === 0 && !loading}}" class="empty-state">暂无订单记录</view>
+    <view wx:if="{{hasMore}}" class="load-more">上拉加载更多...</view>
+    <view wx:if="{{!hasMore && orderList.length > 0}}" class="load-more">已加载全部</view>
+  </view>
+</view>

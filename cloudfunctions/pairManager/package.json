@@ -1,0 +1,6 @@
+{
+  "name": "pairManager",
+  "version": "1.0.0",
+  "description": "情侣配对管理云函数",
+  "main": "index.js"
+}

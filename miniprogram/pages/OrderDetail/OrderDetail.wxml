@@ -1,0 +1,79 @@
+<view class="page">
+  <view class="header">
+    <view class="back-btn" bindtap="handleBack">←</view>
+    <view class="title">订单详情</view>
+    <view class="header-space"></view>
+  </view>
+
+  <view class="content" wx:if="{{order}}">
+    <view class="status-card">
+      <view class="status-tag status-{{order.status}}">{{statusMap[order.status]}}</view>
+      <text class="order-no">订单号：{{order._id}}</text>
+    </view>
+
+    <view class="card">
+      <view class="section-title">订单进度</view>
+      <view class="timeline-flow">
+        <view wx:for="{{order.timeline}}" wx:key="index" wx:for-item="step" class="flow-node">
+          <view class="flow-left">
+            <view class="flow-point {{step.isLast ? 'active' : ''}}"></view>
+            <view wx:if="{{!step.isLast}}" class="flow-line"></view>
+          </view>
+          <view class="flow-texts">
+            <view class="flow-row">
+              <text class="flow-title">{{step.label}}</text>
+              <view class="flow-actor-time">
+                <image wx:if="{{step.actorAvatar}}" class="actor-avatar" src="{{step.actorAvatar}}" mode="aspectFill"></image>
+                <view wx:else class="actor-avatar actor-avatar-text">{{step.actorInitial}}</view>
+                <text class="flow-meta actor-name">{{step.actorName}}</text>
+                <text class="flow-meta time">{{step.timeStr}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">菜品明细</view>
+      <view class="items-list">
+        <view wx:for="{{order.items}}" wx:key="menuId" class="item-row">
+          <image class="item-thumb" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="item-info">
+            <text class="item-name">{{item.title}}</text>
+            <text class="item-credit">x {{item.count}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="total-row">
+        <text class="total-label">合计</text>
+        <text class="total-credit">{{order.totalCount}} 份</text>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{order.remark}}">
+      <view class="section-title">备注</view>
+      <view class="remark-text">{{order.remark}}</view>
+    </view>
+
+    <view class="card" catchtap="handleNoop">
+      <view class="section-title">点赞与评价</view>
+      <view class="feedback-row">
+        <view class="like-icon-btn {{order.liked ? 'active' : ''}}" catchtap="toggleLike" aria-label="点赞">
+          <text class="like-icon">{{order.liked ? '❤' : '♡'}}</text>
+        </view>
+        <view class="feedback-btn review-btn" catchtap="editReview">{{order.review ? '修改评价' : '评价订单'}}</view>
+      </view>
+      <view wx:if="{{order.review}}" class="review-box">
+        <text class="review-label">评价：</text>
+        <text class="review-text">{{order.review}}</text>
+      </view>
+    </view>
+
+    <view class="actions">
+      <button wx:if="{{canCancel}}" class="btn btn-cancel" bindtap="handleCancel">取消订单</button>
+      <button wx:if="{{canConfirm}}" class="btn btn-primary" bindtap="handleConfirm">确认订单</button>
+      <button wx:if="{{canComplete}}" class="btn btn-primary" bindtap="handleComplete">完成订单</button>
+    </view>
+  </view>
+</view>

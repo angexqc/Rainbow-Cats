@@ -1,0 +1,76 @@
+<view class="page">
+  <view class="scroll-body">
+    <view class="section hero-card">
+      <swiper class="hero-swiper" autoplay interval="3200" circular indicator-dots indicator-color="rgba(255,255,255,.45)" indicator-active-color="#ffffff">
+        <swiper-item wx:for="{{banners}}" wx:key="*this">
+          <image class="hero-image" src="{{item}}" mode="aspectFill"></image>
+          <view class="hero-mask"></view>
+        </swiper-item>
+      </swiper>
+      <view class="hero-copy">
+        <text class="hero-title">今天也一起好好吃饭</text>
+        <text class="hero-sub">情侣每日菜品点单记录</text>
+      </view>
+    </view>
+
+    <view class="section rank-card">
+      <view class="card-head">
+        <text class="card-title">菜品点单排行</text>
+        <view class="period-switch">
+          <view wx:for="{{rankPeriods}}" wx:key="key" class="period-chip {{period === item.key ? 'active' : ''}}" data-period="{{item.key}}" bindtap="switchPeriod">{{item.label}}</view>
+        </view>
+      </view>
+
+      <view wx:if="{{rankingList.length > 0}}" class="rank-list">
+        <view wx:for="{{rankingList}}" wx:key="menuId" class="rank-item">
+          <view class="rank-no {{index < 3 ? 'top' : ''}}">{{index + 1}}</view>
+          <image class="rank-thumb" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="rank-main">
+            <text class="rank-name">{{item.title}}</text>
+            <text class="rank-meta">点单 {{item.count}} 次</text>
+          </view>
+          <view class="rank-action">
+            <view wx:if="{{cartMap[item.menuId] && cartMap[item.menuId].count > 0}}" class="mini-qty">
+              <view class="mini-op" bindtap="decreaseDish" data-id="{{item.menuId}}">-</view>
+              <text class="mini-val">{{cartMap[item.menuId].count}}</text>
+              <view class="mini-op" bindtap="increaseDish" data-id="{{item.menuId}}" data-source="rank">+</view>
+            </view>
+            <view wx:else class="mini-order-btn" bindtap="increaseDish" data-id="{{item.menuId}}" data-source="rank">下单</view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:else class="empty-box">
+        <text>当前周期还没有点单数据</text>
+      </view>
+    </view>
+
+    <view class="section popular-card" wx:if="{{popularDish}}">
+      <view class="card-head">
+        <text class="card-title">最受欢迎菜品</text>
+        <text class="popular-tag">TOP 1</text>
+      </view>
+      <image wx:if="{{popularDish.image}}" class="popular-image" src="{{popularDish.image}}" mode="aspectFill"></image>
+      <view wx:else class="popular-placeholder">
+        <text class="popular-placeholder-icon">TOP</text>
+        <text class="popular-placeholder-text">今日推荐菜品</text>
+      </view>
+      <view class="popular-body">
+        <text class="popular-name">{{popularDish.title}}</text>
+        <text class="popular-desc">累计点单 {{popularDish.count}} 次</text>
+        <view class="popular-action">
+          <view wx:if="{{cartMap[popularDish.menuId] && cartMap[popularDish.menuId].count > 0}}" class="mini-qty">
+            <view class="mini-op" bindtap="decreaseDish" data-id="{{popularDish.menuId}}">-</view>
+            <text class="mini-val">{{cartMap[popularDish.menuId].count}}</text>
+            <view class="mini-op" bindtap="increaseDish" data-id="{{popularDish.menuId}}" data-source="popular">+</view>
+          </view>
+          <view wx:else class="mini-order-btn" bindtap="increaseDish" data-id="{{popularDish.menuId}}" data-source="popular">下单</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="section action-box">
+      <button class="order-btn" bindtap="goOrder">去点单</button>
+    </view>
+  </view>
+</view>

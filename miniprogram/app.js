@@ -1,56 +1,44 @@
+const apiStore = require('./utils/apiStore')
+const { setAuthExpiredHandler } = require('./services/http')
+
 App({
-  async onLaunch() {
-    this.initcloud()
+  onLaunch() {
+    apiStore.ensureMockDB()
+    apiStore.bootstrapSession().catch(() => {})
 
     this.globalData = {
-      //记录使用者的openid
-      _openidA: 'onsgK5XqCMLbYXudVgh3xjV4kgWw',
-      _openidB: 'onsgK5Zc7t-bFdnFk3_krqdIRZYY',
-
-      //记录使用者的名字
-      userA: '卡比',
-      userB: '瓦豆',
-
-      //用于存储待办记录的集合名称
-      collectionMissionList: 'MissionList',
-      collectionMarketList: 'MarketList',
-      collectionStorageList: 'StorageList',
-      collectionUserList: 'UserList',
-
-      //最多单次交易积分
-      maxCredit: 500,
+      // 默认走 Node API；网络不可用时 apiStore 会回退到本地 mockStore。
+      // 可通过 wx.setStorageSync('apiBaseUrl', 'http://127.0.0.1:3100/api') 自定义接口地址。
+      currentUserRole: 'me',
+      partnerUserRole: 'ta',
+      menuCategoryMap: {
+        main: '主食',
+        drink: '饮品',
+        dessert: '甜点',
+        other: '其他'
+      },
+      orderStatusMap: {
+        pending: '待确认',
+        confirmed: '已确认',
+        completed: '已完成',
+        cancelled: '已取消'
+      },
+      PAGE_SIZE_MENU: 20,
+      PAGE_SIZE_ORDER: 15,
+      lastAuthExpiredNotifyTs: 0
     }
-  },
 
-  flag: false,
-
-  /**
-   * 初始化云开发环境
-   */
-  async initcloud() {
-    const normalinfo = require('./envList.js').envList || [] // 读取 envlist 文件
-    if (normalinfo.length != 0 && normalinfo[0].envId != null) { // 如果文件中 envlist 存在
-      wx.cloud.init({ // 初始化云开发环境
-        traceUser: true,
-        env: normalinfo[0].envId
-      })
-      // 装载云函数操作对象返回方法
-      this.cloud = () => {
-        return wx.cloud // 直接返回 wx.cloud
-      }
-    } else { // 如果文件中 envlist 不存在，提示要配置环境
-      this.cloud = () => {
-        wx.showModal({
-          content: '无云开发环境', 
-          showCancel: false
+    setAuthExpiredHandler(() => {
+      const now = Date.now()
+      const lastTs = Number(this.globalData.lastAuthExpiredNotifyTs || 0)
+      if (now - lastTs > 3000) {
+        wx.showToast({
+          title: '登录失效，请重新进入',
+          icon: 'none'
         })
-        throw new Error('无云开发环境')
+        this.globalData.lastAuthExpiredNotifyTs = now
       }
-    }
-  },
-
-  // 获取云数据库实例
-  async database() {
-    return (await this.cloud()).database()
-  },
+      wx.switchTab({ url: '/pages/Home/index' })
+    })
+  }
 })

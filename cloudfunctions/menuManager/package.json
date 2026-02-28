@@ -1,0 +1,6 @@
+{
+  "name": "menuManager",
+  "version": "1.0.0",
+  "description": "菜单管理云函数",
+  "main": "index.js"
+}
