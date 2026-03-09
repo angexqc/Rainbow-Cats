@@ -1,35 +1,34 @@
 const { request } = require('./http')
 
-const DEFAULT_ACCOUNT = { username: 'me', password: '123456' }
-
-function getBootstrapAccount() {
-  try {
-    const custom = wx.getStorageSync('authBootstrapAccount')
-    if (custom && typeof custom === 'object' && custom.username && custom.password) {
-      return {
-        username: String(custom.username),
-        password: String(custom.password)
-      }
-    }
-  } catch (err) {
-    // ignore storage exceptions
-  }
-  return DEFAULT_ACCOUNT
+function getWxLoginCode() {
+  return new Promise((resolve) => {
+    wx.login({
+      success: (res) => resolve(String((res && res.code) || '')),
+      fail: () => resolve('')
+    })
+  })
 }
 
 module.exports = {
-  login(username, password, options = {}) {
-    return request({ method: 'POST', path: '/auth/login', data: { username, password }, ...options })
+  async login(options = {}) {
+    const code = await getWxLoginCode()
+    if (!code) {
+      const err = new Error('微信登录失败，请重试')
+      err.statusCode = 0
+      throw err
+    }
+    return request({ method: 'POST', path: '/auth/login', data: { code }, allowAutoLogin: false, ...options })
   },
 
   loginWithBootstrapAccount(options = {}) {
-    const account = getBootstrapAccount()
-    return this.login(account.username, account.password, options)
+    return this.login(options)
   },
-
-  getBootstrapAccount,
 
   me(options = {}) {
     return request({ path: '/auth/me', ...options })
+  },
+
+  updateProfile(payload, options = {}) {
+    return request({ method: 'PATCH', path: '/auth/profile', data: payload, ...options })
   }
 }

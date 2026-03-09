@@ -2,6 +2,7 @@ const apiStore = require('../../utils/apiStore')
 
 Page({
   data: {
+    topSafeHeight: 0,
     banners: [],
     isPaired: false,
     myInfo: {
@@ -24,18 +25,31 @@ Page({
   },
 
   onLoad() {
+    this.setupTopSafeArea()
     this.loadHomeData()
     this.refreshCartMap()
+  },
+
+  setupTopSafeArea() {
+    let topSafeHeight = 0
+    try {
+      const menu = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null
+      const sys = wx.getSystemInfoSync ? wx.getSystemInfoSync() : {}
+      if (menu && menu.bottom) {
+        topSafeHeight = menu.bottom + 8
+      } else {
+        const status = Number(sys.statusBarHeight || 20)
+        topSafeHeight = status + 40
+      }
+    } catch (err) {
+      topSafeHeight = 52
+    }
+    this.setData({ topSafeHeight })
   },
 
   onShow() {
     this.loadHomeData()
     this.refreshCartMap()
-  },
-
-  async onPullDownRefresh() {
-    await this.loadHomeData()
-    wx.stopPullDownRefresh()
   },
 
   async loadHomeData() {

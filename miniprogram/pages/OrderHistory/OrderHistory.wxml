@@ -1,11 +1,20 @@
 <view class="page">
-  <view class="header">
-    <view class="back-btn" bindtap="handleBack">←</view>
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
     <view class="title">订单历史</view>
-    <view class="header-space">⌕</view>
+    <view class="header-right"></view>
   </view>
 
-  <view class="content">
+  <scroll-view
+    class="content"
+    scroll-y
+    lower-threshold="100"
+    refresher-enabled
+    refresher-triggered="{{refresherTriggered}}"
+    bindrefresherrefresh="onListRefresh"
+    bindscrolltolower="onListScrollToLower"
+    enhanced
+    show-scrollbar="{{false}}"
+  >
     <view class="status-tabs">
       <view class="chip {{currentStatus === '' ? 'active' : ''}}" bindtap="filterStatus" data-status="">全部</view>
       <view class="chip {{currentStatus === 'pending' ? 'active' : ''}}" bindtap="filterStatus" data-status="pending">待确认</view>
@@ -23,7 +32,7 @@
         <view class="divider"></view>
         <view class="order-items">{{item.itemsText}}</view>
         <view class="timeline-flow">
-          <view wx:for="{{item.timeline}}" wx:key="index" wx:for-item="step" class="flow-node">
+          <view wx:for="{{item.timeline}}" wx:key="index" wx:for-item="step" class="flow-node {{step.isOnly ? 'single' : ''}}">
             <view class="flow-left">
               <view class="flow-point {{step.isLast ? 'active' : ''}}"></view>
               <view wx:if="{{!step.isLast}}" class="flow-line"></view>
@@ -32,7 +41,7 @@
               <view class="flow-row">
                 <text class="flow-title">{{step.label}}</text>
                 <view class="flow-actor-time">
-                  <image wx:if="{{step.actorAvatar}}" class="actor-avatar" src="{{step.actorAvatar}}" mode="aspectFill"></image>
+                  <image wx:if="{{step.actorAvatar}}" class="actor-avatar" src="{{step.actorAvatar}}" mode="aspectFill" lazy-load="true" webp></image>
                   <view wx:else class="actor-avatar actor-avatar-text">{{step.actorInitial}}</view>
                   <text class="flow-meta actor-name">{{step.actorName}}</text>
                   <text class="flow-meta time">{{step.timeStr}}</text>
@@ -71,5 +80,5 @@
     <view wx:if="{{orderList.length === 0 && !loading}}" class="empty-state">暂无订单记录</view>
     <view wx:if="{{hasMore}}" class="load-more">上拉加载更多...</view>
     <view wx:if="{{!hasMore && orderList.length > 0}}" class="load-more">已加载全部</view>
-  </view>
+  </scroll-view>
 </view>

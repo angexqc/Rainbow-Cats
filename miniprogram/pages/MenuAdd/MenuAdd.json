@@ -2,5 +2,6 @@
   "navigationBarTitleText": "添加菜品",
   "navigationBarBackgroundColor": "#ffffff",
   "backgroundColor": "#f7f7f7",
-  "usingComponents": {}
+  "usingComponents": {},
+  "navigationStyle": "custom"
 }

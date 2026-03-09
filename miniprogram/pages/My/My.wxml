@@ -1,0 +1,86 @@
+<view class="page">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
+    <view class="title">我的</view>
+    <view class="header-right"></view>
+  </view>
+
+  <view class="content">
+    <view class="section block">
+      <view class="block-head">
+        <text class="block-title">轮播图管理</text>
+        <text class="block-desc">当前 {{banners.length}} 张</text>
+      </view>
+      <swiper
+        wx:if="{{banners.length > 0}}"
+        class="banner-swiper"
+        circular="{{banners.length > 1}}"
+        current="{{bannerCurrent}}"
+        previous-margin="92rpx"
+        next-margin="92rpx"
+        duration="260"
+        easing-function="easeOutCubic"
+        bindchange="onBannerChange"
+      >
+        <swiper-item wx:for="{{banners}}" wx:key="id" wx:for-index="idx">
+          <view class="banner-slide {{bannerCurrent === idx ? 'is-active' : 'is-inactive'}}">
+            <image
+              class="banner-thumb {{bannerCurrent === idx ? 'is-active' : 'is-inactive'}}"
+              src="{{item.url}}"
+              mode="aspectFill"
+              lazy-load="true"
+              webp
+              data-url="{{item.url}}"
+              bindtap="previewBanner"
+            ></image>
+            <view class="banner-delete" data-url="{{item.url}}" data-idx="{{idx}}" catchtap="deleteBanner">
+              <text class="banner-delete-icon">×</text>
+            </view>
+          </view>
+        </swiper-item>
+      </swiper>
+      <button class="action-btn banner-upload-btn" bindtap="handleUploadBanner">上传轮播图</button>
+    </view>
+
+    <view class="section block">
+      <view class="block-head">
+        <text class="block-title">菜品分类管理</text>
+        <text class="block-desc">支持重命名</text>
+      </view>
+      <view class="category-actions">
+        <view class="add-category-btn" bindtap="addCategory">+ 新增分类</view>
+      </view>
+      <view class="category-grid">
+        <view wx:for="{{categoryEntries}}" wx:key="key" class="category-item">
+          <text class="label">{{item.label}}</text>
+          <view class="edit-btn" data-key="{{item.key}}" bindtap="editCategory">编辑</view>
+        </view>
+      </view>
+      <button class="ghost-btn" bindtap="resetCategories">恢复默认分类</button>
+    </view>
+
+    <view class="section block">
+      <view class="block-head">
+        <text class="block-title">个人资料</text>
+        <text class="block-desc">昵称与头像</text>
+      </view>
+      <button class="action-btn" bindtap="goProfileSetup">编辑资料</button>
+    </view>
+
+    <view class="section block">
+      <view class="block-head">
+        <text class="block-title">通知设置</text>
+        <text class="block-desc">订阅消息提醒</text>
+      </view>
+      <button class="action-btn" bindtap="goNotifySettings">进入通知设置</button>
+    </view>
+
+    <view class="section block danger-block">
+      <view class="block-head">
+        <text class="block-title">关联管理</text>
+        <text class="block-desc">{{isPaired ? '慎重操作' : '当前未配对'}}</text>
+      </view>
+      <button wx:if="{{isPaired}}" class="danger-btn" bindtap="unbindPair">解除关联</button>
+      <button wx:else class="action-btn" bindtap="goPairing">去配对</button>
+    </view>
+  </view>
+</view>

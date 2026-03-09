@@ -3,7 +3,9 @@ page {
 }
 
 .page {
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -64,7 +66,15 @@ page {
 }
 
 .content {
-  padding: 16px;
+  flex: 1;
+  min-height: 0;
+  padding: 12px 16px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-fixed {
+  flex-shrink: 0;
 }
 
 .search-bar {
@@ -94,11 +104,40 @@ page {
   color: var(--rc-text-secondary);
 }
 
+.category-scroll {
+  margin: 12px 0 10px;
+  width: 100%;
+  white-space: nowrap;
+}
+
 .category-filters {
-  margin: 14px 0 12px;
-  display: flex;
+  display: inline-flex;
   gap: 8px;
-  flex-wrap: wrap;
+  padding-right: 8px;
+}
+
+.owner-scroll {
+  margin: 0 0 10px;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.owner-filters {
+  display: inline-flex;
+  gap: 8px;
+  padding-right: 8px;
+}
+
+.list-scroll {
+  flex: 1;
+  min-height: 0;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
 }
 
 .chip {
@@ -108,8 +147,9 @@ page {
   background-color: var(--rc-chip-bg);
   color: var(--rc-text-secondary);
   font-size: 14px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .chip.active {
@@ -117,10 +157,11 @@ page {
   color: #ffffff;
 }
 
-.menu-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.chip-owner {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 14px;
+  font-size: 12px;
 }
 
 .menu-item {
@@ -172,20 +213,38 @@ page {
   align-items: center;
   gap: 8px;
   justify-content: flex-end;
-  min-width: 134px;
+  min-width: 170px;
 }
 
-.tag-me,
-.tag-ta {
-  width: 28px;
+.owner-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 92px;
+}
+
+.owner-avatar {
+  width: 20px;
   height: 20px;
   border-radius: 10px;
-  font-size: 12px;
-  background-color: var(--rc-chip-bg);
-  color: var(--rc-text-secondary);
+  background: #f0f0f0;
+}
+
+.owner-avatar-fallback {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 11px;
+  color: #666;
+}
+
+.owner-name {
+  font-size: 12px;
+  color: var(--rc-text-secondary);
+  max-width: 66px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .order-btn {

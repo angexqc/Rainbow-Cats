@@ -5,6 +5,14 @@ module.exports = {
     return request({ path: '/home/banners', ...options })
   },
 
+  addBanner(url, options = {}) {
+    return request({ method: 'POST', path: '/home/banners', data: { url }, ...options })
+  },
+
+  deleteBanner(url, options = {}) {
+    return request({ method: 'DELETE', path: '/home/banners', data: { url }, ...options })
+  },
+
   getRanking(period = 'week', limit = 5, options = {}) {
     return request({ path: '/home/ranking', data: { period, limit }, ...options })
   },

@@ -1,6 +1,9 @@
 {
   "pages": [
+    "pages/ProfileSetup/index",
     "pages/Home/index",
+    "pages/My/My",
+    "pages/NotifySettings/index",
     "pages/Pair/Pair",
     "pages/Menu/Menu",
     "pages/MenuAdd/MenuAdd",
@@ -11,12 +14,30 @@
     "pages/OrderHistory/OrderHistory",
     "pages/OrderDetail/OrderDetail"
   ],
+  "subPackages": [
+    {
+      "root": "pages_legacy",
+      "pages": [
+        "Account/index",
+        "MainPage/index",
+        "Market/index",
+        "MarketAdd/index",
+        "MarketDetail/index",
+        "ItemDetail/index",
+        "Mission/index",
+        "MissionAdd/index",
+        "MissionDetail/index"
+      ]
+    }
+  ],
   "window": {
     "backgroundColor": "#F7F7F7",
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#ff99aa",
     "navigationBarTitleText": "情侣点餐",
-    "navigationBarTextStyle": "black"
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "custom",
+    "enablePullDownRefresh": false
   },
   "tabBar": {
     "color": "#1a1a1a",
@@ -24,27 +45,33 @@
     "list": [
       {
         "pagePath": "pages/Home/index",
-        "selectedIconPath": "images/TabBar/HomeIconColor.jpg",
-        "iconPath": "images/TabBar/HomeIconGrey.jpg",
+        "selectedIconPath": "images/TabBar/nainiumao.png",
+        "iconPath": "images/TabBar/baimao.png",
         "text": "首页"
       },
       {
         "pagePath": "pages/Menu/Menu",
-        "selectedIconPath": "images/TabBar/MarketIconColor.jpg",
-        "iconPath": "images/TabBar/MarketIconGrey.jpg",
+        "selectedIconPath": "images/TabBar/jumao.png",
+        "iconPath": "images/TabBar/lanmao.png",
         "text": "菜单"
       },
       {
         "pagePath": "pages/Order/Order",
-        "selectedIconPath": "images/TabBar/AccountIconColor.jpg",
-        "iconPath": "images/TabBar/AccountIconGrey.jpg",
+        "selectedIconPath": "images/TabBar/buoumao.png",
+        "iconPath": "images/TabBar/heimao.png",
         "text": "点单"
       },
       {
         "pagePath": "pages/OrderHistory/OrderHistory",
-        "selectedIconPath": "images/TabBar/MissionIconColor.jpg",
-        "iconPath": "images/TabBar/MissionIconGrey.jpg",
+        "selectedIconPath": "images/TabBar/wumaomao.png",
+        "iconPath": "images/TabBar/xianluomao.png",
         "text": "订单"
+      },
+      {
+        "pagePath": "pages/My/My",
+        "selectedIconPath": "images/TabBar/sanhuamao.png",
+        "iconPath": "images/TabBar/gengduomaochong.png",
+        "text": "我的"
       }
     ]
   },

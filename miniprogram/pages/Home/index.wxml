@@ -1,9 +1,10 @@
 <view class="page">
   <view class="scroll-body">
+    <view class="top-safe" style="height: {{topSafeHeight}}px;"></view>
     <view class="section hero-card">
       <swiper class="hero-swiper" autoplay interval="3200" circular indicator-dots indicator-color="rgba(255,255,255,.45)" indicator-active-color="#ffffff">
         <swiper-item wx:for="{{banners}}" wx:key="*this">
-          <image class="hero-image" src="{{item}}" mode="aspectFill"></image>
+          <image class="hero-image" src="{{item}}" mode="aspectFill" lazy-load="true" webp></image>
           <view class="hero-mask"></view>
         </swiper-item>
       </swiper>
@@ -24,7 +25,7 @@
       <view wx:if="{{rankingList.length > 0}}" class="rank-list">
         <view wx:for="{{rankingList}}" wx:key="menuId" class="rank-item">
           <view class="rank-no {{index < 3 ? 'top' : ''}}">{{index + 1}}</view>
-          <image class="rank-thumb" src="{{item.image}}" mode="aspectFill"></image>
+          <image class="rank-thumb" src="{{item.image}}" mode="aspectFill" lazy-load="true" webp></image>
           <view class="rank-main">
             <text class="rank-name">{{item.title}}</text>
             <text class="rank-meta">点单 {{item.count}} 次</text>
@@ -50,7 +51,7 @@
         <text class="card-title">最受欢迎菜品</text>
         <text class="popular-tag">TOP 1</text>
       </view>
-      <image wx:if="{{popularDish.image}}" class="popular-image" src="{{popularDish.image}}" mode="aspectFill"></image>
+      <image wx:if="{{popularDish.image}}" class="popular-image" src="{{popularDish.image}}" mode="aspectFill" lazy-load="true" webp></image>
       <view wx:else class="popular-placeholder">
         <text class="popular-placeholder-icon">TOP</text>
         <text class="popular-placeholder-text">今日推荐菜品</text>

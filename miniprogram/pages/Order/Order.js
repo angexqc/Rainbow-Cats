@@ -1,8 +1,10 @@
 const app = getApp()
 const apiStore = require('../../utils/apiStore')
+const { getTopSafeHeight } = require('../../utils/safeArea')
 
 Page({
   data: {
+    topSafeHeight: 0,
     cart: {},
     cartItems: [],
     selectedMap: {},
@@ -17,6 +19,7 @@ Page({
   },
 
   onLoad() {
+    this.setData({ topSafeHeight: getTopSafeHeight() })
     this.loadCart()
   },
 
@@ -169,6 +172,7 @@ Page({
         if (!res.confirm) return
 
         try {
+          await apiStore.requestOrderSubscribeAuthorization()
           await apiStore.createOrder({
             items: items.map((it) => ({
               menuId: it.menuId,

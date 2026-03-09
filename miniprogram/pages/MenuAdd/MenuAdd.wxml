@@ -1,5 +1,5 @@
 <view class="page">
-  <view class="header">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
     <text class="cancel-text" bindtap="handleCancel">取消</text>
     <text class="title">添加菜品</text>
     <text class="save-text" bindtap="handleSave">保存</text>

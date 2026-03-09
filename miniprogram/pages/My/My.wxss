@@ -1,0 +1,250 @@
+page {
+  background-color: var(--rc-bg);
+}
+
+.page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.header {
+  height: 56px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  background-color: var(--rc-surface);
+  border-bottom: 1px solid var(--rc-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--rc-text);
+}
+
+.header-right {
+  width: 24px;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px;
+  box-sizing: border-box;
+}
+
+.section {
+  margin-bottom: 12px;
+}
+
+.block {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 14px;
+  box-sizing: border-box;
+}
+
+.block-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.block-title {
+  font-size: 15px;
+  color: #222;
+  font-weight: 600;
+}
+
+.block-desc {
+  font-size: 12px;
+  color: #999;
+}
+
+.action-btn,
+.ghost-btn,
+.danger-btn {
+  height: 38px;
+  border-radius: 19px;
+  font-size: 13px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.action-btn {
+  background: linear-gradient(135deg, #ff9fb1, #ff7f99);
+  color: #fff;
+}
+
+.action-btn::after {
+  border: none;
+}
+
+.ghost-btn::after,
+.danger-btn::after {
+  border: none;
+}
+
+.banner-swiper {
+  margin-top: 10px;
+  width: 100%;
+  height: 252rpx;
+}
+
+.banner-slide {
+  position: relative;
+  height: 252rpx;
+  padding: 0;
+  box-sizing: border-box;
+  background: transparent;
+  transition: transform 0.26s ease, opacity 0.26s ease;
+}
+
+.banner-slide.is-active {
+  transform: translateY(-6rpx) scale(1);
+  opacity: 1;
+}
+
+.banner-slide.is-inactive {
+  transform: translateY(10rpx) scale(0.82);
+  opacity: 0.58;
+}
+
+.banner-thumb {
+  width: 100%;
+  height: 240rpx;
+  border-radius: 14px;
+  background: transparent;
+  border: none;
+  box-shadow: 0 8px 16px rgba(193, 176, 183, 0.11);
+  transition: filter 0.26s ease, box-shadow 0.26s ease;
+}
+
+.banner-swiper swiper-item {
+  background: transparent;
+}
+
+.banner-thumb.is-active {
+  filter: none;
+  box-shadow: 0 10px 20px rgba(197, 178, 186, 0.13);
+}
+
+.banner-thumb.is-inactive {
+  filter: blur(1.4px) saturate(0.86);
+  box-shadow: 0 3px 8px rgba(190, 178, 183, 0.08);
+}
+
+.banner-delete {
+  position: absolute;
+  right: 12rpx;
+  top: 12rpx;
+  width: 52rpx;
+  height: 52rpx;
+  border-radius: 26rpx;
+  background: rgba(34, 34, 34, 0.62);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+}
+
+.banner-delete-icon {
+  color: #fff;
+  display: block;
+  font-size: 28rpx;
+  line-height: 52rpx;
+  transform: translateY(-1rpx);
+  text-align: center;
+}
+
+.banner-upload-btn {
+  margin-top: 10px;
+}
+
+.category-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.add-category-btn {
+  min-width: 88px;
+  height: 28px;
+  border-radius: 14px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  background: #fff8fa;
+  border: 1px solid #ffd2dd;
+  color: #ff6f93;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 10px;
+  row-gap: 10px;
+}
+
+.category-item {
+  width: 100%;
+  height: 38px;
+  border-radius: 10px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  padding: 0 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.label {
+  font-size: 12px;
+  color: #333;
+  max-width: 68%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.edit-btn {
+  min-width: 42px;
+  height: 22px;
+  text-align: center;
+  border-radius: 11px;
+  background: #fff3f6;
+  color: #ff6f93;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ghost-btn {
+  margin-top: 10px;
+  background: #fff;
+  border: 1px solid #ffd2dd;
+  color: #ff6f93;
+}
+
+.danger-block {
+  border: 1px solid #ffe6ec;
+}
+
+.danger-btn {
+  background: #fff0f4;
+  color: #ff4d79;
+}

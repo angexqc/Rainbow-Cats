@@ -2,6 +2,7 @@
   "navigationBarTitleText": "菜单列表",
   "navigationBarBackgroundColor": "#ffffff",
   "backgroundColor": "#f7f7f7",
-  "enablePullDownRefresh": true,
-  "usingComponents": {}
+  "enablePullDownRefresh": false,
+  "usingComponents": {},
+  "navigationStyle": "custom"
 }

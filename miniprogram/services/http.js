@@ -59,19 +59,13 @@ function clearAuthSession() {
   }
 }
 
-function getBootstrapAccount() {
-  try {
-    const custom = wx.getStorageSync('authBootstrapAccount')
-    if (custom && typeof custom === 'object' && custom.username && custom.password) {
-      return {
-        username: String(custom.username),
-        password: String(custom.password)
-      }
-    }
-  } catch (err) {
-    // ignore storage exceptions
-  }
-  return { username: 'me', password: '123456' }
+function getWxLoginCode() {
+  return new Promise((resolve) => {
+    wx.login({
+      success: (res) => resolve(String((res && res.code) || '')),
+      fail: () => resolve('')
+    })
+  })
 }
 
 function shouldAutoRelogin(path, err, retried) {
@@ -114,12 +108,16 @@ function doRequest({ method, path, data, token }) {
 function silentRelogin() {
   if (reloginPromise) return reloginPromise
   const url = `${getApiBase()}/auth/login`
-  const account = getBootstrapAccount()
-  reloginPromise = new Promise((resolve, reject) => {
+  reloginPromise = getWxLoginCode().then((code) => new Promise((resolve, reject) => {
+    if (!code) {
+      clearAuthSession()
+      reject(new Error('wx login failed'))
+      return
+    }
     wx.request({
       url,
       method: 'POST',
-      data: { username: account.username, password: account.password },
+      data: { code },
       timeout: 10000,
       success: (res) => {
         const body = res.data || {}
@@ -135,10 +133,10 @@ function silentRelogin() {
         clearAuthSession()
         reject(new Error('relogin failed'))
       },
-      complete: () => {
-        reloginPromise = null
-      }
+      complete: () => {}
     })
+  })).finally(() => {
+    reloginPromise = null
   })
   return reloginPromise
 }

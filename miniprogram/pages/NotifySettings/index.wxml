@@ -1,0 +1,57 @@
+<view class="page">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
+    <view class="back-btn" bindtap="handleBack">‹</view>
+    <view class="title">通知设置</view>
+    <view class="header-space"></view>
+  </view>
+
+  <view class="content">
+    <view class="block">
+      <view class="row">
+        <view class="main">
+          <text class="label">下单通知</text>
+          <text class="desc">下单后向对方发送微信订阅消息</text>
+        </view>
+        <switch color="#ff99aa" checked="{{notifyEnabled}}" bindchange="handleSwitchChange" />
+      </view>
+    </view>
+
+    <view class="block">
+      <view class="input-row">
+        <text class="status-label">下单通知模板</text>
+        <picker
+          mode="selector"
+          range="{{templatePickerOptions}}"
+          value="{{selectedTemplateIndex}}"
+          bindchange="onTemplatePickChange"
+        >
+          <view class="template-input">
+            {{selectedTemplatePreview ? selectedTemplatePreview.title : '请选择模板'}}
+          </view>
+        </picker>
+      </view>
+      <view class="template-preview" wx:if="{{selectedTemplatePreview}}">
+        <text class="preview-line">模板ID：{{selectedTemplatePreview.id}}</text>
+        <text class="preview-line">内容：{{selectedTemplatePreview.content || '（无）'}}</text>
+        <text class="preview-line">示例：{{selectedTemplatePreview.example || '（无）'}}</text>
+      </view>
+      <button class="btn ghost" bindtap="saveTemplateId">保存模板ID</button>
+
+      <view class="status-row">
+        <text class="status-label">微信身份绑定</text>
+        <text class="status-value {{wxBound ? 'on' : 'off'}}">{{wxBound ? '已绑定' : '未绑定'}}</text>
+      </view>
+      <view class="status-row">
+        <text class="status-label">微信配置状态</text>
+        <text class="status-value {{wechatConfigured ? 'on' : 'off'}}">{{wechatConfigured ? '已配置' : '未配置'}}</text>
+      </view>
+      <view class="status-row">
+        <text class="status-label">模板ID状态</text>
+        <text class="status-value {{templateConfigured ? 'on' : 'off'}}">{{templateConfigured ? '已配置' : '未配置'}}</text>
+      </view>
+
+      <button class="btn" bindtap="bindWeChatIdentity">绑定微信身份</button>
+      <button class="btn ghost" bindtap="sendTestNotify">发送测试通知</button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,23 @@
+<view class="page">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
+    <view class="title">完善资料</view>
+  </view>
+
+  <view class="content">
+    <view class="tip">请先设置你的昵称和头像，菜单里将展示这些信息。</view>
+
+    <view class="avatar-wrap">
+      <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
+      <view wx:else class="avatar avatar-empty">头像</view>
+      <button class="ghost" open-type="chooseAvatar" bindchooseavatar="chooseWechatAvatar">使用微信头像</button>
+      <button class="ghost" bindtap="chooseAvatarUpload">上传头像</button>
+    </view>
+
+    <view class="form-item">
+      <text class="label">昵称</text>
+      <input class="input" type="nickname" placeholder="请输入昵称" value="{{nickName}}" bindinput="onNickInput" maxlength="20"/>
+    </view>
+
+    <button class="save" bindtap="saveProfile" loading="{{saving}}">保存并继续</button>
+  </view>
+</view>

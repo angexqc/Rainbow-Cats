@@ -5,8 +5,8 @@ module.exports = {
     return request({ path: '/pair/info', ...options })
   },
 
-  generateCode(options = {}) {
-    return request({ method: 'POST', path: '/pair/code', ...options })
+  generateCode(wxId, options = {}) {
+    return request({ method: 'POST', path: '/pair/code', data: { wxId }, ...options })
   },
 
   bind(code, options = {}) {

@@ -1,8 +1,6 @@
 <view class="page">
-  <view class="header">
-    <view class="back-btn" bindtap="handleBack">←</view>
+  <view class="header" style="padding-top: {{statusBarHeight}}px; height: {{headerHeight}}px;">
     <view class="title">情侣配对</view>
-    <view class="header-space"></view>
   </view>
 
   <view class="content">
@@ -13,29 +11,47 @@
 
     <view wx:if="{{!isPaired}}" class="section-title">生成配对码</view>
     <view wx:if="{{!isPaired}}" class="qr-card">
-      <view class="qr-placeholder">二维码占位</view>
-      <view class="qr-text">{{pairCode ? ('配对码: ' + pairCode) : '生成中...'}}</view>
+      <image wx:if="{{qrImageUrl}}" class="qr-image" src="{{qrImageUrl}}" mode="aspectFill" lazy-load="true"></image>
+      <view wx:else class="qr-placeholder">二维码生成中...</view>
+      <view class="qr-text-row">
+        <view class="qr-text">{{pairCode ? ('配对码: ' + pairCode) : '生成中...'}}</view>
+        <view class="copy-icon-btn" bindtap="copyPairCode">⧉</view>
+      </view>
     </view>
 
-    <view wx:if="{{!isPaired}}" class="section-title">或输入对方配对码</view>
+    <view wx:if="{{!isPaired}}" class="section-title">输入或扫码对方配对码</view>
     <view wx:if="{{!isPaired}}" class="input-row">
       <view class="code-input">
         <input
-          type="number"
-          maxlength="6"
-          placeholder="输入6位配对码"
+          type="text"
+          maxlength="8"
+          placeholder="输入8位配对码"
           placeholder-class="placeholder"
           bindinput="onCodeInput"
           value="{{inputCode}}"
         />
+        <view class="scan-icon-btn" bindtap="scanToBind">
+          <view class="scan-corner tl"></view>
+          <view class="scan-corner tr"></view>
+          <view class="scan-corner bl"></view>
+          <view class="scan-corner br"></view>
+          <view class="scan-line"></view>
+        </view>
       </view>
-      <button class="bind-btn" bindtap="handleBind" disabled="{{inputCode ? (inputCode.length === 6 ? false : true) : true}}">绑定</button>
+      <button class="bind-btn" bindtap="handleBind" disabled="{{!canBind}}">绑定</button>
     </view>
 
-    <view wx:if="{{!isPaired}}" class="expire-tip">配对码24小时内有效</view>
+    <view wx:if="{{!isPaired}}" class="expire-tip">登录后配对码固定，可长期使用</view>
+    <view wx:if="{{!isPaired}}" class="skip-entry" bindtap="handleSkipPairing">
+      <view class="skip-copy">
+        <view class="skip-title">不匹配对象，直接进入首页</view>
+        <view class="skip-subtitle">先以单人模式使用，稍后可在「我的」继续配对</view>
+      </view>
+      <view class="skip-arrow">›</view>
+    </view>
 
     <view wx:if="{{isPaired}}" class="paired-card">
-      <image class="avatar" src="{{partnerInfo.avatarUrl}}" mode="aspectFill"></image>
+      <image class="avatar" src="{{partnerInfo.avatarUrl}}" mode="aspectFill" lazy-load="true" webp></image>
       <view class="partner-info">
         <view class="partner-name">{{partnerInfo.nickName}}</view>
         <view class="bind-time">绑定时间：{{partnerInfo.bindTime}}</view>

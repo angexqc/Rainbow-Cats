@@ -154,11 +154,27 @@ function buildTimeline(order, db) {
 }
 
 function makePairCode() {
-  return String(Math.floor(Math.random() * 900000) + 100000)
+  return Math.random().toString(36).slice(2, 10).toUpperCase()
 }
 
 function getHomeBanners() {
   return clone(readDB().banners || [])
+}
+
+function deleteHomeBanner(url) {
+  let removed = false
+  updateDB((db) => {
+    const prev = Array.isArray(db.banners) ? db.banners : []
+    const next = prev.filter((item) => {
+      if (!removed && item === url) {
+        removed = true
+        return false
+      }
+      return true
+    })
+    db.banners = next
+  })
+  return removed
 }
 
 function getPairInfo() {
@@ -226,7 +242,7 @@ function addMenu(payload) {
       desc: payload.desc,
       category: payload.category,
       available: payload.available !== false,
-      owner: 'me'
+      owner: payload.owner || 'me'
     })
   }).menus[0]
 }
@@ -446,6 +462,7 @@ module.exports = {
   ensureMockDB,
   formatDate,
   getHomeBanners,
+  deleteHomeBanner,
   getPairInfo,
   generatePairCode,
   bindPair,

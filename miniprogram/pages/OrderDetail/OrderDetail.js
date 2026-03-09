@@ -1,8 +1,10 @@
 const app = getApp()
 const apiStore = require('../../utils/apiStore')
+const { getTopSafeHeight } = require('../../utils/safeArea')
 
 Page({
   data: {
+    topSafeHeight: 0,
     orderId: '',
     order: null,
     isCreator: true,
@@ -19,7 +21,7 @@ Page({
 
   onLoad(options) {
     const { id } = options
-    this.setData({ orderId: id })
+    this.setData({ orderId: id, topSafeHeight: getTopSafeHeight() })
     this.loadOrderDetail()
   },
 

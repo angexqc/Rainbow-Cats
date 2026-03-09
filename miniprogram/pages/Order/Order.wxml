@@ -1,5 +1,5 @@
 <view class="page">
-  <view class="header">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
     <view class="title">购物车</view>
     <view class="header-actions">
       <text class="clear-text" bindtap="clearAll">清空</text>
@@ -19,7 +19,7 @@
       <view wx:for="{{cartItems}}" wx:key="menuId" class="cart-item">
         <view class="category-flag">{{categoryMap[item.category]}}</view>
         <view class="check {{selectedMap[item.menuId] ? 'checked' : ''}}" bindtap="toggleSelect" data-id="{{item.menuId}}">{{selectedMap[item.menuId] ? '✓' : ''}}</view>
-        <image class="thumb" src="{{item.image}}" mode="aspectFill"></image>
+        <image class="thumb" src="{{item.image}}" mode="aspectFill" lazy-load="true" webp></image>
         <view class="info">
           <text class="name">{{item.title}}</text>
           <view class="item-actions">

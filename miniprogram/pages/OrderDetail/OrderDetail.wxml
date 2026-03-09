@@ -1,5 +1,5 @@
 <view class="page">
-  <view class="header">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
     <view class="back-btn" bindtap="handleBack">←</view>
     <view class="title">订单详情</view>
     <view class="header-space"></view>
@@ -23,7 +23,7 @@
             <view class="flow-row">
               <text class="flow-title">{{step.label}}</text>
               <view class="flow-actor-time">
-                <image wx:if="{{step.actorAvatar}}" class="actor-avatar" src="{{step.actorAvatar}}" mode="aspectFill"></image>
+                <image wx:if="{{step.actorAvatar}}" class="actor-avatar" src="{{step.actorAvatar}}" mode="aspectFill" lazy-load="true" webp></image>
                 <view wx:else class="actor-avatar actor-avatar-text">{{step.actorInitial}}</view>
                 <text class="flow-meta actor-name">{{step.actorName}}</text>
                 <text class="flow-meta time">{{step.timeStr}}</text>
@@ -38,7 +38,7 @@
       <view class="section-title">菜品明细</view>
       <view class="items-list">
         <view wx:for="{{order.items}}" wx:key="menuId" class="item-row">
-          <image class="item-thumb" src="{{item.image}}" mode="aspectFill"></image>
+          <image class="item-thumb" src="{{item.image}}" mode="aspectFill" lazy-load="true" webp></image>
           <view class="item-info">
             <text class="item-name">{{item.title}}</text>
             <text class="item-credit">x {{item.count}}</text>

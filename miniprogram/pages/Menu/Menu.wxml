@@ -1,5 +1,5 @@
 <view class="page">
-  <view class="header">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
     <view class="title">菜单列表</view>
     <view class="header-right">
       <view class="cart-mini" bindtap="goOrder">
@@ -11,57 +11,87 @@
   </view>
 
   <view class="content">
-    <view class="search-bar">
-      <text class="search-icon">🔍</text>
-      <input
-        class="search-input"
-        type="text"
-        placeholder="搜索菜品名称..."
-        placeholder-class="placeholder"
-        bindinput="onSearchInput"
-        value="{{keyword}}"
-      />
+    <view class="top-fixed">
+      <view class="search-bar">
+        <text class="search-icon">🔍</text>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="搜索菜品名称..."
+          placeholder-class="placeholder"
+          bindinput="onSearchInput"
+          value="{{keyword}}"
+        />
+      </view>
+
+      <scroll-view class="category-scroll" scroll-x enable-flex show-scrollbar="{{false}}">
+        <view class="category-filters">
+          <view class="chip {{currentCategory === '' ? 'active' : ''}}" bindtap="filterCategory" data-category="">全部</view>
+          <view wx:for="{{categoryList}}" wx:key="key" class="chip {{currentCategory === item.key ? 'active' : ''}}" bindtap="filterCategory" data-category="{{item.key}}">{{item.label}}</view>
+        </view>
+      </scroll-view>
+
+      <scroll-view wx:if="{{isPaired}}" class="owner-scroll" scroll-x enable-flex show-scrollbar="{{false}}">
+        <view class="owner-filters">
+          <view
+            wx:for="{{ownerFilters}}"
+            wx:key="key"
+            class="chip chip-owner {{ownerFilter === item.key ? 'active' : ''}}"
+            bindtap="filterOwner"
+            data-owner="{{item.key}}"
+          >{{item.label}}</view>
+        </view>
+      </scroll-view>
     </view>
 
-    <view class="category-filters">
-      <view class="chip {{currentCategory === '' ? 'active' : ''}}" bindtap="filterCategory" data-category="">全部</view>
-      <view class="chip {{currentCategory === 'main' ? 'active' : ''}}" bindtap="filterCategory" data-category="main">主食</view>
-      <view class="chip {{currentCategory === 'drink' ? 'active' : ''}}" bindtap="filterCategory" data-category="drink">饮品</view>
-      <view class="chip {{currentCategory === 'dessert' ? 'active' : ''}}" bindtap="filterCategory" data-category="dessert">甜点</view>
-      <view class="chip {{currentCategory === 'other' ? 'active' : ''}}" bindtap="filterCategory" data-category="other">其他</view>
-    </view>
-
-    <view class="menu-list">
-      <view wx:for="{{menuList}}" wx:key="_id" class="menu-item" bindtap="onMenuTap" data-id="{{item._id}}">
-        <view class="menu-item-inner">
-          <image class="thumb" src="{{item.image}}" mode="aspectFill"></image>
-          <view class="info">
-            <view class="row-top">
-              <text class="name">{{item.title}}</text>
-            </view>
-            <view class="row-bottom">
-              <text class="category">{{categoryMap[item.category]}}</text>
-              <view class="row-actions">
-                <view class="tag-{{item.owner === 'me' ? 'me' : 'ta'}}">{{item.owner === 'me' ? '我' : 'TA'}}</view>
-                <view wx:if="{{cartMap[item._id] && cartMap[item._id].count > 0}}" class="qty-inline">
-                  <view class="qty-op" catchtap="cancelOrderItem" data-id="{{item._id}}">-</view>
-                  <text class="qty-val">{{cartMap[item._id].count}}</text>
-                  <view class="qty-op" catchtap="addToCart" data-id="{{item._id}}">+</view>
+    <scroll-view
+      class="list-scroll"
+      scroll-y
+      lower-threshold="100"
+      refresher-enabled
+      refresher-triggered="{{refresherTriggered}}"
+      bindrefresherrefresh="onListRefresh"
+      bindscrolltolower="onListScrollToLower"
+      enhanced
+      show-scrollbar="{{false}}"
+    >
+      <view class="menu-list">
+        <view wx:for="{{menuList}}" wx:key="_id" class="menu-item" bindtap="onMenuTap" data-id="{{item._id}}">
+          <view class="menu-item-inner">
+            <image class="thumb" src="{{item.image}}" mode="aspectFill" lazy-load="true" webp></image>
+            <view class="info">
+              <view class="row-top">
+                <text class="name">{{item.title}}</text>
+              </view>
+              <view class="row-bottom">
+                <text class="category">{{categoryMap[item.category]}}</text>
+                <view class="row-actions">
+                  <view class="owner-box">
+                    <image wx:if="{{item.ownerDisplayAvatar}}" class="owner-avatar" src="{{item.ownerDisplayAvatar}}" mode="aspectFill"></image>
+                    <view wx:else class="owner-avatar owner-avatar-fallback">{{item.ownerDisplayName.slice(0,1)}}</view>
+                    <text class="owner-name">{{item.ownerDisplayName}}</text>
+                  </view>
+                  <view wx:if="{{cartMap[item._id] && cartMap[item._id].count > 0}}" class="qty-inline">
+                    <view class="qty-op" catchtap="cancelOrderItem" data-id="{{item._id}}">-</view>
+                    <text class="qty-val">{{cartMap[item._id].count}}</text>
+                    <view class="qty-op" catchtap="addToCart" data-id="{{item._id}}">+</view>
+                  </view>
+                  <view wx:else class="order-btn" catchtap="addToCart" data-id="{{item._id}}">下单</view>
                 </view>
-                <view wx:else class="order-btn" catchtap="addToCart" data-id="{{item._id}}">下单</view>
               </view>
             </view>
           </view>
         </view>
       </view>
-    </view>
 
-    <view wx:if="{{menuList.length === 0 && !loading}}" class="empty-state">
-      <text>暂无菜品，快来添加吧</text>
-      <button class="add-btn" bindtap="handleAdd">添加菜品</button>
-    </view>
+      <view wx:if="{{menuList.length === 0 && !loading}}" class="empty-state">
+        <text>暂无菜品，快来添加吧</text>
+        <button class="add-btn" bindtap="handleAdd">添加菜品</button>
+      </view>
 
-    <view wx:if="{{hasMore}}" class="load-more">上拉加载更多...</view>
-    <view wx:if="{{!hasMore && menuList.length > 0}}" class="load-more">已加载全部</view>
+      <view wx:if="{{loading && menuList.length > 0}}" class="load-more">加载中...</view>
+      <view wx:if="{{hasMore && !loading && menuList.length > 0}}" class="load-more">上拉加载更多...</view>
+      <view wx:if="{{!hasMore && menuList.length > 0}}" class="load-more">已加载全部</view>
+    </scroll-view>
   </view>
 </view>

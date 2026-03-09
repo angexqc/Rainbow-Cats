@@ -1,6 +1,6 @@
 // Mock seed data for menu-order feature only.
 // TODO: 与产品确认最终字段（口味、规格、库存、营业时段）后扩展菜单结构。
-// TODO: 接入真实用户体系后，将 owner 从 me/ta 替换为用户 ID。
+// TODO: 后续可按需要补充引导示例数据，当前默认不注入菜单。
 
 const SAMPLE_IMAGES = [
   'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1000&q=80',
@@ -16,44 +16,7 @@ const BANNERS = [
 ]
 
 function createDefaultMenus() {
-  return [
-    {
-      _id: 'm_1001',
-      title: '珍珠奶茶',
-      image: SAMPLE_IMAGES[0],
-      desc: '三分糖、少冰，经典奶香口感。',
-      category: 'drink',
-      available: true,
-      owner: 'me'
-    },
-    {
-      _id: 'm_1002',
-      title: '香辣鸡腿堡',
-      image: SAMPLE_IMAGES[1],
-      desc: '外酥里嫩，微辣风味。',
-      category: 'main',
-      available: true,
-      owner: 'ta'
-    },
-    {
-      _id: 'm_1003',
-      title: '芒果布丁',
-      image: SAMPLE_IMAGES[2],
-      desc: '果香清甜，餐后解腻。',
-      category: 'dessert',
-      available: true,
-      owner: 'me'
-    },
-    {
-      _id: 'm_1004',
-      title: '烤鸡沙拉',
-      image: SAMPLE_IMAGES[3],
-      desc: '轻食组合，均衡搭配。',
-      category: 'other',
-      available: true,
-      owner: 'ta'
-    }
-  ]
+  return []
 }
 
 function createOrder(orderId, daysAgo, status, items) {
@@ -85,6 +48,8 @@ function createDefaultOrders(menus) {
     count
   })
 
+  if (!menus.length) return []
+
   return [
     createOrder('o_3001', 2, 'completed', [item('m_1001', 2), item('m_1002', 1)]),
     createOrder('o_3002', 5, 'completed', [item('m_1002', 1), item('m_1003', 2)]),
@@ -102,7 +67,7 @@ function createDefaultOrders(menus) {
 function createDefaultPair() {
   return {
     isPaired: false,
-    pairCode: '123456',
+    pairCode: '12345678',
     myInfo: {
       nickName: '卡比',
       avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80'

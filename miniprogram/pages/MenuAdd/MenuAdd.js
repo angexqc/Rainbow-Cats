@@ -1,14 +1,34 @@
 const apiStore = require('../../utils/apiStore')
+const { uploadImage } = require('../../services/upload')
+const app = getApp()
+const { getTopSafeHeight } = require('../../utils/safeArea')
 
 Page({
   data: {
+    topSafeHeight: 0,
     title: '',
     image: '',
     desc: '',
-    categories: ['主食', '饮品', '甜点', '其他'],
-    categoryValues: ['main', 'drink', 'dessert', 'other'],
+    categories: [],
+    categoryValues: [],
     categoryIndex: 0,
     available: true
+  },
+
+  onLoad() {
+    this.setData({ topSafeHeight: getTopSafeHeight() })
+    this.refreshCategories()
+  },
+
+  refreshCategories() {
+    const map = (app.globalData && app.globalData.menuCategoryMap) || {}
+    const categoryValues = Object.keys(map)
+    const categories = categoryValues.map((k) => map[k] || k)
+    this.setData({
+      categories,
+      categoryValues,
+      categoryIndex: Math.min(this.data.categoryIndex, Math.max(0, categoryValues.length - 1))
+    })
   },
 
   onTitleInput(e) {
@@ -24,9 +44,37 @@ Page({
   },
 
   chooseImage() {
-    const random = `https://picsum.photos/seed/menu_add_${Date.now()}/600/600`
-    this.setData({ image: random })
-    wx.showToast({ title: '已使用示例图片', icon: 'none' })
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: async (res) => {
+        const tempPath = (res.tempFilePaths && res.tempFilePaths[0]) || ''
+        if (!tempPath) {
+          wx.showToast({ title: '未获取到图片', icon: 'none' })
+          return
+        }
+        wx.showLoading({ title: '上传中...', mask: true })
+        try {
+          const url = await uploadImage(tempPath, 'menus')
+          this.setData({ image: url })
+          wx.showToast({ title: '上传成功', icon: 'success' })
+        } catch (err) {
+          const msg = String((err && err.message) || '上传失败')
+          wx.showToast({ title: msg.slice(0, 16), icon: 'none' })
+        } finally {
+          wx.hideLoading()
+        }
+      },
+      fail: (err) => {
+        const msg = String((err && err.errMsg) || '')
+        if (msg.includes('cancel')) {
+          wx.showToast({ title: '已取消选择', icon: 'none' })
+          return
+        }
+        wx.showToast({ title: '选择图片失败', icon: 'none' })
+      }
+    })
   },
 
   handleCancel() {

@@ -1,11 +1,14 @@
 const app = getApp()
 const apiStore = require('../../utils/apiStore')
+const { getTopSafeHeight } = require('../../utils/safeArea')
 
 Page({
   data: {
+    topSafeHeight: 0,
     menuId: '',
     menu: null,
     isCreator: false,
+    selfUserId: '',
     categoryMap: app.globalData ? app.globalData.menuCategoryMap : {
       main: '主食',
       drink: '饮品',
@@ -16,7 +19,12 @@ Page({
 
   onLoad(options) {
     const { id } = options
-    this.setData({ menuId: id })
+    const identity = apiStore.getWxIdentity() || {}
+    this.setData({
+      menuId: id,
+      topSafeHeight: getTopSafeHeight(),
+      selfUserId: String(identity.userId || '')
+    })
     this.loadMenuDetail(id)
   },
 
@@ -34,8 +42,13 @@ Page({
       }
 
       this.setData({
-        menu,
-        isCreator: menu.owner === 'me'
+        menu: {
+          ...menu,
+          ownerRole: String(menu.owner) === String(this.data.selfUserId) ? 'me' : 'ta',
+          ownerDisplayName: String(menu.ownerName || '') || (String(menu.owner) === String(this.data.selfUserId) ? '我' : '对方'),
+          ownerDisplayAvatar: String(menu.ownerAvatar || '')
+        },
+        isCreator: String(menu.owner) === String(this.data.selfUserId)
       })
     } catch (err) {
       wx.showToast({ title: '加载菜品失败', icon: 'none' })

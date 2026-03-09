@@ -1,12 +1,15 @@
 const app = getApp()
 const apiStore = require('../../utils/apiStore')
+const { getTopSafeHeight } = require('../../utils/safeArea')
 
 Page({
   data: {
+    topSafeHeight: 0,
     orderList: [],
     currentStatus: '',
     loading: false,
     hasMore: true,
+    refresherTriggered: false,
     page: 1,
     pageSize: app.globalData ? app.globalData.PAGE_SIZE_ORDER : 15,
     statusMap: app.globalData ? app.globalData.orderStatusMap : {
@@ -18,6 +21,7 @@ Page({
   },
 
   onLoad() {
+    this.setData({ topSafeHeight: getTopSafeHeight() })
     this.loadOrderList()
   },
 
@@ -26,15 +30,18 @@ Page({
     this.loadOrderList()
   },
 
-  onPullDownRefresh() {
-    this.setData({ page: 1, hasMore: true })
-    this.loadOrderList(() => wx.stopPullDownRefresh())
-  },
-
-  onReachBottom() {
+  onListScrollToLower() {
     if (this.data.hasMore && !this.data.loading) {
       this.loadMore()
     }
+  },
+
+  onListRefresh() {
+    if (this.data.loading) return
+    this.setData({ refresherTriggered: true, page: 1, hasMore: true })
+    this.loadOrderList(() => {
+      this.setData({ refresherTriggered: false })
+    })
   },
 
   async loadOrderList(callback) {
@@ -96,6 +103,7 @@ Page({
   },
 
   formatTimeline(timeline, actorMap) {
+    const total = timeline.length
     return timeline.map((node, index) => ({
       ...node,
       done: true,
@@ -103,7 +111,8 @@ Page({
       actorName: (actorMap[node.actorRole] && actorMap[node.actorRole].name) || node.actorName || '系统',
       actorAvatar: (actorMap[node.actorRole] && actorMap[node.actorRole].avatar) || '',
       actorInitial: this.getInitial(((actorMap[node.actorRole] && actorMap[node.actorRole].name) || node.actorName || '系')),
-      isLast: index === timeline.length - 1
+      isLast: index === total - 1,
+      isOnly: total === 1
     }))
   },
 

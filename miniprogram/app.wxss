@@ -1,6 +1,3 @@
-/* 引入 weui 组件 */
-@import './miniprogram_npm/weui-miniprogram/weui-wxss/dist/style/weui.wxss';
-
 page {
   --rc-bg: #f7f7f7;
   --rc-surface: #ffffff;

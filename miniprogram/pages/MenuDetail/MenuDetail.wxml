@@ -1,5 +1,5 @@
 <view class="page">
-  <view class="header">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
     <text bindtap="handleBack">←</text>
     <text>菜品详情</text>
   </view>
@@ -17,7 +17,11 @@
       </view>
       <view class="info-row">
         <text class="label">创建者：</text>
-        <text class="value">{{menu.owner === 'me' ? '我' : 'TA'}}</text>
+        <view class="owner-inline">
+          <image wx:if="{{menu.ownerDisplayAvatar}}" class="owner-avatar" src="{{menu.ownerDisplayAvatar}}" mode="aspectFill"></image>
+          <view wx:else class="owner-avatar owner-avatar-fallback">{{menu.ownerDisplayName.slice(0,1)}}</view>
+          <text class="value">{{menu.ownerDisplayName}}</text>
+        </view>
       </view>
     </view>
 

@@ -3,14 +3,24 @@ page {
 }
 
 .page {
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   background-color: var(--rc-bg);
 }
 
 .scroll-body {
+  flex: 1;
+  min-height: 0;
   box-sizing: border-box;
   padding: 16px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+}
+
+.top-safe {
+  width: 100%;
+  flex-shrink: 0;
 }
 
 .section {
@@ -362,13 +372,14 @@ page {
 }
 
 .action-box {
-  padding: 4px 0 calc(4px + env(safe-area-inset-bottom));
+  padding: 4px 0 0;
   display: flex;
   justify-content: center;
+  gap: 0;
 }
 
 .order-btn {
-  width: 100%;
+  flex: 1;
   height: 46px;
   padding: 0;
   border-radius: 23px;

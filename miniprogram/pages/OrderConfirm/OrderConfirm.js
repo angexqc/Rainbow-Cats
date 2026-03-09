@@ -1,7 +1,9 @@
 const apiStore = require('../../utils/apiStore')
+const { getTopSafeHeight } = require('../../utils/safeArea')
 
 Page({
   data: {
+    topSafeHeight: 0,
     cart: {},
     cartItems: [],
     totalCount: 0,
@@ -10,7 +12,7 @@ Page({
   },
 
   onLoad() {
-    this.setData({ loading: true })
+    this.setData({ loading: true, topSafeHeight: getTopSafeHeight() })
     this.loadCartFromStorage()
   },
 
