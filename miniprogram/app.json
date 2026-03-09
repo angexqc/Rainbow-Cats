@@ -3,7 +3,6 @@
     "pages/ProfileSetup/index",
     "pages/Home/index",
     "pages/My/My",
-    "pages/NotifySettings/index",
     "pages/Pair/Pair",
     "pages/Menu/Menu",
     "pages/MenuAdd/MenuAdd",

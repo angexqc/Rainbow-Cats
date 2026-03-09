@@ -72,9 +72,38 @@ Page({
     const categoryMap = app.globalData ? app.globalData.menuCategoryMap : this.data.categoryMap
     const categoryList = Object.keys(categoryMap || {}).map((key) => ({
       key,
-      label: categoryMap[key]
+      label: this.resolveCategoryLabel(key, categoryMap)
     }))
     this.setData({ categoryMap, categoryList })
+  },
+
+  resolveCategoryLabel(key, map = {}) {
+    const rawKey = String(key || '').trim()
+    const fromMap = String((map && map[rawKey]) || '').trim()
+    if (fromMap) return fromMap
+    if (rawKey.startsWith('custom_')) {
+      const readable = rawKey.replace(/^custom_/, '').replace(/_/g, ' ').trim()
+      return readable || '自定义分类'
+    }
+    return rawKey || '未分类'
+  },
+
+  ensureCategoryMapFromMenus(list = []) {
+    const source = Array.isArray(list) ? list : []
+    const appMap = (app.globalData && app.globalData.menuCategoryMap) || {}
+    const nextMap = { ...appMap }
+    let changed = false
+    source.forEach((item) => {
+      const key = String((item && item.category) || '').trim()
+      if (!key) return
+      if (Object.prototype.hasOwnProperty.call(nextMap, key)) return
+      nextMap[key] = key
+      changed = true
+    })
+    if (!changed) return
+    if (app.globalData) app.globalData.menuCategoryMap = nextMap
+    wx.setStorageSync('menuCategoryMap', nextMap)
+    this.refreshCategoryConfig()
   },
 
   onPullDownRefresh() {
@@ -112,8 +141,10 @@ Page({
         ...item,
         ownerRole: String(item && item.owner) === String(this.data.selfUserId) ? 'me' : 'ta',
         ownerDisplayName: String(item && item.ownerName) || (String(item && item.owner) === String(this.data.selfUserId) ? '我' : '对方'),
-        ownerDisplayAvatar: String(item && item.ownerAvatar) || ''
+        ownerDisplayAvatar: String(item && item.ownerAvatar) || '',
+        categoryDisplay: this.resolveCategoryLabel(item && item.category, this.data.categoryMap)
       }))
+      this.ensureCategoryMapFromMenus(listWithOwnerRole)
       const list = this.getFilteredMenuList(listWithOwnerRole)
 
       this.setData({

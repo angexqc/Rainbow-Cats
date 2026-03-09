@@ -24,7 +24,19 @@ Page({
   },
 
   onShow() {
+    this.setData({
+      categoryMap: app.globalData ? app.globalData.menuCategoryMap : this.data.categoryMap
+    })
     this.loadCart()
+  },
+
+  resolveCategoryLabel(key) {
+    const rawKey = String(key || '').trim()
+    const map = this.data.categoryMap || {}
+    const fromMap = String(map[rawKey] || '').trim()
+    if (fromMap) return fromMap
+    if (rawKey.startsWith('custom_')) return '自定义分类'
+    return rawKey || '未分类'
   },
 
   loadCart() {
@@ -36,7 +48,8 @@ Page({
         title: item.menu.title,
         image: item.menu.image,
         count: Number(item.count || 0),
-        category: item.menu.category
+        category: item.menu.category,
+        categoryDisplay: this.resolveCategoryLabel(item.menu.category)
       }))
 
     const selectedMap = {}

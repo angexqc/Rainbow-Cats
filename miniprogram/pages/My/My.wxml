@@ -44,17 +44,29 @@
     <view class="section block">
       <view class="block-head">
         <text class="block-title">菜品分类管理</text>
-        <text class="block-desc">支持重命名</text>
+        <text class="block-desc">支持重命名与拖拽排序</text>
       </view>
       <view class="category-actions">
         <view class="add-category-btn" bindtap="addCategory">+ 新增分类</view>
       </view>
-      <view class="category-grid">
-        <view wx:for="{{categoryEntries}}" wx:key="key" class="category-item">
+      <view class="category-list">
+        <view
+          wx:for="{{categoryEntries}}"
+          wx:key="key"
+          class="category-item {{draggingCategoryIndex === index ? 'is-dragging' : ''}} {{dragPreviewIndex === index && draggingCategoryIndex !== -1 ? 'is-preview-target' : ''}}"
+        >
+          <text
+            class="drag-handle"
+            data-index="{{index}}"
+            catchtouchstart="onCategoryDragStart"
+            catchtouchmove="onCategoryDragMove"
+            catchtouchend="onCategoryDragEnd"
+          >☰</text>
           <text class="label">{{item.label}}</text>
           <view class="edit-btn" data-key="{{item.key}}" bindtap="editCategory">编辑</view>
         </view>
       </view>
+      <view class="drag-tip">拖动左侧“☰”可调整顺序，松手即保存</view>
       <button class="ghost-btn" bindtap="resetCategories">恢复默认分类</button>
     </view>
 
@@ -64,14 +76,6 @@
         <text class="block-desc">昵称与头像</text>
       </view>
       <button class="action-btn" bindtap="goProfileSetup">编辑资料</button>
-    </view>
-
-    <view class="section block">
-      <view class="block-head">
-        <text class="block-title">通知设置</text>
-        <text class="block-desc">订阅消息提醒</text>
-      </view>
-      <button class="action-btn" bindtap="goNotifySettings">进入通知设置</button>
     </view>
 
     <view class="section block danger-block">

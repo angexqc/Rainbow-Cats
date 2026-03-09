@@ -19,16 +19,26 @@ function normalizeUploadedUrl(inputUrl) {
   if (!raw) return ''
   const origin = getApiOrigin()
   if (!origin) return raw
+
+  const normalizePath = (pathValue) => {
+    const normalized = String(pathValue || '')
+    if (normalized.startsWith('/uploads/')) {
+      return `/api${normalized}`
+    }
+    return normalized
+  }
+
   if (/^https?:\/\//i.test(raw)) {
     try {
       const u = new URL(raw)
-      const path = `${u.pathname || ''}${u.search || ''}${u.hash || ''}`
+      const pathname = normalizePath(u.pathname || '')
+      const path = `${pathname}${u.search || ''}${u.hash || ''}`
       return `${origin}${path}`
     } catch (err) {
       return raw
     }
   }
-  if (raw.startsWith('/')) return `${origin}${raw}`
+  if (raw.startsWith('/')) return `${origin}${normalizePath(raw)}`
   return `${origin}/${raw}`
 }
 

@@ -14,7 +14,10 @@ Page({
       avatarUrl: '',
       bindTime: ''
     },
-    wxIdentity: null
+    wxIdentity: null,
+    waitingPairing: false,
+    hasAutoNavigatedHome: false,
+    navigatingHome: false
   },
 
   getWxId() {
@@ -37,6 +40,15 @@ Page({
 
   onShow() {
     this.loadPairInfo()
+    this.startPairPolling()
+  },
+
+  onHide() {
+    this.stopPairPolling()
+  },
+
+  onUnload() {
+    this.stopPairPolling()
   },
 
   setupHeaderLayout() {
@@ -52,18 +64,55 @@ Page({
     }
   },
 
+  applyPairInfo(pair = {}, options = {}) {
+    const nextIsPaired = !!(pair && pair.isPaired)
+    const wasPaired = !!this.data.isPaired
+    const fromPolling = !!options.fromPolling
+    const wasWaitingPairing = !!this.data.waitingPairing
+    const shouldAutoEnterHome = fromPolling
+      && !this.data.hasAutoNavigatedHome
+      && !this.data.navigatingHome
+      && !wasPaired
+      && wasWaitingPairing
+      && nextIsPaired
+    const identity = apiStore.getWxIdentity()
+    const shownCode = pair.pairCode || (identity && identity.pairCode) || ''
+
+    this.setData({
+      isPaired: nextIsPaired,
+      pairCode: shownCode,
+      qrImageUrl: this.makeQrImageUrl(shownCode),
+      partnerInfo: pair.partnerInfo || {},
+      waitingPairing: !nextIsPaired
+    })
+    if (nextIsPaired) this.stopPairPolling()
+
+    if (shouldAutoEnterHome) {
+      this.setData({ hasAutoNavigatedHome: true, navigatingHome: true })
+      const name = String((pair.partnerInfo && pair.partnerInfo.nickName) || 'TA')
+      wx.showToast({ title: `已与${name}完成配对`, icon: 'success' })
+      try {
+        if (typeof wx.vibrateShort === 'function') wx.vibrateShort({ type: 'medium' })
+      } catch (err) {
+        // ignore runtime vibration errors
+      }
+      setTimeout(() => {
+        wx.switchTab({
+          url: '/pages/Home/index',
+          complete: () => {
+            this.setData({ navigatingHome: false })
+          }
+        })
+      }, 350)
+    }
+  },
+
   async loadPairInfo() {
     try {
       const pair = await apiStore.getPairInfo()
-      const identity = apiStore.getWxIdentity()
-      const shownCode = pair.pairCode || (identity && identity.pairCode) || ''
-      this.setData({
-        isPaired: pair.isPaired,
-        pairCode: shownCode,
-        qrImageUrl: this.makeQrImageUrl(shownCode),
-        partnerInfo: pair.partnerInfo || {}
-      })
-      if (!shownCode) {
+      this.applyPairInfo(pair, { fromPolling: false })
+      const currentCode = String(this.data.pairCode || '').trim()
+      if (!currentCode) {
         await this.generatePairCode()
       }
     } catch (err) {
@@ -99,6 +148,7 @@ Page({
       await apiStore.bindPair(code)
       wx.showToast({ title: '绑定成功', icon: 'success' })
       this.setData({ inputCode: '', canBind: false })
+      this.stopPairPolling()
       await this.loadPairInfo()
       setTimeout(() => {
         wx.switchTab({ url: '/pages/Home/index' })
@@ -181,6 +231,17 @@ Page({
     })
   },
 
+  goHome() {
+    if (this.data.navigatingHome) return
+    this.setData({ navigatingHome: true })
+    wx.switchTab({
+      url: '/pages/Home/index',
+      complete: () => {
+        this.setData({ navigatingHome: false })
+      }
+    })
+  },
+
   handleUnbind() {
     wx.showModal({
       title: '确认解除绑定',
@@ -191,10 +252,37 @@ Page({
           await apiStore.unbindPair()
           wx.showToast({ title: '已解除绑定', icon: 'success' })
           this.loadPairInfo()
+          this.startPairPolling()
         } catch (err) {
           wx.showToast({ title: '解绑失败', icon: 'none' })
         }
       }
     })
+  },
+
+  startPairPolling() {
+    if (this.pairPollTimer) return
+    this.pairPolling = false
+    this.pairPollTimer = setInterval(async () => {
+      if (this.pairPolling) return
+      if (this.data.isPaired) return
+      this.pairPolling = true
+      try {
+        const pair = await apiStore.getPairInfo()
+        this.applyPairInfo(pair, { fromPolling: true })
+      } catch (err) {
+        // silent polling failure
+      } finally {
+        this.pairPolling = false
+      }
+    }, 3000)
+  },
+
+  stopPairPolling() {
+    if (this.pairPollTimer) {
+      clearInterval(this.pairPollTimer)
+      this.pairPollTimer = null
+    }
+    this.pairPolling = false
   }
 })

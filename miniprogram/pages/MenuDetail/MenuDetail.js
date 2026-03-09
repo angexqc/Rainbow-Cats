@@ -32,8 +32,20 @@ Page({
     if (this.data.menuId) this.loadMenuDetail(this.data.menuId)
   },
 
+  resolveCategoryLabel(key) {
+    const rawKey = String(key || '').trim()
+    const map = this.data.categoryMap || {}
+    const fromMap = String(map[rawKey] || '').trim()
+    if (fromMap) return fromMap
+    if (rawKey.startsWith('custom_')) return '自定义分类'
+    return rawKey || '未分类'
+  },
+
   async loadMenuDetail(id) {
     try {
+      this.setData({
+        categoryMap: app.globalData ? app.globalData.menuCategoryMap : this.data.categoryMap
+      })
       const menu = await apiStore.getMenuById(id)
       if (!menu) {
         wx.showToast({ title: '菜品不存在', icon: 'none' })
@@ -46,7 +58,8 @@ Page({
           ...menu,
           ownerRole: String(menu.owner) === String(this.data.selfUserId) ? 'me' : 'ta',
           ownerDisplayName: String(menu.ownerName || '') || (String(menu.owner) === String(this.data.selfUserId) ? '我' : '对方'),
-          ownerDisplayAvatar: String(menu.ownerAvatar || '')
+          ownerDisplayAvatar: String(menu.ownerAvatar || ''),
+          categoryDisplay: this.resolveCategoryLabel(menu.category)
         },
         isCreator: String(menu.owner) === String(this.data.selfUserId)
       })

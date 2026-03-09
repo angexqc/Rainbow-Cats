@@ -13,7 +13,7 @@
       </view>
       <view class="info-row">
         <text class="label">分类：</text>
-        <text class="value">{{categoryMap[menu.category]}}</text>
+        <text class="value">{{menu.categoryDisplay || categoryMap[menu.category] || menu.category || '未分类'}}</text>
       </view>
       <view class="info-row">
         <text class="label">创建者：</text>

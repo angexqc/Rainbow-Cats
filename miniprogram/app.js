@@ -1,5 +1,6 @@
 const apiStore = require('./utils/apiStore')
 const { setAuthExpiredHandler } = require('./services/http')
+const realtime = require('./services/realtime')
 
 const DEFAULT_CATEGORY_MAP = {
   main: '主食',
@@ -8,20 +9,40 @@ const DEFAULT_CATEGORY_MAP = {
   other: '其他'
 }
 const DEFAULT_API_BASE_URL = 'https://wubaihappyfood.top/api'
+const CATEGORY_ORDER_KEY = 'menuCategoryOrder'
 
 function loadCategoryMap() {
+  let merged = { ...DEFAULT_CATEGORY_MAP }
   try {
     const fromStorage = wx.getStorageSync('menuCategoryMap')
     if (fromStorage && typeof fromStorage === 'object') {
-      return {
-        ...DEFAULT_CATEGORY_MAP,
-        ...fromStorage
-      }
+      merged = { ...DEFAULT_CATEGORY_MAP, ...fromStorage }
     }
   } catch (err) {
     // ignore storage exceptions
   }
-  return DEFAULT_CATEGORY_MAP
+
+  let orderedKeys = []
+  try {
+    const fromOrder = wx.getStorageSync(CATEGORY_ORDER_KEY)
+    if (Array.isArray(fromOrder)) {
+      orderedKeys = fromOrder
+        .map((k) => String(k || '').trim())
+        .filter((k) => k && Object.prototype.hasOwnProperty.call(merged, k))
+    }
+  } catch (err) {
+    orderedKeys = []
+  }
+
+  Object.keys(merged).forEach((key) => {
+    if (!orderedKeys.includes(key)) orderedKeys.push(key)
+  })
+
+  const orderedMap = {}
+  orderedKeys.forEach((key) => {
+    orderedMap[key] = merged[key]
+  })
+  return orderedMap
 }
 
 function normalizeApiBase(url) {
@@ -36,20 +57,52 @@ App({
     apiStore.ensureMockDB()
     apiStore.bootstrapSession()
       .then(() => apiStore.ensureProfileReady())
-      .then((profileReady) => {
+      .then(async (profileReady) => {
         if (!profileReady) {
           setTimeout(() => {
             wx.reLaunch({ url: '/pages/ProfileSetup/index' })
           }, 50)
           return
         }
-        if (this.globalData.shouldForcePairGuide) {
+
+        let pairInfo = null
+        let pairContext = null
+        try {
+          pairInfo = await apiStore.getPairInfo()
+          pairContext = apiStore.getPairContext ? apiStore.getPairContext() : null
+        } catch (err) {
+          pairInfo = null
+          pairContext = null
+        }
+
+        const isPaired = !!(pairInfo && pairInfo.isPaired)
+        const skippedPairing = !!(pairContext && pairContext.skipPairing)
+
+        if (isPaired || skippedPairing) {
+          setTimeout(() => {
+            wx.switchTab({ url: '/pages/Home/index' })
+          }, 50)
+          return
+        }
+
+        if (this.globalData.shouldForcePairGuide || !isPaired) {
           setTimeout(() => {
             wx.reLaunch({ url: '/pages/Pair/Pair' })
           }, 50)
         }
       })
       .catch(() => {})
+
+    realtime.start((message = {}) => {
+      const event = String(message.event || '')
+      if (event !== 'pair.bound') return
+      wx.showToast({ title: '收到配对完成通知', icon: 'none' })
+      const pages = getCurrentPages()
+      const current = Array.isArray(pages) && pages.length ? pages[pages.length - 1] : null
+      const route = String((current && current.route) || '')
+      if (route === 'pages/Pair/Pair') return
+      wx.switchTab({ url: '/pages/Home/index' })
+    })
     try {
       const currentApiBase = normalizeApiBase(wx.getStorageSync('apiBaseUrl') || '')
       if (!currentApiBase) {

@@ -17,7 +17,7 @@
 
     <view class="cart-list">
       <view wx:for="{{cartItems}}" wx:key="menuId" class="cart-item">
-        <view class="category-flag">{{categoryMap[item.category]}}</view>
+        <view class="category-flag">{{item.categoryDisplay || categoryMap[item.category] || item.category || '未分类'}}</view>
         <view class="check {{selectedMap[item.menuId] ? 'checked' : ''}}" bindtap="toggleSelect" data-id="{{item.menuId}}">{{selectedMap[item.menuId] ? '✓' : ''}}</view>
         <image class="thumb" src="{{item.image}}" mode="aspectFill" lazy-load="true" webp></image>
         <view class="info">

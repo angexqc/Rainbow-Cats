@@ -60,6 +60,7 @@
 
     <view wx:if="{{isPaired}}" class="paired-actions">
       <button class="regen-btn" bindtap="generatePairCode">重新生成配对码</button>
+      <button class="home-btn" bindtap="goHome">进入首页</button>
     </view>
 
     <view wx:if="{{isPaired}}" class="code-card">

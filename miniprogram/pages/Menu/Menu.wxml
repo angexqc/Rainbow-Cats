@@ -64,7 +64,7 @@
                 <text class="name">{{item.title}}</text>
               </view>
               <view class="row-bottom">
-                <text class="category">{{categoryMap[item.category]}}</text>
+                <text class="category">{{item.categoryDisplay || categoryMap[item.category] || item.category || '未分类'}}</text>
                 <view class="row-actions">
                   <view class="owner-box">
                     <image wx:if="{{item.ownerDisplayAvatar}}" class="owner-avatar" src="{{item.ownerDisplayAvatar}}" mode="aspectFill"></image>

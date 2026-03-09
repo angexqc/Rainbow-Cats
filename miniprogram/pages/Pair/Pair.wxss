@@ -314,12 +314,29 @@ page {
 
 .paired-actions {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .regen-btn {
   width: 100%;
   background-color: var(--rc-primary);
   color: #ffffff;
+}
+
+.home-btn {
+  width: 100%;
+  height: 44px;
+  border-radius: var(--rc-radius-field);
+  background-color: #ffffff;
+  color: var(--rc-primary);
+  border: 1px solid var(--rc-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .code-label {
