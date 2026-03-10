@@ -30,8 +30,12 @@ Page({
     this.loadCart()
   },
 
-  resolveCategoryLabel(key) {
-    const rawKey = String(key || '').trim()
+  resolveCategoryLabel(itemOrKey) {
+    if (itemOrKey && typeof itemOrKey === 'object') {
+      const directLabel = String(itemOrKey.categoryLabel || '').trim()
+      if (directLabel) return directLabel
+    }
+    const rawKey = String((itemOrKey && itemOrKey.category) || itemOrKey || '').trim()
     const map = this.data.categoryMap || {}
     const fromMap = String(map[rawKey] || '').trim()
     if (fromMap) return fromMap
@@ -49,7 +53,8 @@ Page({
         image: item.menu.image,
         count: Number(item.count || 0),
         category: item.menu.category,
-        categoryDisplay: this.resolveCategoryLabel(item.menu.category)
+        categoryLabel: item.menu.categoryLabel || '',
+        categoryDisplay: this.resolveCategoryLabel(item.menu)
       }))
 
     const selectedMap = {}

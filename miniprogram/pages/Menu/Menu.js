@@ -77,8 +77,12 @@ Page({
     this.setData({ categoryMap, categoryList })
   },
 
-  resolveCategoryLabel(key, map = {}) {
-    const rawKey = String(key || '').trim()
+  resolveCategoryLabel(itemOrKey, map = {}) {
+    if (itemOrKey && typeof itemOrKey === 'object') {
+      const directLabel = String(itemOrKey.categoryLabel || '').trim()
+      if (directLabel) return directLabel
+    }
+    const rawKey = String((itemOrKey && itemOrKey.category) || itemOrKey || '').trim()
     const fromMap = String((map && map[rawKey]) || '').trim()
     if (fromMap) return fromMap
     if (rawKey.startsWith('custom_')) {
@@ -96,8 +100,10 @@ Page({
     source.forEach((item) => {
       const key = String((item && item.category) || '').trim()
       if (!key) return
-      if (Object.prototype.hasOwnProperty.call(nextMap, key)) return
-      nextMap[key] = key
+      const label = String((item && item.categoryLabel) || '').trim()
+      if (Object.prototype.hasOwnProperty.call(nextMap, key) && !label) return
+      if (label && nextMap[key] === label) return
+      nextMap[key] = label || key
       changed = true
     })
     if (!changed) return
@@ -142,7 +148,7 @@ Page({
         ownerRole: String(item && item.owner) === String(this.data.selfUserId) ? 'me' : 'ta',
         ownerDisplayName: String(item && item.ownerName) || (String(item && item.owner) === String(this.data.selfUserId) ? '我' : '对方'),
         ownerDisplayAvatar: String(item && item.ownerAvatar) || '',
-        categoryDisplay: this.resolveCategoryLabel(item && item.category, this.data.categoryMap)
+        categoryDisplay: this.resolveCategoryLabel(item, this.data.categoryMap)
       }))
       this.ensureCategoryMapFromMenus(listWithOwnerRole)
       const list = this.getFilteredMenuList(listWithOwnerRole)

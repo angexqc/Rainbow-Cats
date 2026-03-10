@@ -94,12 +94,15 @@ Page({
       return
     }
 
+    const category = this.data.categoryValues[this.data.categoryIndex] || 'other'
+    const categoryLabel = this.data.categories[this.data.categoryIndex] || category
     try {
       await apiStore.addMenu({
         title,
         image: this.data.image,
         desc: this.data.desc,
-        category: this.data.categoryValues[this.data.categoryIndex],
+        category,
+        categoryLabel,
         available: this.data.available
       })
 

@@ -1,6 +1,5 @@
 const apiStore = require('./utils/apiStore')
 const { setAuthExpiredHandler } = require('./services/http')
-const realtime = require('./services/realtime')
 
 const DEFAULT_CATEGORY_MAP = {
   main: '主食',
@@ -92,17 +91,6 @@ App({
         }
       })
       .catch(() => {})
-
-    realtime.start((message = {}) => {
-      const event = String(message.event || '')
-      if (event !== 'pair.bound') return
-      wx.showToast({ title: '收到配对完成通知', icon: 'none' })
-      const pages = getCurrentPages()
-      const current = Array.isArray(pages) && pages.length ? pages[pages.length - 1] : null
-      const route = String((current && current.route) || '')
-      if (route === 'pages/Pair/Pair') return
-      wx.switchTab({ url: '/pages/Home/index' })
-    })
     try {
       const currentApiBase = normalizeApiBase(wx.getStorageSync('apiBaseUrl') || '')
       if (!currentApiBase) {

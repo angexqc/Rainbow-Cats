@@ -32,8 +32,12 @@ Page({
     if (this.data.menuId) this.loadMenuDetail(this.data.menuId)
   },
 
-  resolveCategoryLabel(key) {
-    const rawKey = String(key || '').trim()
+  resolveCategoryLabel(itemOrKey) {
+    if (itemOrKey && typeof itemOrKey === 'object') {
+      const directLabel = String(itemOrKey.categoryLabel || '').trim()
+      if (directLabel) return directLabel
+    }
+    const rawKey = String((itemOrKey && itemOrKey.category) || itemOrKey || '').trim()
     const map = this.data.categoryMap || {}
     const fromMap = String(map[rawKey] || '').trim()
     if (fromMap) return fromMap
@@ -59,7 +63,7 @@ Page({
           ownerRole: String(menu.owner) === String(this.data.selfUserId) ? 'me' : 'ta',
           ownerDisplayName: String(menu.ownerName || '') || (String(menu.owner) === String(this.data.selfUserId) ? '我' : '对方'),
           ownerDisplayAvatar: String(menu.ownerAvatar || ''),
-          categoryDisplay: this.resolveCategoryLabel(menu.category)
+          categoryDisplay: this.resolveCategoryLabel(menu)
         },
         isCreator: String(menu.owner) === String(this.data.selfUserId)
       })

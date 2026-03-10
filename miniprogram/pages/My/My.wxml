@@ -53,7 +53,7 @@
         <view
           wx:for="{{categoryEntries}}"
           wx:key="key"
-          class="category-item {{draggingCategoryIndex === index ? 'is-dragging' : ''}} {{dragPreviewIndex === index && draggingCategoryIndex !== -1 ? 'is-preview-target' : ''}}"
+          class="category-item {{draggingCategoryIndex === index ? 'is-dragging' : ''}} {{dragPreviewIndex === index && draggingCategoryIndex !== -1 ? 'is-preview-target' : ''}} {{draggingCategoryIndex !== -1 && dragInsertIndex === index ? 'insert-before' : ''}} {{draggingCategoryIndex !== -1 && dragInsertIndex === index + 1 ? 'insert-after' : ''}}"
         >
           <text
             class="drag-handle"
@@ -66,7 +66,7 @@
           <view class="edit-btn" data-key="{{item.key}}" bindtap="editCategory">编辑</view>
         </view>
       </view>
-      <view class="drag-tip">拖动左侧“☰”可调整顺序，松手即保存</view>
+      <view class="drag-tip">拖动左侧“☰”可调整顺序，横线位置即松手后放置位置</view>
       <button class="ghost-btn" bindtap="resetCategories">恢复默认分类</button>
     </view>
 

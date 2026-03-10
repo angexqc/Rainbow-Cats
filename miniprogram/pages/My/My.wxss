@@ -198,6 +198,7 @@ page {
 }
 
 .category-item {
+  position: relative;
   width: 100%;
   min-height: 44px;
   border-radius: 10px;
@@ -219,6 +220,25 @@ page {
 .category-item.is-preview-target {
   border-color: #ff7fa1;
   box-shadow: inset 0 0 0 1px #ff7fa1;
+}
+
+.category-item.insert-before::before,
+.category-item.insert-after::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #ff5f8f, #ff9ab7);
+}
+
+.category-item.insert-before::before {
+  top: -3px;
+}
+
+.category-item.insert-after::after {
+  bottom: -3px;
 }
 
 .drag-handle {

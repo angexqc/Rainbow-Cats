@@ -14,6 +14,7 @@ function normalizeMenus(menus = []) {
     image: m.image,
     desc: m.desc || '',
     category: m.category || 'other',
+    categoryLabel: m.categoryLabel || m.category || 'other',
     available: m.available !== false,
     owner: m.owner || 'me'
   }))
@@ -241,6 +242,7 @@ function addMenu(payload) {
       image: payload.image,
       desc: payload.desc,
       category: payload.category,
+      categoryLabel: payload.categoryLabel || payload.category || 'other',
       available: payload.available !== false,
       owner: payload.owner || 'me'
     })

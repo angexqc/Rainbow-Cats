@@ -54,7 +54,7 @@ Page({
       const hasCategory = this.data.categoryValues.includes(menu.category)
       if (!hasCategory) {
         const appMap = (app.globalData && app.globalData.menuCategoryMap) || {}
-        const nextMap = { ...appMap, [menu.category]: menu.category }
+        const nextMap = { ...appMap, [menu.category]: String(menu.categoryLabel || menu.category) }
         if (app.globalData) app.globalData.menuCategoryMap = nextMap
         wx.setStorageSync('menuCategoryMap', nextMap)
         this.refreshCategories()
@@ -136,12 +136,15 @@ Page({
       return
     }
 
+    const category = this.data.categoryValues[this.data.categoryIndex] || 'other'
+    const categoryLabel = this.data.categories[this.data.categoryIndex] || category
     try {
       await apiStore.updateMenu(this.data.menuId, {
         title,
         image: this.data.image,
         desc: this.data.desc,
-        category: this.data.categoryValues[this.data.categoryIndex],
+        category,
+        categoryLabel,
         available: this.data.available
       })
 
