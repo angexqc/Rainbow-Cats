@@ -44,7 +44,7 @@
       <text>确认后将生成订单并进入待确认状态</text>
     </view>
 
-    <button class="btn btn-primary" bindtap="handleConfirm">确认下单</button>
+    <button class="btn biz-action biz-primary" bindtap="handleConfirm">🧾 确认下单</button>
   </view>
 
   <view wx:if="{{cartItems ? (cartItems.length === 0) : true}}" class="empty-state">

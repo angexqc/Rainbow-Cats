@@ -17,46 +17,27 @@ function normalizeApiBase(url) {
 }
 
 App({
-  onLaunch() {
-    apiStore.ensureMockDB()
-    apiStore.bootstrapSession()
-      .then(() => apiStore.ensureProfileReady())
-      .then(async (profileReady) => {
-        if (!profileReady) {
-          setTimeout(() => {
-            wx.reLaunch({ url: '/pages/ProfileSetup/index' })
-          }, 50)
-          return
-        }
-
-        let pairInfo = null
-        let pairContext = null
+  prepareLaunchState() {
+    if (this.launchReadyPromise) return this.launchReadyPromise
+    this.launchReadyPromise = (async () => {
+      apiStore.ensureMockDB()
+      await apiStore.bootstrapSession()
+      const profileReady = await apiStore.ensureProfileReady()
+      if (profileReady) {
         try {
-          pairInfo = await apiStore.getPairInfo()
-          pairContext = apiStore.getPairContext ? apiStore.getPairContext() : null
+          await apiStore.getPairInfo()
           await apiStore.syncMenuCategoryMapFromMenus({ force: true })
         } catch (err) {
-          pairInfo = null
-          pairContext = null
+          // ignore bootstrap sync errors
         }
+      }
+      return { profileReady }
+    })()
+    return this.launchReadyPromise
+  },
 
-        const isPaired = !!(pairInfo && pairInfo.isPaired)
-        const skippedPairing = !!(pairContext && pairContext.skipPairing)
-
-        if (isPaired || skippedPairing) {
-          setTimeout(() => {
-            wx.switchTab({ url: '/pages/Home/index' })
-          }, 50)
-          return
-        }
-
-        if (this.globalData.shouldForcePairGuide || !isPaired) {
-          setTimeout(() => {
-            wx.reLaunch({ url: '/pages/Pair/Pair' })
-          }, 50)
-        }
-      })
-      .catch(() => {})
+  onLaunch() {
+    this.prepareLaunchState().catch(() => {})
     try {
       const currentApiBase = normalizeApiBase(wx.getStorageSync('apiBaseUrl') || '')
       if (!currentApiBase) {
@@ -81,18 +62,7 @@ App({
       },
       PAGE_SIZE_MENU: 20,
       PAGE_SIZE_ORDER: 15,
-      lastAuthExpiredNotifyTs: 0,
-      shouldForcePairGuide: false
-    }
-
-    try {
-      const entered = !!wx.getStorageSync('has_entered_once_v1')
-      if (!entered) {
-        wx.setStorageSync('has_entered_once_v1', true)
-        this.globalData.shouldForcePairGuide = true
-      }
-    } catch (err) {
-      this.globalData.shouldForcePairGuide = false
+      lastAuthExpiredNotifyTs: 0
     }
 
     setAuthExpiredHandler(() => {

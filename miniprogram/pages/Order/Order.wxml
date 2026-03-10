@@ -2,7 +2,7 @@
   <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
     <view class="title">购物车</view>
     <view class="header-actions">
-      <text class="clear-text" bindtap="clearAll">清空</text>
+      <view class="icon-action danger" bindtap="clearAll">🗑</view>
     </view>
   </view>
 
@@ -10,8 +10,8 @@
     <view class="toolbar">
       <text class="toolbar-text">已选 {{selectedCount}} 项，共 {{totalCount}} 份</text>
       <view class="toolbar-actions">
-        <view class="tool-btn" bindtap="toggleSelectAll">{{selectedCount === cartItems.length ? '取消全选' : '全选'}}</view>
-        <view class="tool-btn danger" bindtap="deleteBatch">批量删除</view>
+        <view class="icon-action" bindtap="toggleSelectAll">{{selectedCount === cartItems.length ? '☑' : '☐'}}</view>
+        <view class="icon-action danger" bindtap="deleteBatch">🗑</view>
       </view>
     </view>
 
@@ -28,7 +28,7 @@
               <text class="quantity">{{item.count}}</text>
               <view class="qty-btn" bindtap="increaseCount" data-id="{{item.menuId}}">+</view>
             </view>
-            <view class="delete-btn" bindtap="deleteOne" data-id="{{item.menuId}}">删除</view>
+            <view class="icon-action danger compact" bindtap="deleteOne" data-id="{{item.menuId}}">🗑</view>
           </view>
         </view>
       </view>
@@ -36,7 +36,7 @@
 
     <view class="bottom-bar">
       <view class="summary">共 {{totalCount}} 份</view>
-      <view class="submit-btn" bindtap="submitOrder">下单</view>
+      <view class="biz-action biz-primary submit-btn" bindtap="submitOrder">🧾 下单</view>
     </view>
   </view>
 

@@ -38,7 +38,7 @@
           <view class="scan-line"></view>
         </view>
       </view>
-      <button class="bind-btn" bindtap="handleBind" disabled="{{!canBind}}">绑定</button>
+      <button class="biz-action biz-primary bind-btn" bindtap="handleBind" disabled="{{!canBind}}">🔗 绑定</button>
     </view>
 
     <view wx:if="{{!isPaired}}" class="expire-tip">登录后配对码固定，可长期使用</view>
@@ -59,8 +59,8 @@
     </view>
 
     <view wx:if="{{isPaired}}" class="paired-actions">
-      <button class="regen-btn" bindtap="generatePairCode">重新生成配对码</button>
-      <button class="home-btn" bindtap="goHome">进入首页</button>
+      <button class="biz-action biz-primary regen-btn" bindtap="generatePairCode">🔄 重新生成配对码</button>
+      <button class="biz-action biz-secondary home-btn" bindtap="goHome">🏠 进入首页</button>
     </view>
 
     <view wx:if="{{isPaired}}" class="code-card">
@@ -68,6 +68,6 @@
       <view class="code-text">{{pairCode ? pairCode : '点击上方按钮生成新配对码'}}</view>
     </view>
 
-    <button wx:if="{{isPaired}}" class="unbind-btn" bindtap="handleUnbind">解除绑定</button>
+    <button wx:if="{{isPaired}}" class="biz-action biz-danger unbind-btn" bindtap="handleUnbind">💔 解除绑定</button>
   </view>
 </view>

@@ -1,0 +1,87 @@
+page {
+  background: linear-gradient(160deg, #fff8fb 0%, #fff1f6 45%, #ffe9f2 100%);
+}
+
+.page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.center-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.center-box.is-exiting {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.lottie-canvas {
+  width: 220px;
+  height: 220px;
+}
+
+.title {
+  margin-top: 10px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #ff6c94;
+  letter-spacing: 0.8px;
+}
+
+.subtitle {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #9b8892;
+}
+
+.fallback-tip {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #b8a8b1;
+}
+
+.fallback-dot-wrap {
+  width: 90px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 7px;
+  background: #ff7ea0;
+  animation: splash-dot 1.2s ease-in-out infinite;
+}
+
+.dot-2 {
+  animation-delay: 0.15s;
+}
+
+.dot-3 {
+  animation-delay: 0.3s;
+}
+
+@keyframes splash-dot {
+  0%, 100% {
+    opacity: 0.35;
+    transform: translateY(3px) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1);
+  }
+}

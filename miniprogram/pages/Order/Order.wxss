@@ -25,9 +25,9 @@ page {
   color: var(--rc-text);
 }
 
-.clear-text {
-  font-size: 14px;
-  color: var(--rc-primary);
+.header-actions {
+  display: flex;
+  align-items: center;
 }
 
 .content {
@@ -54,26 +54,6 @@ page {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.tool-btn {
-  min-width: 64px;
-  height: 30px;
-  border-radius: 15px;
-  font-size: 12px;
-  padding: 0 12px;
-  color: #666;
-  background: #fff;
-  border: 1px solid #e6e6e6;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.tool-btn.danger {
-  color: #fa5151;
-  border: 1px solid #ffd7d7;
-  background: #fff;
 }
 
 .cart-list {
@@ -173,20 +153,6 @@ page {
   font-size: 13px;
 }
 
-.delete-btn {
-  min-width: 52px;
-  height: 26px;
-  padding: 0 10px;
-  border-radius: 13px;
-  font-size: 12px;
-  color: #fa5151;
-  background: #fff;
-  border: 1px solid #ffd7d7;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .bottom-bar {
   position: fixed;
   left: 0;
@@ -210,16 +176,7 @@ page {
 
 .submit-btn {
   min-width: 96px;
-  height: 40px;
   padding: 0 24px;
-  border-radius: 20px;
-  background: var(--rc-primary);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .empty-state {

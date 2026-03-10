@@ -18,7 +18,8 @@ Page({
     isPaired: false,
     draggingCategoryIndex: -1,
     dragPreviewIndex: -1,
-    dragInsertIndex: -1
+    dragInsertIndex: -1,
+    dragOffsetY: 0
   },
 
   onLoad() {
@@ -273,9 +274,10 @@ Page({
     const touch = e.touches && e.touches[0]
     if (!Number.isInteger(idx) || idx < 0 || !touch) return
     this.dragStartIndex = idx
+    this.dragStartY = Number(touch.clientY || 0)
     this.dragInsertIndex = idx
     this.collectCategoryItemRects()
-    this.setData({ draggingCategoryIndex: idx, dragPreviewIndex: idx, dragInsertIndex: idx })
+    this.setData({ draggingCategoryIndex: idx, dragPreviewIndex: idx, dragInsertIndex: idx, dragOffsetY: 0 })
   },
 
   collectCategoryItemRects() {
@@ -311,21 +313,24 @@ Page({
     if (!touch) return
     const startIndex = Number(this.dragStartIndex)
     if (!Number.isInteger(startIndex) || startIndex < 0) return
+    const dragOffsetY = Number(touch.clientY || 0) - Number(this.dragStartY || 0)
     const insertIndex = this.calcInsertIndexByY(Number(touch.clientY || 0))
     if (!Number.isInteger(insertIndex) || insertIndex < 0) return
     const targetIndex = Math.max(0, Math.min((this.data.categoryEntries || []).length - 1, insertIndex))
-    if (insertIndex === this.dragInsertIndex && targetIndex === Number(this.data.dragPreviewIndex)) return
+    const prevOffset = Number(this.data.dragOffsetY || 0)
+    if (insertIndex === this.dragInsertIndex && targetIndex === Number(this.data.dragPreviewIndex) && Math.abs(prevOffset - dragOffsetY) < 1) return
     this.dragInsertIndex = insertIndex
-    this.setData({ dragInsertIndex: insertIndex, dragPreviewIndex: targetIndex })
+    this.setData({ dragInsertIndex: insertIndex, dragPreviewIndex: targetIndex, dragOffsetY })
   },
 
   async onCategoryDragEnd() {
     const startIndex = Number(this.dragStartIndex)
     this.dragStartIndex = -1
+    this.dragStartY = 0
     const insertIndex = Number(this.data.dragInsertIndex)
     this.dragInsertIndex = -1
     this.categoryRects = null
-    this.setData({ draggingCategoryIndex: -1, dragPreviewIndex: -1, dragInsertIndex: -1 })
+    this.setData({ draggingCategoryIndex: -1, dragPreviewIndex: -1, dragInsertIndex: -1, dragOffsetY: 0 })
 
     if (!Number.isInteger(startIndex) || startIndex < 0) return
     const entries = [...this.data.categoryEntries]

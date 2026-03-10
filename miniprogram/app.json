@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/Splash/index",
     "pages/ProfileSetup/index",
     "pages/Home/index",
     "pages/My/My",

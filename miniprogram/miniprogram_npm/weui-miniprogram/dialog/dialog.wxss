@@ -1,1 +1,31 @@
-.weui-dialog.weui-dialog_hidden{opacity:0;transform:scale3d(1, 1, 0)}.weui-dialog{opacity:1;-webkit-transform:scale3d(1, 1, 1) translateY(-50%);transform:scale3d(1, 1, 1) translateY(-50%);transition:all .2s ease-in}.weui-mask.weui-mask_hidden{opacity:0;transform:scale3d(1, 1, 0)}.weui-mask{opacity:1;transform:scale3d(1, 1, 1);transition:all .2s ease-in}
+.weui-dialog__root {
+  position: relative;
+  z-index: 1000;
+}
+.weui-dialog__title:focus {
+  outline: none;
+}
+.weui-animate-fade-in {
+  animation: weuiFadeIn ease 0.3s forwards;
+}
+@keyframes weuiFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.weui-animate-fade-out {
+  animation: weuiFadeOut ease 0.3s forwards;
+}
+@keyframes weuiFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+

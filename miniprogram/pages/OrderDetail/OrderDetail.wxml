@@ -71,9 +71,9 @@
     </view>
 
     <view class="actions">
-      <button wx:if="{{canCancel}}" class="btn btn-cancel" bindtap="handleCancel">取消订单</button>
-      <button wx:if="{{canConfirm}}" class="btn btn-primary" bindtap="handleConfirm">确认订单</button>
-      <button wx:if="{{canComplete}}" class="btn btn-primary" bindtap="handleComplete">完成订单</button>
+      <button wx:if="{{canCancel}}" class="btn biz-action biz-danger" bindtap="handleCancel">🛑 取消订单</button>
+      <button wx:if="{{canConfirm}}" class="btn biz-action biz-primary" bindtap="handleConfirm">✅ 确认订单</button>
+      <button wx:if="{{canComplete}}" class="btn biz-action biz-primary" bindtap="handleComplete">🎉 完成订单</button>
     </view>
   </view>
 </view>

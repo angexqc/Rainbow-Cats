@@ -167,7 +167,7 @@ Page({
           wx.switchTab({ url: '/pages/My/My' })
           return
         }
-        wx.reLaunch({ url: '/pages/Pair/Pair' })
+        wx.switchTab({ url: '/pages/Home/index' })
       }, 300)
     } catch (err) {
       wx.showToast({ title: '保存失败', icon: 'none' })

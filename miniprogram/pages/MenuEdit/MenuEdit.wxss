@@ -25,7 +25,15 @@ page {
 }
 
 .cancel-text {
-  color: var(--rc-text-secondary);
+  color: #8f8f8f;
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  border: 1px solid var(--rc-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .save-text {

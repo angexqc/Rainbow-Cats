@@ -31,11 +31,11 @@
     </view>
 
     <view class="actions">
-      <button wx:if="{{isCreator}}" class="btn btn-secondary" bindtap="handleEdit">编辑</button>
-      <button class="btn {{menu.available ? 'btn-toggle-off' : 'btn-toggle-on'}}" bindtap="handleToggleAvailable">
-        {{menu.available ? '下架' : '上架'}}
+      <button wx:if="{{isCreator}}" class="btn biz-action biz-secondary" bindtap="handleEdit">✎ 编辑</button>
+      <button class="btn biz-action {{menu.available ? 'biz-muted' : 'biz-primary'}}" bindtap="handleToggleAvailable">
+        {{menu.available ? '📥 下架' : '📤 上架'}}
       </button>
-      <button wx:if="{{isCreator}}" class="btn btn-danger" bindtap="handleDelete">删除</button>
+      <button wx:if="{{isCreator}}" class="btn biz-action biz-danger" bindtap="handleDelete">🗑 删除</button>
     </view>
   </view>
 

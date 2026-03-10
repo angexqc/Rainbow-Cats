@@ -38,7 +38,7 @@
           </view>
         </swiper-item>
       </swiper>
-      <button class="action-btn banner-upload-btn" bindtap="handleUploadBanner">上传轮播图</button>
+      <button class="biz-action biz-primary banner-upload-btn" bindtap="handleUploadBanner">🖼 上传轮播图</button>
     </view>
 
     <view class="section block">
@@ -53,7 +53,8 @@
         <view
           wx:for="{{categoryEntries}}"
           wx:key="key"
-          class="category-item {{draggingCategoryIndex === index ? 'is-dragging' : ''}} {{dragPreviewIndex === index && draggingCategoryIndex !== -1 ? 'is-preview-target' : ''}} {{draggingCategoryIndex !== -1 && dragInsertIndex === index ? 'insert-before' : ''}} {{draggingCategoryIndex !== -1 && dragInsertIndex === index + 1 ? 'insert-after' : ''}} {{draggingCategoryIndex !== -1 && dragInsertIndex > draggingCategoryIndex && index > draggingCategoryIndex && index < dragInsertIndex ? 'is-shift-up' : ''}} {{draggingCategoryIndex !== -1 && dragInsertIndex < draggingCategoryIndex && index >= dragInsertIndex && index < draggingCategoryIndex ? 'is-shift-down' : ''}}"
+          class="category-item {{draggingCategoryIndex === index ? 'is-dragging' : ''}} {{dragPreviewIndex === index && draggingCategoryIndex !== -1 ? 'is-preview-target' : ''}} {{draggingCategoryIndex !== -1 && dragInsertIndex > draggingCategoryIndex && index > draggingCategoryIndex && index < dragInsertIndex ? 'is-shift-up' : ''}} {{draggingCategoryIndex !== -1 && dragInsertIndex < draggingCategoryIndex && index >= dragInsertIndex && index < draggingCategoryIndex ? 'is-shift-down' : ''}}"
+          style="{{draggingCategoryIndex === index ? ('transform: translateY(' + dragOffsetY + 'px);') : ''}}"
         >
           <text
             class="drag-handle"
@@ -61,16 +62,17 @@
             catchtouchstart="onCategoryDragStart"
             catchtouchmove="onCategoryDragMove"
             catchtouchend="onCategoryDragEnd"
+            catchtouchcancel="onCategoryDragEnd"
           >☰</text>
           <text class="label">{{item.label}}</text>
           <view class="row-actions">
-            <view class="edit-btn" data-key="{{item.key}}" bindtap="editCategory">编辑</view>
-            <view class="delete-icon-btn" data-key="{{item.key}}" bindtap="deleteCategory">🗑</view>
+            <view class="icon-action" data-key="{{item.key}}" bindtap="editCategory">✎</view>
+            <view class="icon-action danger" data-key="{{item.key}}" bindtap="deleteCategory">🗑</view>
           </view>
         </view>
       </view>
-      <view class="drag-tip">拖动左侧“☰”可调整顺序，横线位置即松手后放置位置</view>
-      <button class="ghost-btn" bindtap="resetCategories">恢复默认分类</button>
+      <view class="drag-tip">拖动左侧“☰”可调整顺序，松手即完成排序</view>
+      <button class="biz-action biz-secondary reset-category-btn" bindtap="resetCategories">↺ 恢复默认分类</button>
     </view>
 
     <view class="section block">
@@ -78,7 +80,7 @@
         <text class="block-title">个人资料</text>
         <text class="block-desc">昵称与头像</text>
       </view>
-      <button class="action-btn" bindtap="goProfileSetup">编辑资料</button>
+      <button class="biz-action biz-secondary profile-btn" bindtap="goProfileSetup">👤 编辑资料</button>
     </view>
 
     <view class="section block danger-block">
@@ -86,8 +88,8 @@
         <text class="block-title">关联管理</text>
         <text class="block-desc">{{isPaired ? '慎重操作' : '当前未配对'}}</text>
       </view>
-      <button wx:if="{{isPaired}}" class="danger-btn" bindtap="unbindPair">解除关联</button>
-      <button wx:else class="action-btn" bindtap="goPairing">去配对</button>
+      <button wx:if="{{isPaired}}" class="biz-action biz-danger unbind-pair-btn" bindtap="unbindPair">💔 解除关联</button>
+      <button wx:else class="biz-action biz-primary pair-btn" bindtap="goPairing">🔗 去配对</button>
     </view>
   </view>
 </view>

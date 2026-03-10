@@ -1,0 +1,13 @@
+<view class="page">
+  <view class="center-box {{exiting ? 'is-exiting' : ''}}">
+    <canvas wx:if="{{!lottieFallback}}" id="splashLottie" type="2d" class="lottie-canvas" style="width: {{lottieDisplaySize}}px; height: {{lottieDisplaySize}}px;"></canvas>
+    <view wx:else class="fallback-dot-wrap">
+      <view class="dot dot-1"></view>
+      <view class="dot dot-2"></view>
+      <view class="dot dot-3"></view>
+    </view>
+    <view wx:if="{{lottieFallback && lottieErrorText}}" class="fallback-tip">{{lottieErrorText}}</view>
+    <view class="title">五 百 大 菜 单</view>
+    <view class="subtitle">{{loadingText}}</view>
+  </view>
+</view>

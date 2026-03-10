@@ -219,12 +219,11 @@ page {
 .bind-btn {
   flex: 2;
   min-width: 0;
-  background-color: var(--rc-primary);
-  color: #ffffff;
 }
 
 .bind-btn[disabled] {
   background-color: var(--rc-border);
+  border-color: var(--rc-border);
   color: var(--rc-text-secondary);
 }
 
@@ -321,22 +320,10 @@ page {
 
 .regen-btn {
   width: 100%;
-  background-color: var(--rc-primary);
-  color: #ffffff;
 }
 
 .home-btn {
   width: 100%;
-  height: 44px;
-  border-radius: var(--rc-radius-field);
-  background-color: #ffffff;
-  color: var(--rc-primary);
-  border: 1px solid var(--rc-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 500;
 }
 
 .code-label {
@@ -354,7 +341,4 @@ page {
 
 .unbind-btn {
   width: 100%;
-  color: var(--rc-primary);
-  border: 1px solid var(--rc-primary);
-  background-color: var(--rc-surface);
 }
