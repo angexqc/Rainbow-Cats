@@ -43,7 +43,7 @@ Page({
 
   async onShow() {
     this.syncIdentity()
-    this.refreshCategoryConfig()
+    await this.refreshCategoryConfig()
     await this.refreshPairState()
     this.setData({ page: 1, hasMore: true })
     this.loadMenuList()
@@ -68,13 +68,27 @@ Page({
     this.setData({ selfUserId: String(identity.userId || '') })
   },
 
-  refreshCategoryConfig() {
-    const categoryMap = app.globalData ? app.globalData.menuCategoryMap : this.data.categoryMap
-    const categoryList = Object.keys(categoryMap || {}).map((key) => ({
-      key,
-      label: this.resolveCategoryLabel(key, categoryMap)
-    }))
-    this.setData({ categoryMap, categoryList })
+  async refreshCategoryConfig() {
+    try {
+      const list = await apiStore.getMenuCategories()
+      const source = Array.isArray(list) ? list : []
+      const categoryMap = {}
+      const categoryList = source.map((it) => {
+        const key = String((it && it.key) || '').trim()
+        const label = String((it && it.label) || '').trim() || key
+        if (key) categoryMap[key] = label
+        return { key, label }
+      }).filter((it) => it.key)
+      if (app.globalData) app.globalData.menuCategoryMap = categoryMap
+      this.setData({ categoryMap, categoryList })
+    } catch (err) {
+      const categoryMap = app.globalData ? app.globalData.menuCategoryMap : this.data.categoryMap
+      const categoryList = Object.keys(categoryMap || {}).map((key) => ({
+        key,
+        label: this.resolveCategoryLabel(key, categoryMap)
+      }))
+      this.setData({ categoryMap, categoryList })
+    }
   },
 
   resolveCategoryLabel(itemOrKey, map = {}) {
@@ -90,26 +104,6 @@ Page({
       return readable || '自定义分类'
     }
     return rawKey || '未分类'
-  },
-
-  ensureCategoryMapFromMenus(list = []) {
-    const source = Array.isArray(list) ? list : []
-    const appMap = (app.globalData && app.globalData.menuCategoryMap) || {}
-    const nextMap = { ...appMap }
-    let changed = false
-    source.forEach((item) => {
-      const key = String((item && item.category) || '').trim()
-      if (!key) return
-      const label = String((item && item.categoryLabel) || '').trim()
-      if (Object.prototype.hasOwnProperty.call(nextMap, key) && !label) return
-      if (label && nextMap[key] === label) return
-      nextMap[key] = label || key
-      changed = true
-    })
-    if (!changed) return
-    if (app.globalData) app.globalData.menuCategoryMap = nextMap
-    wx.setStorageSync('menuCategoryMap', nextMap)
-    this.refreshCategoryConfig()
   },
 
   onPullDownRefresh() {
@@ -150,7 +144,6 @@ Page({
         ownerDisplayAvatar: String(item && item.ownerAvatar) || '',
         categoryDisplay: this.resolveCategoryLabel(item, this.data.categoryMap)
       }))
-      this.ensureCategoryMapFromMenus(listWithOwnerRole)
       const list = this.getFilteredMenuList(listWithOwnerRole)
 
       this.setData({

@@ -3,6 +3,7 @@ const authService = require('../services/auth')
 const pairService = require('../services/pair')
 const homeService = require('../services/home')
 const menuService = require('../services/menu')
+const menuCategoryService = require('../services/menuCategories')
 const orderService = require('../services/order')
 const notifyService = require('../services/notifications')
 const {
@@ -20,6 +21,13 @@ const SILENT_REMOTE = { errorToast: false }
 const ENTITY_SCOPE_KEY = 'entity_scope_map_v1'
 const PAIR_CODE_SYNC_KEY = 'pair_code_synced_v1'
 const PROFILE_READY_KEY = 'profile_ready_v1'
+const DEFAULT_CATEGORY_MAP = {
+  main: '主食',
+  drink: '饮品',
+  dessert: '甜点',
+  other: '其他'
+}
+let lastCategorySyncAt = 0
 
 function getEntityScopeMap() {
   try {
@@ -98,6 +106,20 @@ function formatDate(dateInput) {
   const hh = String(d.getHours()).padStart(2, '0')
   const min = String(d.getMinutes()).padStart(2, '0')
   return `${yyyy}-${mm}-${dd} ${hh}:${min}`
+}
+
+function getStoredCategoryMap() {
+  const app = getApp()
+  const map = app && app.globalData ? app.globalData.menuCategoryMap : null
+  if (map && typeof map === 'object') return map
+  return { ...DEFAULT_CATEGORY_MAP }
+}
+
+function saveCategoryMap(map = {}) {
+  const app = getApp()
+  const nextMap = { ...DEFAULT_CATEGORY_MAP, ...(map || {}) }
+  if (app && app.globalData) app.globalData.menuCategoryMap = nextMap
+  return nextMap
 }
 
 module.exports = {
@@ -227,6 +249,11 @@ module.exports = {
       pairSessionId: pair && pair.isPaired ? (ctx.pairSessionId || makePairSessionId(identity.userId, pair.lastBindCode || pair.pairCode)) : ''
     }
     setPairContext(nextCtx)
+    try {
+      await this.syncMenuCategoryMapFromMenus({ force: false, minIntervalMs: 12000 })
+    } catch (err) {
+      // ignore category sync errors
+    }
     return pair
   },
 
@@ -247,6 +274,11 @@ module.exports = {
       skipPairing: false,
       pairSessionId: makePairSessionId(identity.userId, inputCode)
     })
+    try {
+      await this.syncMenuCategoryMapFromMenus({ force: true })
+    } catch (err) {
+      // ignore category sync errors
+    }
     return result
   },
 
@@ -259,6 +291,11 @@ module.exports = {
       skipPairing: false,
       pairSessionId: ''
     })
+    try {
+      await this.syncMenuCategoryMapFromMenus({ force: true })
+    } catch (err) {
+      // ignore category sync errors
+    }
     return result
   },
 
@@ -275,6 +312,72 @@ module.exports = {
   getPairContext() {
     const identity = this.getWxIdentity()
     return getPairContext() || ensureDefaultPairContext(identity.userId)
+  },
+
+  getMenuCategoryMap() {
+    return { ...DEFAULT_CATEGORY_MAP, ...getStoredCategoryMap() }
+  },
+
+  setMenuCategoryMap(map = {}) {
+    return saveCategoryMap(map)
+  },
+
+  async syncMenuCategoryMapFromMenus(options = {}) {
+    const force = !!(options && options.force)
+    const minIntervalMs = Number((options && options.minIntervalMs) || 12000)
+    const now = Date.now()
+    if (!force && now - lastCategorySyncAt < minIntervalMs) {
+      return this.getMenuCategoryMap()
+    }
+    const list = await this.getMenuCategories()
+    const nextMap = { ...DEFAULT_CATEGORY_MAP }
+    ;(Array.isArray(list) ? list : []).forEach((item) => {
+      const key = String((item && item.key) || '').trim()
+      if (!key) return
+      const label = String((item && item.label) || '').trim()
+      nextMap[key] = label || key
+    })
+    lastCategorySyncAt = Date.now()
+    return this.setMenuCategoryMap(nextMap)
+  },
+
+  async getMenuCategories() {
+    return withFallback(
+      () => menuCategoryService.list(SILENT_REMOTE),
+      () => {
+        const map = this.getMenuCategoryMap()
+        return Object.keys(map).map((key, idx) => ({ key, label: map[key], sortOrder: idx + 1 }))
+      }
+    )
+  },
+
+  async upsertMenuCategory(payload = {}) {
+    return withFallback(
+      () => menuCategoryService.upsert(payload, SILENT_REMOTE),
+      () => {
+        const key = String((payload && payload.key) || '').trim()
+        const label = String((payload && payload.label) || '').trim()
+        if (!key || !label) return null
+        const map = this.getMenuCategoryMap()
+        map[key] = label
+        this.setMenuCategoryMap(map)
+        return { key, label }
+      }
+    )
+  },
+
+  async reorderMenuCategories(keys = []) {
+    return withFallback(
+      () => menuCategoryService.reorder(keys, SILENT_REMOTE),
+      () => this.getMenuCategories()
+    )
+  },
+
+  async deleteMenuCategory(key) {
+    return withFallback(
+      () => menuCategoryService.remove(key, SILENT_REMOTE),
+      () => true
+    )
   },
 
   async getMenuList(params) {

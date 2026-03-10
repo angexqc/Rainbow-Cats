@@ -1,6 +1,5 @@
 const apiStore = require('../../utils/apiStore')
 const { uploadImage } = require('../../services/upload')
-const app = getApp()
 const { getTopSafeHeight } = require('../../utils/safeArea')
 
 Page({
@@ -19,7 +18,6 @@ Page({
 
   onLoad(options) {
     this.setData({ topSafeHeight: getTopSafeHeight() })
-    this.refreshCategories()
     const { id } = options
     if (!id) {
       wx.showToast({ title: '参数错误', icon: 'none' })
@@ -31,15 +29,24 @@ Page({
     this.loadMenuDetail(id)
   },
 
-  refreshCategories() {
-    const map = (app.globalData && app.globalData.menuCategoryMap) || {}
-    const categoryValues = Object.keys(map)
-    const categories = categoryValues.map((k) => map[k] || k)
-    this.setData({
-      categories,
-      categoryValues,
-      categoryIndex: Math.min(this.data.categoryIndex, Math.max(0, categoryValues.length - 1))
-    })
+  async refreshCategories(preferredKey = '') {
+    try {
+      const list = await apiStore.getMenuCategories()
+      const source = Array.isArray(list) ? list : []
+      const categoryValues = source.map((it) => String((it && it.key) || '').trim()).filter(Boolean)
+      const categories = source.map((it) => String((it && it.label) || '').trim() || String((it && it.key) || ''))
+      let categoryIndex = Math.min(this.data.categoryIndex, Math.max(0, categoryValues.length - 1))
+      if (preferredKey && categoryValues.includes(preferredKey)) {
+        categoryIndex = Math.max(0, categoryValues.indexOf(preferredKey))
+      }
+      this.setData({ categories, categoryValues, categoryIndex })
+    } catch (err) {
+      this.setData({
+        categories: ['其他'],
+        categoryValues: ['other'],
+        categoryIndex: 0
+      })
+    }
   },
 
   async loadMenuDetail(id) {
@@ -51,15 +58,16 @@ Page({
         return
       }
 
-      const hasCategory = this.data.categoryValues.includes(menu.category)
-      if (!hasCategory) {
-        const appMap = (app.globalData && app.globalData.menuCategoryMap) || {}
-        const nextMap = { ...appMap, [menu.category]: String(menu.categoryLabel || menu.category) }
-        if (app.globalData) app.globalData.menuCategoryMap = nextMap
-        wx.setStorageSync('menuCategoryMap', nextMap)
-        this.refreshCategories()
+      await this.refreshCategories(menu.category)
+      let rawIndex = this.data.categoryValues.indexOf(menu.category)
+      if (rawIndex < 0) {
+        const fallbackCategory = String(menu.category || 'other')
+        const fallbackLabel = String(menu.categoryLabel || fallbackCategory)
+        await apiStore.upsertMenuCategory({ key: fallbackCategory, label: fallbackLabel })
+        await this.refreshCategories(fallbackCategory)
+        rawIndex = this.data.categoryValues.indexOf(fallbackCategory)
       }
-      const categoryIndex = Math.max(0, this.data.categoryValues.indexOf(menu.category))
+      const categoryIndex = Math.max(0, rawIndex)
       this.setData({
         title: menu.title,
         image: menu.image,

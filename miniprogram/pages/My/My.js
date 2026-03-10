@@ -8,7 +8,6 @@ const DEFAULT_CATEGORY_MAP = {
   dessert: '甜点',
   other: '其他'
 }
-const CATEGORY_ORDER_KEY = 'menuCategoryOrder'
 
 Page({
   data: {
@@ -33,50 +32,21 @@ Page({
 
   async loadPageData() {
     try {
-      await this.syncCategoryMapFromRemoteMenus()
-      const [banners, pair] = await Promise.all([
+      const [banners, pair, categories] = await Promise.all([
         apiStore.getHomeBanners(),
-        apiStore.getPairInfo()
+        apiStore.getPairInfo(),
+        apiStore.getMenuCategories()
       ])
       const normalizedBanners = this.normalizeBanners(banners)
+      this.applyCategoryEntries(categories)
       this.setData({
         banners: normalizedBanners,
         bannerCurrent: 0,
-        categoryEntries: this.getCategoryEntries(),
         isPaired: !!(pair && pair.isPaired)
       })
     } catch (err) {
       wx.showToast({ title: '加载失败', icon: 'none' })
     }
-  },
-
-  async syncCategoryMapFromRemoteMenus() {
-    const app = getApp()
-    const baseMap = (app.globalData && app.globalData.menuCategoryMap) || DEFAULT_CATEGORY_MAP
-    const nextMap = { ...baseMap }
-    let page = 1
-    const pageSize = 100
-    while (true) {
-      const res = await apiStore.getMenuList({ page, pageSize })
-      const list = Array.isArray(res.list) ? res.list : []
-      list.forEach((item) => {
-        const key = String((item && item.category) || '').trim()
-        if (!key) return
-        const label = String((item && item.categoryLabel) || '').trim()
-        if (label) {
-          nextMap[key] = label
-          return
-        }
-        if (!Object.prototype.hasOwnProperty.call(nextMap, key)) {
-          nextMap[key] = key
-        }
-      })
-      if (!res.hasMore) break
-      page += 1
-    }
-
-    if (app.globalData) app.globalData.menuCategoryMap = nextMap
-    wx.setStorageSync('menuCategoryMap', nextMap)
   },
 
   onBannerChange(e) {
@@ -98,31 +68,18 @@ Page({
       .filter((item) => item && item.url)
   },
 
-  getCategoryEntries() {
-    const app = getApp()
-    const map = (app.globalData && app.globalData.menuCategoryMap) || DEFAULT_CATEGORY_MAP
-    return Object.keys(map).map((key) => ({
-      key,
-      label: map[key] || key
-    }))
-  },
-
-  saveCategoryMapByEntries(entries = []) {
+  applyCategoryEntries(entries = []) {
     const app = getApp()
     const source = Array.isArray(entries) ? entries : []
     const nextMap = {}
-    const nextOrder = []
     source.forEach((item) => {
       const key = String((item && item.key) || '').trim()
       if (!key) return
       nextMap[key] = String((item && item.label) || key)
-      nextOrder.push(key)
     })
     if (app.globalData) {
-      app.globalData.menuCategoryMap = nextMap
+      app.globalData.menuCategoryMap = { ...DEFAULT_CATEGORY_MAP, ...nextMap }
     }
-    wx.setStorageSync('menuCategoryMap', nextMap)
-    wx.setStorageSync(CATEGORY_ORDER_KEY, nextOrder)
     this.setData({ categoryEntries: source })
   },
 
@@ -224,39 +181,6 @@ Page({
     })
   },
 
-  async migrateCategoryToOther(fromKey) {
-    const sourceKey = String(fromKey || '').trim()
-    if (!sourceKey || sourceKey === 'other') return
-
-    const identity = apiStore.getWxIdentity() || {}
-    const selfId = String(identity.userId || '')
-    if (!selfId) return
-
-    let page = 1
-    const pageSize = 100
-    const targetMenus = []
-    while (true) {
-      const res = await apiStore.getMenuList({ page, pageSize })
-      const list = Array.isArray(res.list) ? res.list : []
-      targetMenus.push(
-        ...list.filter((m) => String((m && m.owner) || '') === selfId && String((m && m.category) || '') === sourceKey)
-      )
-      if (!res.hasMore) break
-      page += 1
-    }
-
-    for (const menu of targetMenus) {
-      await apiStore.updateMenu(menu._id, {
-        title: menu.title,
-        image: menu.image,
-        desc: menu.desc || '',
-        category: 'other',
-        categoryLabel: '其他',
-        available: !!menu.available
-      })
-    }
-  },
-
   deleteCategory(e) {
     const key = String((e.currentTarget.dataset && e.currentTarget.dataset.key) || '').trim()
     if (!key) return
@@ -272,14 +196,15 @@ Page({
       content: `删除后该分类下菜品将归为“其他”。确认删除“${current.label}”？`,
       success: async (res) => {
         if (!res.confirm) return
-        const next = (this.data.categoryEntries || []).filter((it) => it.key !== key)
-        this.saveCategoryMapByEntries(next)
         wx.showLoading({ title: '同步中...', mask: true })
         try {
-          await this.migrateCategoryToOther(key)
+          await apiStore.deleteMenuCategory(key)
+          const list = await apiStore.getMenuCategories()
+          this.applyCategoryEntries(list)
+          await apiStore.syncMenuCategoryMapFromMenus({ force: true })
           wx.showToast({ title: '分类已删除', icon: 'success' })
         } catch (err) {
-          wx.showToast({ title: '分类已删，菜单同步失败', icon: 'none' })
+          wx.showToast({ title: '删除失败', icon: 'none' })
         } finally {
           wx.hideLoading()
         }
@@ -288,7 +213,7 @@ Page({
   },
 
   makeReadableCategoryKey(label) {
-    const entries = this.getCategoryEntries()
+    const entries = this.data.categoryEntries || []
     const base = String(label || '').trim().slice(0, 16)
     if (!base) return ''
     if (!entries.some((it) => it.key === base)) return base
@@ -301,70 +226,46 @@ Page({
     return candidate
   },
 
-  async syncCategoryLabel(key, label) {
-    const targetKey = String(key || '').trim()
-    const targetLabel = String(label || '').trim()
-    if (!targetKey || !targetLabel) return
-
-    const identity = apiStore.getWxIdentity() || {}
-    const selfId = String(identity.userId || '')
-    if (!selfId) return
-
-    let page = 1
-    const pageSize = 100
-    const targetMenus = []
-    while (true) {
-      const res = await apiStore.getMenuList({ page, pageSize })
-      const list = Array.isArray(res.list) ? res.list : []
-      targetMenus.push(
-        ...list.filter((m) => String((m && m.owner) || '') === selfId && String((m && m.category) || '') === targetKey)
-      )
-      if (!res.hasMore) break
-      page += 1
-    }
-
-    for (const menu of targetMenus) {
-      await apiStore.updateMenu(menu._id, {
-        title: menu.title,
-        image: menu.image,
-        desc: menu.desc || '',
-        category: targetKey,
-        categoryLabel: targetLabel,
-        available: !!menu.available
-      })
-    }
-  },
-
   async updateCategoryLabel(key, label) {
-    const current = this.getCategoryEntries()
-    const index = current.findIndex((item) => item.key === key)
-    const next = [...current]
-    if (index >= 0) {
-      next[index] = { ...next[index], label }
-    } else {
-      next.push({ key, label })
+    const safeKey = String(key || '').trim()
+    const safeLabel = String(label || '').trim()
+    if (!safeKey || !safeLabel) return
+    wx.showLoading({ title: '同步分类中...', mask: true })
+    try {
+      await apiStore.upsertMenuCategory({ key: safeKey, label: safeLabel })
+      const list = await apiStore.getMenuCategories()
+      this.applyCategoryEntries(list)
+      await apiStore.syncMenuCategoryMapFromMenus({ force: true })
+      wx.showToast({ title: '已保存', icon: 'success' })
+    } catch (err) {
+      wx.showToast({ title: '保存失败', icon: 'none' })
+    } finally {
+      wx.hideLoading()
     }
-    this.saveCategoryMapByEntries(next)
-    if (index >= 0) {
-      wx.showLoading({ title: '同步分类中...', mask: true })
-      try {
-        await this.syncCategoryLabel(key, label)
-      } catch (err) {
-        wx.showToast({ title: '分类名已改，但菜单同步失败', icon: 'none' })
-      } finally {
-        wx.hideLoading()
-      }
-    }
-    wx.showToast({ title: '已保存', icon: 'success' })
   },
 
-  resetCategories() {
-    const entries = Object.keys(DEFAULT_CATEGORY_MAP).map((key) => ({
-      key,
-      label: DEFAULT_CATEGORY_MAP[key]
-    }))
-    this.saveCategoryMapByEntries(entries)
-    wx.showToast({ title: '已恢复默认', icon: 'success' })
+  async resetCategories() {
+    wx.showLoading({ title: '恢复中...', mask: true })
+    try {
+      const current = this.data.categoryEntries || []
+      for (const item of current) {
+        const key = String((item && item.key) || '').trim()
+        if (!key || Object.prototype.hasOwnProperty.call(DEFAULT_CATEGORY_MAP, key)) continue
+        await apiStore.deleteMenuCategory(key)
+      }
+      for (const key of Object.keys(DEFAULT_CATEGORY_MAP)) {
+        await apiStore.upsertMenuCategory({ key, label: DEFAULT_CATEGORY_MAP[key] })
+      }
+      await apiStore.reorderMenuCategories(Object.keys(DEFAULT_CATEGORY_MAP))
+      const list = await apiStore.getMenuCategories()
+      this.applyCategoryEntries(list)
+      await apiStore.syncMenuCategoryMapFromMenus({ force: true })
+      wx.showToast({ title: '已恢复默认', icon: 'success' })
+    } catch (err) {
+      wx.showToast({ title: '恢复失败', icon: 'none' })
+    } finally {
+      wx.hideLoading()
+    }
   },
 
   onCategoryDragStart(e) {
@@ -418,7 +319,7 @@ Page({
     this.setData({ dragInsertIndex: insertIndex, dragPreviewIndex: targetIndex })
   },
 
-  onCategoryDragEnd() {
+  async onCategoryDragEnd() {
     const startIndex = Number(this.dragStartIndex)
     this.dragStartIndex = -1
     const insertIndex = Number(this.data.dragInsertIndex)
@@ -437,8 +338,15 @@ Page({
 
     const [moved] = entries.splice(startIndex, 1)
     entries.splice(targetIndex, 0, moved)
-    this.saveCategoryMapByEntries(entries)
-    wx.showToast({ title: '分类顺序已更新', icon: 'none' })
+    this.applyCategoryEntries(entries)
+    try {
+      await apiStore.reorderMenuCategories(entries.map((it) => it.key))
+      await apiStore.syncMenuCategoryMapFromMenus({ force: true })
+      wx.showToast({ title: '分类顺序已更新', icon: 'none' })
+    } catch (err) {
+      wx.showToast({ title: '排序同步失败', icon: 'none' })
+      this.loadPageData()
+    }
   },
 
   goPairing() {

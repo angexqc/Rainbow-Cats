@@ -1,6 +1,5 @@
 const apiStore = require('../../utils/apiStore')
 const { uploadImage } = require('../../services/upload')
-const app = getApp()
 const { getTopSafeHeight } = require('../../utils/safeArea')
 
 Page({
@@ -20,15 +19,28 @@ Page({
     this.refreshCategories()
   },
 
-  refreshCategories() {
-    const map = (app.globalData && app.globalData.menuCategoryMap) || {}
-    const categoryValues = Object.keys(map)
-    const categories = categoryValues.map((k) => map[k] || k)
-    this.setData({
-      categories,
-      categoryValues,
-      categoryIndex: Math.min(this.data.categoryIndex, Math.max(0, categoryValues.length - 1))
-    })
+  onShow() {
+    this.refreshCategories()
+  },
+
+  async refreshCategories() {
+    try {
+      const list = await apiStore.getMenuCategories()
+      const source = Array.isArray(list) ? list : []
+      const categoryValues = source.map((it) => String((it && it.key) || '').trim()).filter(Boolean)
+      const categories = source.map((it) => String((it && it.label) || '').trim() || String((it && it.key) || ''))
+      this.setData({
+        categories,
+        categoryValues,
+        categoryIndex: Math.min(this.data.categoryIndex, Math.max(0, categoryValues.length - 1))
+      })
+    } catch (err) {
+      this.setData({
+        categories: ['其他'],
+        categoryValues: ['other'],
+        categoryIndex: 0
+      })
+    }
   },
 
   onTitleInput(e) {

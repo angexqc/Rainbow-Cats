@@ -209,12 +209,15 @@ page {
   gap: 8px;
   align-items: center;
   box-sizing: border-box;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  will-change: transform;
 }
 
 .category-item.is-dragging {
   border-color: #ffb0c3;
   background: #fff6f9;
   box-shadow: 0 6px 14px rgba(255, 155, 183, 0.18);
+  z-index: 2;
 }
 
 .category-item.is-preview-target {
@@ -239,6 +242,14 @@ page {
 
 .category-item.insert-after::after {
   bottom: -3px;
+}
+
+.category-item.is-shift-up {
+  transform: translateY(-52px);
+}
+
+.category-item.is-shift-down {
+  transform: translateY(52px);
 }
 
 .drag-handle {

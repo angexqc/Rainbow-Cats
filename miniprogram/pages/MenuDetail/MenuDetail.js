@@ -47,6 +47,7 @@ Page({
 
   async loadMenuDetail(id) {
     try {
+      await apiStore.syncMenuCategoryMapFromMenus({ force: false })
       this.setData({
         categoryMap: app.globalData ? app.globalData.menuCategoryMap : this.data.categoryMap
       })

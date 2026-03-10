@@ -24,10 +24,15 @@ Page({
   },
 
   onShow() {
-    this.setData({
-      categoryMap: app.globalData ? app.globalData.menuCategoryMap : this.data.categoryMap
-    })
-    this.loadCart()
+    Promise.resolve()
+      .then(() => apiStore.syncMenuCategoryMapFromMenus({ force: false }))
+      .catch(() => null)
+      .finally(() => {
+        this.setData({
+          categoryMap: app.globalData ? app.globalData.menuCategoryMap : this.data.categoryMap
+        })
+        this.loadCart()
+      })
   },
 
   resolveCategoryLabel(itemOrKey) {
