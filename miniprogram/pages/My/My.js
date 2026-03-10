@@ -224,24 +224,9 @@ Page({
     })
   },
 
-  makeReadableCategoryKey(label) {
-    const entries = this.getCategoryEntries()
-    const base = String(label || '').trim().slice(0, 16)
-    if (!base) return ''
-    if (!entries.some((it) => it.key === base)) return base
-    let seq = 2
-    let candidate = `${base}_${seq}`
-    while (entries.some((it) => it.key === candidate)) {
-      seq += 1
-      candidate = `${base}_${seq}`
-    }
-    return candidate
-  },
-
-  async migrateCategoryKey(fromKey, toKey, toLabel = '') {
-    const from = String(fromKey || '').trim()
-    const to = String(toKey || '').trim()
-    if (!from || !to || from === to) return
+  async migrateCategoryToOther(fromKey) {
+    const sourceKey = String(fromKey || '').trim()
+    if (!sourceKey || sourceKey === 'other') return
 
     const identity = apiStore.getWxIdentity() || {}
     const selfId = String(identity.userId || '')
@@ -254,7 +239,7 @@ Page({
       const res = await apiStore.getMenuList({ page, pageSize })
       const list = Array.isArray(res.list) ? res.list : []
       targetMenus.push(
-        ...list.filter((m) => String((m && m.owner) || '') === selfId && String((m && m.category) || '') === from)
+        ...list.filter((m) => String((m && m.owner) || '') === selfId && String((m && m.category) || '') === sourceKey)
       )
       if (!res.hasMore) break
       page += 1
@@ -265,11 +250,55 @@ Page({
         title: menu.title,
         image: menu.image,
         desc: menu.desc || '',
-        category: to,
-        categoryLabel: String(toLabel || to),
+        category: 'other',
+        categoryLabel: '其他',
         available: !!menu.available
       })
     }
+  },
+
+  deleteCategory(e) {
+    const key = String((e.currentTarget.dataset && e.currentTarget.dataset.key) || '').trim()
+    if (!key) return
+    if (key === 'other') {
+      wx.showToast({ title: '“其他”不可删除', icon: 'none' })
+      return
+    }
+    const current = this.data.categoryEntries.find((it) => it.key === key)
+    if (!current) return
+
+    wx.showModal({
+      title: '删除分类',
+      content: `删除后该分类下菜品将归为“其他”。确认删除“${current.label}”？`,
+      success: async (res) => {
+        if (!res.confirm) return
+        const next = (this.data.categoryEntries || []).filter((it) => it.key !== key)
+        this.saveCategoryMapByEntries(next)
+        wx.showLoading({ title: '同步中...', mask: true })
+        try {
+          await this.migrateCategoryToOther(key)
+          wx.showToast({ title: '分类已删除', icon: 'success' })
+        } catch (err) {
+          wx.showToast({ title: '分类已删，菜单同步失败', icon: 'none' })
+        } finally {
+          wx.hideLoading()
+        }
+      }
+    })
+  },
+
+  makeReadableCategoryKey(label) {
+    const entries = this.getCategoryEntries()
+    const base = String(label || '').trim().slice(0, 16)
+    if (!base) return ''
+    if (!entries.some((it) => it.key === base)) return base
+    let seq = 2
+    let candidate = `${base}_${seq}`
+    while (entries.some((it) => it.key === candidate)) {
+      seq += 1
+      candidate = `${base}_${seq}`
+    }
+    return candidate
   },
 
   async syncCategoryLabel(key, label) {
@@ -310,37 +339,13 @@ Page({
     const current = this.getCategoryEntries()
     const index = current.findIndex((item) => item.key === key)
     const next = [...current]
-    let changedKeyFrom = ''
-    let changedKeyTo = ''
     if (index >= 0) {
-      const prev = next[index]
-      const nextKey = String(label || '').trim().slice(0, 16)
-      if (!nextKey) return
-      if (prev.key !== nextKey) {
-        if (next.some((it, i) => i !== index && it.key === nextKey)) {
-          wx.showToast({ title: '分类名称已存在', icon: 'none' })
-          return
-        }
-        changedKeyFrom = prev.key
-        changedKeyTo = nextKey
-        next[index] = { key: nextKey, label }
-      } else {
-        next[index] = { ...next[index], label }
-      }
+      next[index] = { ...next[index], label }
     } else {
       next.push({ key, label })
     }
     this.saveCategoryMapByEntries(next)
-    if (changedKeyFrom && changedKeyTo) {
-      wx.showLoading({ title: '同步分类中...', mask: true })
-      try {
-        await this.migrateCategoryKey(changedKeyFrom, changedKeyTo, label)
-      } catch (err) {
-        wx.showToast({ title: '分类名已改，但菜单同步失败', icon: 'none' })
-      } finally {
-        wx.hideLoading()
-      }
-    } else if (index >= 0) {
+    if (index >= 0) {
       wx.showLoading({ title: '同步分类中...', mask: true })
       try {
         await this.syncCategoryLabel(key, label)
@@ -408,12 +413,8 @@ Page({
     const insertIndex = this.calcInsertIndexByY(Number(touch.clientY || 0))
     if (!Number.isInteger(insertIndex) || insertIndex < 0) return
     const targetIndex = Math.max(0, Math.min((this.data.categoryEntries || []).length - 1, insertIndex))
-    if (insertIndex !== this.dragInsertIndex) {
-      this.dragInsertIndex = insertIndex
-      if (wx.vibrateShort) {
-        wx.vibrateShort({ type: 'light' })
-      }
-    }
+    if (insertIndex === this.dragInsertIndex && targetIndex === Number(this.data.dragPreviewIndex)) return
+    this.dragInsertIndex = insertIndex
     this.setData({ dragInsertIndex: insertIndex, dragPreviewIndex: targetIndex })
   },
 

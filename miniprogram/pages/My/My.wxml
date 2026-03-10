@@ -63,7 +63,10 @@
             catchtouchend="onCategoryDragEnd"
           >☰</text>
           <text class="label">{{item.label}}</text>
-          <view class="edit-btn" data-key="{{item.key}}" bindtap="editCategory">编辑</view>
+          <view class="row-actions">
+            <view class="edit-btn" data-key="{{item.key}}" bindtap="editCategory">编辑</view>
+            <view class="delete-icon-btn" data-key="{{item.key}}" bindtap="deleteCategory">🗑</view>
+          </view>
         </view>
       </view>
       <view class="drag-tip">拖动左侧“☰”可调整顺序，横线位置即松手后放置位置</view>
