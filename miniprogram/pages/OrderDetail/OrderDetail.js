@@ -41,16 +41,26 @@ Page({
       order.totalCount = Number(order.totalCount || 0)
       order.liked = !!order.liked
       order.review = order.review || ''
+      order.displayOrderNo = String(order.orderNo || '').trim() || apiStore.buildOrderNo({
+        userId: String(order.creatorUserId || '').trim()
+      }, order.date || Date.now())
+      const identity = apiStore.getWxIdentity() || {}
       const pair = await apiStore.getPairInfo()
       const actorMap = this.buildActorMap(pair)
-      order.timeline = (order.timeline || []).map((step, index, arr) => ({
+      order.creatorRole = this.resolveOrderCreatorRole(order, identity, actorMap)
+      order.timeline = (order.timeline || []).map((step, index, arr) => {
+        const actorRole = this.resolveTimelineActorRole(step, order.creatorRole, identity, actorMap)
+        const actor = this.resolveTimelineActorDisplay(step, actorRole, actorMap)
+        return ({
         ...step,
-        actorName: (actorMap[step.actorRole] && actorMap[step.actorRole].name) || step.actorName || '系统',
-        actorAvatar: (actorMap[step.actorRole] && actorMap[step.actorRole].avatar) || '',
-        actorInitial: this.getInitial(((actorMap[step.actorRole] && actorMap[step.actorRole].name) || step.actorName || '系')),
+        actorRole,
+        actorName: actor.name,
+        actorAvatar: actor.avatar,
+        actorInitial: this.getInitial(actor.name),
         timeStr: step.time ? apiStore.formatDate(step.time) : '',
         isLast: index === arr.length - 1
-      }))
+        })
+      })
 
       const isCreator = order.creatorRole === 'me'
       const canCancel = ['pending', 'confirmed'].includes(order.status)
@@ -115,6 +125,37 @@ Page({
     })
   },
 
+  handleReorder() {
+    const order = this.data.order
+    if (!order || !Array.isArray(order.items) || !order.items.length) {
+      wx.showToast({ title: '该订单无可下单菜品', icon: 'none' })
+      return
+    }
+
+    const cart = wx.getStorageSync('cart') || {}
+    const fallbackSeed = Date.now()
+    order.items.forEach((item, idx) => {
+      const menuId = String(item.menuId || item._id || '').trim() || `order_${this.data.orderId}_${fallbackSeed}_${idx}`
+      const menu = {
+        _id: menuId,
+        title: item.title || '未知菜品',
+        image: item.image || ''
+      }
+      const addCount = Math.max(1, Number(item.count || 0))
+      if (cart[menuId]) {
+        cart[menuId].count = Number(cart[menuId].count || 0) + addCount
+      } else {
+        cart[menuId] = { menu, count: addCount }
+      }
+    })
+
+    wx.setStorageSync('cart', cart)
+    wx.showToast({ title: '已加入购物车', icon: 'success' })
+    setTimeout(() => {
+      wx.switchTab({ url: '/pages/Order/Order' })
+    }, 220)
+  },
+
   async toggleLike() {
     const order = this.data.order
     if (!order) return
@@ -155,6 +196,61 @@ Page({
       me: { name: myInfo.nickName || '我', avatar: myInfo.avatarUrl || '' },
       ta: { name: partnerInfo.nickName || 'TA', avatar: partnerInfo.avatarUrl || '' },
       system: { name: '系统', avatar: '' }
+    }
+  },
+
+  resolveOrderCreatorRole(order = {}, identity = {}, actorMap = {}) {
+    const selfUserId = String(identity.userId || '').trim()
+    const creatorUserId = String(order.creatorUserId || order.userId || '').trim()
+    if (creatorUserId && selfUserId) {
+      return creatorUserId === selfUserId ? 'me' : 'ta'
+    }
+
+    const creatorName = String(order.creatorName || (order.timeline && order.timeline[0] && order.timeline[0].actorName) || '').trim()
+    const roleByName = this.resolveRoleByName(creatorName, actorMap)
+    if (roleByName) return roleByName
+
+    const explicitRole = String(order.creatorRole || '').trim()
+    if (explicitRole === 'me' || explicitRole === 'ta') return explicitRole
+
+    return 'me'
+  },
+
+  resolveTimelineActorRole(node = {}, creatorRole = 'me', identity = {}, actorMap = {}) {
+    const selfUserId = String(identity.userId || '').trim()
+    const actorUserId = String(node.actorUserId || node.userId || '').trim()
+    if (actorUserId && selfUserId) {
+      return actorUserId === selfUserId ? 'me' : 'ta'
+    }
+
+    const roleByName = this.resolveRoleByName(node.actorName, actorMap)
+    if (roleByName) return roleByName
+
+    const explicitRole = String(node.actorRole || '').trim()
+    if (explicitRole === 'me' || explicitRole === 'ta' || explicitRole === 'system') return explicitRole
+
+    const status = String(node.status || '').trim()
+    if (status === 'pending') return creatorRole
+    if (status === 'confirmed' || status === 'completed') return creatorRole === 'me' ? 'ta' : 'me'
+    if (status === 'cancelled') return creatorRole
+    return 'system'
+  },
+
+  resolveRoleByName(name, actorMap = {}) {
+    const text = String(name || '').trim()
+    if (!text) return ''
+    if (actorMap.ta && actorMap.ta.name && text === actorMap.ta.name) return 'ta'
+    if (actorMap.me && actorMap.me.name && text === actorMap.me.name) return 'me'
+    return ''
+  },
+
+  resolveTimelineActorDisplay(node = {}, actorRole = 'system', actorMap = {}) {
+    const rawName = String(node.actorName || '').trim()
+    const rawAvatar = String(node.actorAvatar || '').trim()
+    const mapped = actorMap[actorRole] || {}
+    return {
+      name: rawName || mapped.name || '系统',
+      avatar: rawAvatar || mapped.avatar || ''
     }
   },
 

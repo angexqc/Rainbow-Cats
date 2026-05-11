@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "点餐历史日历",
+  "navigationBarBackgroundColor": "#FDFEFD",
+  "backgroundColor": "#F2F8F2",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true,
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "cat-lottie-loader": "/components/CatLottieLoader/CatLottieLoader"
+  },
+  "navigationStyle": "custom"
+}

@@ -1,6 +1,6 @@
 const apiStore = require('../../utils/apiStore')
 const { uploadImage } = require('../../services/upload')
-const { getTopSafeHeight } = require('../../utils/safeArea')
+const { getTopSafeHeight, computeNavbarTabPageContentHeight } = require('../../utils/safeArea')
 
 const DEFAULT_CATEGORY_MAP = {
   main: '主食',
@@ -12,6 +12,7 @@ const DEFAULT_CATEGORY_MAP = {
 Page({
   data: {
     topSafeHeight: 0,
+    contentHeight: 0,
     banners: [],
     bannerCurrent: 0,
     categoryEntries: [],
@@ -23,11 +24,19 @@ Page({
   },
 
   onLoad() {
-    this.setData({ topSafeHeight: getTopSafeHeight() })
+    const topSafeHeight = getTopSafeHeight()
+    this.setData({
+      topSafeHeight,
+      contentHeight: computeNavbarTabPageContentHeight(topSafeHeight).contentHeight
+    })
     this.loadPageData()
   },
 
   onShow() {
+    const topSafeHeight = Number(this.data.topSafeHeight || getTopSafeHeight())
+    this.setData({
+      contentHeight: computeNavbarTabPageContentHeight(topSafeHeight).contentHeight
+    })
     this.loadPageData()
   },
 
@@ -93,8 +102,6 @@ Page({
       success: async (res) => {
         const file = res.tempFiles && res.tempFiles[0]
         if (!file || !file.tempFilePath) return
-
-        wx.showLoading({ title: '上传中...', mask: true })
         try {
           const url = await uploadImage(file.tempFilePath, 'banners')
           await apiStore.addHomeBanner(url)
@@ -103,7 +110,6 @@ Page({
         } catch (err) {
           wx.showToast({ title: '上传失败', icon: 'none' })
         } finally {
-          wx.hideLoading()
         }
       }
     })
@@ -128,7 +134,6 @@ Page({
       content: '确认删除这张轮播图吗？',
       success: async (res) => {
         if (!res.confirm) return
-        wx.showLoading({ title: '删除中...', mask: true })
         try {
           await apiStore.deleteHomeBanner(targetUrl)
           await this.loadPageData()
@@ -136,7 +141,6 @@ Page({
         } catch (err) {
           wx.showToast({ title: '删除失败', icon: 'none' })
         } finally {
-          wx.hideLoading()
         }
       }
     })
@@ -197,7 +201,6 @@ Page({
       content: `删除后该分类下菜品将归为“其他”。确认删除“${current.label}”？`,
       success: async (res) => {
         if (!res.confirm) return
-        wx.showLoading({ title: '同步中...', mask: true })
         try {
           await apiStore.deleteMenuCategory(key)
           const list = await apiStore.getMenuCategories()
@@ -207,7 +210,6 @@ Page({
         } catch (err) {
           wx.showToast({ title: '删除失败', icon: 'none' })
         } finally {
-          wx.hideLoading()
         }
       }
     })
@@ -231,7 +233,6 @@ Page({
     const safeKey = String(key || '').trim()
     const safeLabel = String(label || '').trim()
     if (!safeKey || !safeLabel) return
-    wx.showLoading({ title: '同步分类中...', mask: true })
     try {
       await apiStore.upsertMenuCategory({ key: safeKey, label: safeLabel })
       const list = await apiStore.getMenuCategories()
@@ -241,12 +242,10 @@ Page({
     } catch (err) {
       wx.showToast({ title: '保存失败', icon: 'none' })
     } finally {
-      wx.hideLoading()
     }
   },
 
   async resetCategories() {
-    wx.showLoading({ title: '恢复中...', mask: true })
     try {
       const current = this.data.categoryEntries || []
       for (const item of current) {
@@ -265,7 +264,6 @@ Page({
     } catch (err) {
       wx.showToast({ title: '恢复失败', icon: 'none' })
     } finally {
-      wx.hideLoading()
     }
   },
 

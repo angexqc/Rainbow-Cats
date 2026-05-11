@@ -19,19 +19,19 @@
   display: block;
   height: 100%; 
   width: 100%;
-  background-color: darkgray;
+  background-color: var(--rc-muted-bg);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
 }
 
 .form-cell {
-    padding: 0;
+  padding: 12px;
 }
 .slide {
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 12px;
   position: relative;
 }
 
@@ -46,11 +46,11 @@
 }
 .mission-info_desc {
   font-size: 10px;
-  color: #BDBDBD;
+  color: var(--rc-text-secondary);
 }
 .mission-info_date {
   font-size: 10px;
-  color: #BDBDBD;
+  color: var(--rc-text-secondary);
 }
 .mission-info_author {
   width: 70px;
@@ -71,18 +71,18 @@
   top: 0;
 }
 
-.markBtn .weui-slideview__btn {background-color: greenyellow;}
-.starBtn .weui-slideview__btn {background-color: gold;}
-.removeBtn .weui-slideview__btn {background-color: lightsalmon;}
+.markBtn .weui-slideview__btn {background-color: var(--rc-primary);}
+.starBtn .weui-slideview__btn {background-color: #e7b959;}
+.removeBtn .weui-slideview__btn {background-color: var(--rc-danger);}
 
 .btn-normal{
   margin: 2%;
-  color: white;
-  background-color: #3d3d3d;
+  color: var(--rc-on-primary);
+  background-color: var(--rc-primary);
 }
 .btn-hover{
-  color: black;
-  background-color: gray;
+  color: var(--rc-on-primary);
+  background-color: var(--rc-primary-strong);
 }
 
 .search-bar {
@@ -90,9 +90,9 @@
   width: 100%;
   display: flex;
   box-sizing: border-box;
-  background-color: #EFEFF4;
-  border: 1rpx solid #E6E6EA;
-  border-radius: 5px;
+  background-color: var(--rc-glass-soft);
+  border: 1rpx solid var(--rc-hairline);
+  border-radius: var(--rc-radius-field);
 }
 .search-input {
   position: relative;

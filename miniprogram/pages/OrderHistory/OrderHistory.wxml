@@ -6,6 +6,7 @@
 
   <scroll-view
     class="content"
+    style="height: {{contentHeight}}px;"
     scroll-y
     lower-threshold="100"
     refresher-enabled
@@ -78,7 +79,15 @@
     </view>
 
     <view wx:if="{{orderList.length === 0 && !loading}}" class="empty-state">暂无订单记录</view>
-    <view wx:if="{{hasMore}}" class="load-more">上拉加载更多...</view>
+    <view wx:if="{{loading && orderList.length === 0}}" class="initial-loading cat-inline-loader">
+      <view class="loading-panel">
+        <cat-lottie-loader size="{{74}}"></cat-lottie-loader>
+      </view>
+    </view>
+    <view wx:if="{{loading && orderList.length > 0}}" class="load-more cat-inline-loader">
+      <cat-lottie-loader size="{{30}}"></cat-lottie-loader>
+    </view>
+    <view wx:if="{{hasMore && !loading}}" class="load-more">上拉加载更多...</view>
     <view wx:if="{{!hasMore && orderList.length > 0}}" class="load-more">已加载全部</view>
   </scroll-view>
 </view>

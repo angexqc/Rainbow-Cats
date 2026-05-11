@@ -1,4 +1,6 @@
 {
   "navigationStyle": "custom",
-  "navigationBarTitleText": "完善资料"
+  "navigationBarTitleText": "完善资料",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true
 }

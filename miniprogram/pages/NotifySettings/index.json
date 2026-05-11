@@ -1,4 +1,9 @@
 {
   "navigationStyle": "custom",
-  "navigationBarTitleText": "通知设置"
+  "navigationBarTitleText": "通知设置",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true,
+  "usingComponents": {
+    "cat-lottie-loader": "/components/CatLottieLoader/CatLottieLoader"
+  }
 }

@@ -66,7 +66,6 @@ Page({
           wx.showToast({ title: '未获取到图片', icon: 'none' })
           return
         }
-        wx.showLoading({ title: '上传中...', mask: true })
         try {
           const url = await uploadImage(tempPath, 'menus')
           this.setData({ image: url })
@@ -75,7 +74,6 @@ Page({
           const msg = String((err && err.message) || '上传失败')
           wx.showToast({ title: msg.slice(0, 16), icon: 'none' })
         } finally {
-          wx.hideLoading()
         }
       },
       fail: (err) => {

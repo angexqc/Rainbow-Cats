@@ -1,5 +1,6 @@
 const apiStore = require('./utils/apiStore')
 const { setAuthExpiredHandler } = require('./services/http')
+const { buildSharePayload, buildTimelinePayload } = require('./utils/share')
 
 const DEFAULT_CATEGORY_MAP = {
   main: '主食',
@@ -14,6 +15,55 @@ function normalizeApiBase(url) {
   if (!raw) return ''
   if (/^http:\/\//i.test(raw)) return raw.replace(/^http:\/\//i, 'https://')
   return raw
+}
+
+const NativePage = Page
+
+function ensureGlobalShareMenus() {
+  if (!wx || typeof wx.showShareMenu !== 'function') return
+  try {
+    wx.showShareMenu({
+      menus: ['shareAppMessage', 'shareTimeline']
+    })
+  } catch (err) {
+    // ignore unsupported share menu errors
+  }
+}
+
+Page = function registerSharedPage(pageOptions = {}) {
+  const nextPageOptions = { ...pageOptions }
+  const originalOnLoad = nextPageOptions.onLoad
+  const originalOnShow = nextPageOptions.onShow
+
+  nextPageOptions.onLoad = function wrappedOnLoad(...args) {
+    ensureGlobalShareMenus()
+    if (typeof originalOnLoad === 'function') {
+      return originalOnLoad.apply(this, args)
+    }
+    return undefined
+  }
+
+  nextPageOptions.onShow = function wrappedOnShow(...args) {
+    ensureGlobalShareMenus()
+    if (typeof originalOnShow === 'function') {
+      return originalOnShow.apply(this, args)
+    }
+    return undefined
+  }
+
+  if (typeof nextPageOptions.onShareAppMessage !== 'function') {
+    nextPageOptions.onShareAppMessage = function onShareAppMessage() {
+      return buildSharePayload()
+    }
+  }
+
+  if (typeof nextPageOptions.onShareTimeline !== 'function') {
+    nextPageOptions.onShareTimeline = function onShareTimeline() {
+      return buildTimelinePayload()
+    }
+  }
+
+  return NativePage(nextPageOptions)
 }
 
 App({
@@ -66,6 +116,12 @@ App({
     }
 
     setAuthExpiredHandler(() => {
+      const pages = getCurrentPages()
+      const top = pages && pages.length ? pages[pages.length - 1] : null
+      const route = top && top.route ? top.route : ''
+      if (route === 'pages/Splash/index') {
+        return
+      }
       const now = Date.now()
       const lastTs = Number(this.globalData.lastAuthExpiredNotifyTs || 0)
       if (now - lastTs > 3000) {

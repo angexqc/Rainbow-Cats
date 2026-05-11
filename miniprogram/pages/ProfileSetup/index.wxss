@@ -4,25 +4,34 @@ page {
 
 .page {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
-  padding: 0 16px;
+  height: 56px;
+  padding: 0 var(--rc-page-gutter);
   box-sizing: border-box;
-  background: var(--rc-surface);
+  background: var(--rc-surface-glass);
   border-bottom: 1px solid var(--rc-border);
   display: flex;
   align-items: center;
+  backdrop-filter: blur(2px);
+  box-shadow: var(--rc-shadow-nav);
 }
 
 .title {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 600;
   color: var(--rc-text);
+  letter-spacing: 0.6px;
 }
 
 .content {
-  padding: 18px 16px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px var(--rc-page-gutter) calc(16px + env(safe-area-inset-bottom));
 }
 
 .tip {
@@ -45,7 +54,7 @@ page {
   width: 84px;
   height: 84px;
   border-radius: 42px;
-  background: #f3f3f3;
+  background: var(--rc-surface-2);
 }
 
 .avatar-empty {
@@ -63,7 +72,7 @@ page {
   border-radius: 18px;
   border: 1px solid var(--rc-border);
   color: var(--rc-text-secondary);
-  background: #fff;
+  background: var(--rc-on-primary);
   font-size: 13px;
   padding: 0;
   box-sizing: border-box;
@@ -97,7 +106,7 @@ page {
   padding: 0 12px;
   font-size: 15px;
   color: var(--rc-text);
-  background: #fff;
+  background: var(--rc-on-primary);
 }
 
 .save {
@@ -106,7 +115,7 @@ page {
   line-height: 44px;
   border-radius: 10px;
   background: var(--rc-primary);
-  color: #fff;
+  color: var(--rc-on-primary);
   font-size: 15px;
   font-weight: 500;
   padding: 0;

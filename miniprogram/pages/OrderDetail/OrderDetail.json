@@ -1,7 +1,9 @@
 {
   "navigationBarTitleText": "订单详情",
-  "navigationBarBackgroundColor": "#ffffff",
-  "backgroundColor": "#f7f7f7",
+  "navigationBarBackgroundColor": "#FDFEFD",
+  "backgroundColor": "#F2F8F2",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true,
   "usingComponents": {},
   "navigationStyle": "custom"
 }

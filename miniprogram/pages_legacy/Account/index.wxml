@@ -13,8 +13,7 @@
     </view></view>
 
   <view class="form-group_label">我的仓库<mp-badge content="{{unusedItems.length}}" style="margin-left: 5px;" /></view>
-  <view class="form-group" wx:if="{{unusedItems.length > 0}}" 
-  style="z-index: 0; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05), 0 6px 20px 0 rgba(0, 0, 0, 0.05);">
+  <view class="form-group" wx:if="{{unusedItems.length > 0}}">
     <view class="form-cell" wx:for="{{unusedItems}}" wx:key="index">
       <mp-slideview buttons="{{slideButtons}}" data-index='{{index}}' icon="{{true}}" bindbuttontap="slideButtonTapUpper">
         <view class="slide" data-index="{{index}}" bindtap="toDetailPageUpper">
@@ -29,8 +28,7 @@
   </view>
 
   <view class="form-group_label">使用记录<mp-badge content="{{usedItems.length}}" style="margin-left: 5px;" /></view>
-  <view class="form-group" wx:if="{{usedItems.length > 0}}" 
-  style="z-index: 0; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05), 0 6px 20px 0 rgba(0, 0, 0, 0.05);">
+  <view class="form-group" wx:if="{{usedItems.length > 0}}">
     <view class="form-cell" wx:for="{{usedItems}}" wx:key="index">
       <mp-slideview buttons="{{slideButtons}}" data-index='{{index}}' icon="{{true}}" bindbuttontap="slideButtonTapLower">
         <view class="slide" data-index="{{index}}" bindtap="toDetailPageLower">

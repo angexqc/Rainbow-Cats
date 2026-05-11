@@ -108,6 +108,10 @@ function getRoleName(db, role) {
   return '系统'
 }
 
+function getOppositeRole(role) {
+  return role === 'ta' ? 'me' : 'ta'
+}
+
 function buildTimeline(order, db) {
   if (Array.isArray(order.timeline) && order.timeline.length) {
     return order.timeline
@@ -122,22 +126,24 @@ function buildTimeline(order, db) {
   }]
 
   if (order.confirmTime) {
+    const confirmRole = getOppositeRole(order.creatorRole || 'me')
     timeline.push({
       status: 'confirmed',
       label: '已确认',
       time: order.confirmTime,
-      actorRole: 'ta',
-      actorName: getRoleName(db, 'ta')
+      actorRole: confirmRole,
+      actorName: getRoleName(db, confirmRole)
     })
   }
 
   if (order.completeTime) {
+    const completeRole = getOppositeRole(order.creatorRole || 'me')
     timeline.push({
       status: 'completed',
       label: '已完成',
       time: order.completeTime,
-      actorRole: 'ta',
-      actorName: getRoleName(db, 'ta')
+      actorRole: completeRole,
+      actorName: getRoleName(db, completeRole)
     })
   }
 
@@ -146,8 +152,8 @@ function buildTimeline(order, db) {
       status: 'cancelled',
       label: '已取消',
       time: order.completeTime || order.confirmTime || Date.now(),
-      actorRole: 'me',
-      actorName: getRoleName(db, 'me')
+      actorRole: order.creatorRole || 'me',
+      actorName: getRoleName(db, order.creatorRole || 'me')
     })
   }
 
@@ -273,11 +279,16 @@ function toggleMenuStatus(id, available) {
   return updateMenu(id, { available })
 }
 
-function createOrder({ items, remark }) {
+function createOrder({ items, remark, creatorUserId, creatorRole, creatorName, creatorAvatar, orderNo, createdAt }) {
   // TODO: 接入后端时补充接单状态机、超时自动取消、并发库存校验。
   return updateDB((db) => {
     db.nextOrderSeq += 1
-    const now = Date.now()
+    const now = Number(createdAt || Date.now())
+    const nextCreatorUserId = String(creatorUserId || '').trim()
+    const nextCreatorRole = String(creatorRole || '').trim() === 'ta' ? 'ta' : 'me'
+    const nextCreatorName = String(creatorName || '').trim()
+    const nextCreatorAvatar = String(creatorAvatar || '').trim()
+    const nextOrderNo = String(orderNo || '').trim() || `RC${now}${String(db.nextOrderSeq).padStart(4, '0')}`
     const normalized = items.map((it) => ({
       menuId: it.menuId,
       title: it.title,
@@ -289,8 +300,12 @@ function createOrder({ items, remark }) {
 
     db.orders.unshift({
       _id: `o_${db.nextOrderSeq}`,
+      orderNo: nextOrderNo,
       status: 'pending',
-      creatorRole: 'me',
+      creatorRole: nextCreatorRole,
+      creatorUserId: nextCreatorUserId,
+      creatorName: nextCreatorName,
+      creatorAvatar: nextCreatorAvatar,
       date: now,
       confirmTime: null,
       completeTime: null,
@@ -303,8 +318,10 @@ function createOrder({ items, remark }) {
         status: 'pending',
         label: '已下单',
         time: now,
-        actorRole: 'me',
-        actorName: getRoleName(db, 'me')
+        actorRole: nextCreatorRole,
+        actorUserId: nextCreatorUserId,
+        actorName: nextCreatorName || getRoleName(db, nextCreatorRole),
+        actorAvatar: nextCreatorAvatar
       }]
     })
   }).orders[0]
@@ -347,35 +364,38 @@ function updateOrderStatus(id, action) {
     }
 
     if (action === 'cancel' && ['pending', 'confirmed'].includes(order.status)) {
+      const cancelRole = order.creatorRole || 'me'
       order.status = 'cancelled'
       order.timeline.push({
         status: 'cancelled',
         label: '已取消',
         time: Date.now(),
-        actorRole: 'me',
-        actorName: getRoleName(db, 'me')
+        actorRole: cancelRole,
+        actorName: getRoleName(db, cancelRole)
       })
     }
     if (action === 'confirm' && order.status === 'pending') {
+      const confirmRole = getOppositeRole(order.creatorRole || 'me')
       order.status = 'confirmed'
       order.confirmTime = Date.now()
       order.timeline.push({
         status: 'confirmed',
         label: '已确认',
         time: order.confirmTime,
-        actorRole: 'ta',
-        actorName: getRoleName(db, 'ta')
+        actorRole: confirmRole,
+        actorName: getRoleName(db, confirmRole)
       })
     }
     if (action === 'complete' && order.status === 'confirmed') {
+      const completeRole = getOppositeRole(order.creatorRole || 'me')
       order.status = 'completed'
       order.completeTime = Date.now()
       order.timeline.push({
         status: 'completed',
         label: '已完成',
         time: order.completeTime,
-        actorRole: 'ta',
-        actorName: getRoleName(db, 'ta')
+        actorRole: completeRole,
+        actorName: getRoleName(db, completeRole)
       })
     }
 
@@ -401,11 +421,26 @@ function setOrderFeedback(id, payload) {
 }
 
 function getPeriodStart(period) {
-  const now = Date.now()
-  const day = 24 * 60 * 60 * 1000
-  if (period === 'week') return now - (7 * day)
-  if (period === 'month') return now - (30 * day)
-  if (period === 'year') return now - (365 * day)
+  const nowDate = new Date()
+  if (period === 'week') {
+    // Natural week: from Monday 00:00 of current week (not rolling last 7 days)
+    const start = new Date(nowDate)
+    const weekday = start.getDay() // 0=Sun,1=Mon...
+    const diffToMonday = (weekday + 6) % 7
+    start.setDate(start.getDate() - diffToMonday)
+    start.setHours(0, 0, 0, 0)
+    return start.getTime()
+  }
+  if (period === 'month') {
+    const start = new Date(nowDate.getFullYear(), nowDate.getMonth(), 1)
+    start.setHours(0, 0, 0, 0)
+    return start.getTime()
+  }
+  if (period === 'year') {
+    const start = new Date(nowDate.getFullYear(), 0, 1)
+    start.setHours(0, 0, 0, 0)
+    return start.getTime()
+  }
   return 0
 }
 

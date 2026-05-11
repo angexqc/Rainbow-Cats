@@ -7,11 +7,11 @@
 
 .mission-info_desc {
   font-size: small;
-  color: darkgray;
+  color: var(--rc-text-secondary);
 }
 
 .mission-info_credit {
   font-size: small;
-  color: darkgray;
+  color: var(--rc-text-secondary);
   margin-left: 10px;
 }

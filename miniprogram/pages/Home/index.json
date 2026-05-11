@@ -1,8 +1,10 @@
 {
   "navigationStyle": "custom",
   "navigationBarTitleText": "首页",
-  "navigationBarBackgroundColor": "#ffffff",
-  "backgroundColor": "#f7f7f7",
+  "navigationBarBackgroundColor": "#FDFEFD",
+  "backgroundColor": "#F2F8F2",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true,
   "enablePullDownRefresh": false,
   "usingComponents": {}
 }

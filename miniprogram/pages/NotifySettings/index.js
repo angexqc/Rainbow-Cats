@@ -62,7 +62,6 @@ Page({
 
   async bindWeChatIdentity() {
     try {
-      wx.showLoading({ title: '绑定中...', mask: true })
       await apiStore.bindNotifyWxSessionWithLoginCode()
       await this.loadSettings()
       wx.showToast({ title: '微信身份已绑定', icon: 'success' })
@@ -71,7 +70,6 @@ Page({
       wx.showToast({ title: '绑定失败', icon: 'none' })
       return false
     } finally {
-      wx.hideLoading()
     }
   },
 
@@ -137,20 +135,17 @@ Page({
       return
     }
     try {
-      wx.showLoading({ title: '保存中...', mask: true })
       await apiStore.updateNotifySettings({ templateOrderCreated: templateId })
       await this.loadSettings()
       wx.showToast({ title: '模板ID已保存', icon: 'success' })
     } catch (err) {
       wx.showToast({ title: '保存失败', icon: 'none' })
     } finally {
-      wx.hideLoading()
     }
   },
 
   async sendTestNotify() {
     try {
-      wx.showLoading({ title: '发送中...', mask: true })
       const res = await apiStore.sendNotifyTest()
       if (res && res.sent) {
         wx.showToast({ title: '测试消息已发送', icon: 'success' })
@@ -173,7 +168,6 @@ Page({
         showCancel: false
       })
     } finally {
-      wx.hideLoading()
     }
   }
 })

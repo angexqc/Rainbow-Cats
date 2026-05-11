@@ -8,7 +8,7 @@
   <view class="content" wx:if="{{order}}">
     <view class="status-card">
       <view class="status-tag status-{{order.status}}">{{statusMap[order.status]}}</view>
-      <text class="order-no">订单号：{{order._id}}</text>
+      <text class="order-no">订单号：{{order.displayOrderNo}}</text>
     </view>
 
     <view class="card">
@@ -71,9 +71,10 @@
     </view>
 
     <view class="actions">
-      <button wx:if="{{canCancel}}" class="btn biz-action biz-danger" bindtap="handleCancel">🛑 取消订单</button>
-      <button wx:if="{{canConfirm}}" class="btn biz-action biz-primary" bindtap="handleConfirm">✅ 确认订单</button>
-      <button wx:if="{{canComplete}}" class="btn biz-action biz-primary" bindtap="handleComplete">🎉 完成订单</button>
+      <button class="btn btn-reorder biz-action biz-secondary" bindtap="handleReorder">再下一单</button>
+      <button wx:if="{{canCancel}}" class="btn biz-action biz-danger" bindtap="handleCancel">取消订单</button>
+      <button wx:if="{{canConfirm}}" class="btn biz-action biz-primary" bindtap="handleConfirm">确认订单</button>
+      <button wx:if="{{canComplete}}" class="btn biz-action biz-primary" bindtap="handleComplete">完成订单</button>
     </view>
   </view>
 </view>

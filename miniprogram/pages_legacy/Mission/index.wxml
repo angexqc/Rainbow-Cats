@@ -7,7 +7,7 @@
 </view>
 
 <swiper wx:if="{{allMissions.length > 0}}" indicator-dots="true" autoplay="true" interval="2000" duration="500" 
-style="height: 200px; width: 100%; background: white; ">
+style="height: 200px; width: 100%;">
       <swiper-item><image src="Images/MissionCover01.jpg" mode='widthFix' class="swiper-image" /></swiper-item>
       <swiper-item><image src="Images/MissionCover02.jpg" mode='widthFix' class="swiper-image" /></swiper-item>
       <swiper-item><image src="Images/MissionCover03.jpg" mode='widthFix' class="swiper-image" /></swiper-item>
@@ -20,8 +20,7 @@ style="height: 200px; width: 100%; background: white; ">
   </view></view>
 
   <view class="form-group_label">未完成<mp-badge content="{{unfinishedMissions.length}}" style="margin-left: 5px;" /></view>
-  <view class="form-group" wx:if="{{unfinishedMissions.length > 0}}" 
-  style="z-index: 0; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05), 0 6px 20px 0 rgba(0, 0, 0, 0.05);">
+  <view class="form-group" wx:if="{{unfinishedMissions.length > 0}}">
     <view class="form-cell" wx:for="{{unfinishedMissions}}" wx:key="index">
       <mp-slideview buttons="{{slideButtons}}" data-index='{{index}}' icon="{{true}}" bindbuttontap="slideButtonTapUpper">
         <view class="slide" data-index="{{index}}" bindtap="toDetailPageUpper">
@@ -41,8 +40,7 @@ style="height: 200px; width: 100%; background: white; ">
   </view>
 
   <view class="form-group_label">已完成<mp-badge content="{{finishedMissions.length}}" style="margin-left: 5px;" /></view>
-  <view class="form-group" wx:if="{{finishedMissions.length > 0}}" 
-  style="z-index: 0; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05), 0 6px 20px 0 rgba(0, 0, 0, 0.05);">
+  <view class="form-group" wx:if="{{finishedMissions.length > 0}}">
     <view class="form-cell" wx:for="{{finishedMissions}}" wx:key="index">
       <mp-slideview buttons="{{slideButtons}}" data-index='{{index}}' icon="{{true}}" bindbuttontap="slideButtonTapLower">
         <view class="slide" data-index="{{index}}" bindtap="toDetailPageLower">
@@ -64,8 +62,7 @@ style="height: 200px; width: 100%; background: white; ">
 
 <movable-area style="pointer-events: none; position: fixed; width: 100%; height: 100%;">
   <movable-view style="pointer-events: auto; width: 20%; height: 20%;" x="{{screenWidth}}" y="{{screenHeight}}" direction="all">
-    <button class="btn-normal" hover-class="btn-hover" size="mini" bindtap="toAddPage" 
-    style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+    <button class="btn-normal" hover-class="btn-hover" size="mini" bindtap="toAddPage">
       <image style = "margin-top: 10px; height: 100%; width: 100%;" mode="widthFix" src="Images/Plus.png"/>任务
     </button>
   </movable-view>

@@ -1,12 +1,19 @@
 <view class="page">
   <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
     <view class="title">购物车</view>
-    <view class="header-actions">
-      <view class="icon-action danger" bindtap="clearAll">🗑</view>
+    <view class="header-right">
+      <view class="header-delete" bindtap="clearAll">🗑</view>
     </view>
   </view>
 
-  <view class="content" wx:if="{{cartItems.length > 0}}">
+  <scroll-view
+    class="content has-bottom-bar"
+    style="height: {{contentHeight}}px;"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+    wx:if="{{cartItems.length > 0}}"
+  >
     <view class="toolbar">
       <text class="toolbar-text">已选 {{selectedCount}} 项，共 {{totalCount}} 份</text>
       <view class="toolbar-actions">
@@ -34,13 +41,13 @@
       </view>
     </view>
 
-    <view class="bottom-bar">
-      <view class="summary">共 {{totalCount}} 份</view>
-      <view class="biz-action biz-primary submit-btn" bindtap="submitOrder">🧾 下单</view>
-    </view>
+  </scroll-view>
+  <view wx:if="{{cartItems.length > 0}}" class="bottom-bar">
+    <view class="summary">共 {{totalCount}} 份</view>
+    <view class="biz-action biz-primary submit-btn" bindtap="submitOrder">下单</view>
   </view>
 
-  <view wx:else class="empty-state">
+  <view wx:if="{{cartItems.length === 0}}" class="empty-state" style="min-height: {{emptyStateHeight}}px;">
     <text class="empty-title">购物车为空</text>
     <text class="empty-desc">去菜单页添加想吃的菜品</text>
   </view>

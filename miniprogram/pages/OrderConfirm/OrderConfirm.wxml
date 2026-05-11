@@ -44,14 +44,16 @@
       <text>确认后将生成订单并进入待确认状态</text>
     </view>
 
-    <button class="btn biz-action biz-primary" bindtap="handleConfirm">🧾 确认下单</button>
+    <button class="btn biz-action biz-primary" bindtap="handleConfirm">确认下单</button>
   </view>
 
   <view wx:if="{{cartItems ? (cartItems.length === 0) : true}}" class="empty-state">
     <text>购物车为空</text>
   </view>
 
-  <view wx:if="{{loading}}" class="loading">
-    <text>加载中...</text>
+  <view wx:if="{{loading}}" class="loading cat-loader">
+    <view class="loading-panel">
+      <cat-lottie-loader size="{{78}}"></cat-lottie-loader>
+    </view>
   </view>
 </view>

@@ -106,7 +106,6 @@ Page({
       success: async (res) => {
         const tempPath = res.tempFilePaths && res.tempFilePaths[0]
         if (!tempPath) return
-        wx.showLoading({ title: '上传中...', mask: true })
         try {
           const url = await uploadImage(tempPath, 'menus')
           this.setData({ image: url })
@@ -115,7 +114,6 @@ Page({
           const msg = String((err && err.message) || '上传失败')
           wx.showToast({ title: msg.slice(0, 16), icon: 'none' })
         } finally {
-          wx.hideLoading()
         }
       },
       fail: (err) => {

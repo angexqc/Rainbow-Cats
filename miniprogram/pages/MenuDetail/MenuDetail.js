@@ -1,10 +1,12 @@
 const app = getApp()
 const apiStore = require('../../utils/apiStore')
 const { getTopSafeHeight } = require('../../utils/safeArea')
+const { buildSharePayload, buildTimelinePayload } = require('../../utils/share')
 
 Page({
   data: {
     topSafeHeight: 0,
+    loading: false,
     menuId: '',
     menu: null,
     isCreator: false,
@@ -46,6 +48,7 @@ Page({
   },
 
   async loadMenuDetail(id) {
+    this.setData({ loading: true })
     try {
       await apiStore.syncMenuCategoryMapFromMenus({ force: false })
       this.setData({
@@ -71,6 +74,8 @@ Page({
     } catch (err) {
       wx.showToast({ title: '加载菜品失败', icon: 'none' })
       setTimeout(() => wx.navigateBack(), 500)
+    } finally {
+      this.setData({ loading: false })
     }
   },
 
@@ -118,5 +123,13 @@ Page({
         }
       }
     })
+  },
+
+  onShareAppMessage() {
+    return buildSharePayload()
+  },
+
+  onShareTimeline() {
+    return buildTimelinePayload()
   }
 })

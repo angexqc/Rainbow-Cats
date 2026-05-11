@@ -2,18 +2,31 @@
   <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
     <view class="title">菜单列表</view>
     <view class="header-right">
+      <view class="history-mini" bindtap="goMenuHistory">
+        <view class="history-mini-icon" aria-label="历史日历">
+          <view class="calendar-icon">
+            <view class="calendar-bar"></view>
+            <view class="calendar-rings">
+              <view class="calendar-ring"></view>
+              <view class="calendar-ring"></view>
+            </view>
+            <view class="calendar-grid">
+              <view wx:for="{{[1,2,3,4]}}" wx:key="*this" class="calendar-dot"></view>
+            </view>
+          </view>
+        </view>
+      </view>
       <view class="cart-mini" bindtap="goOrder">
-        <text>🛒</text>
+        <text class="cart-mini-icon">🧺</text>
         <view wx:if="{{cartCount > 0}}" class="mini-count">{{cartCount}}</view>
       </view>
-      <view class="add-icon" bindtap="handleAdd">＋</view>
+      <view class="icon-action primary add-icon" bindtap="handleAdd">＋</view>
     </view>
   </view>
 
-  <view class="content">
+  <view class="content" style="height: {{contentHeight}}px;">
     <view class="top-fixed">
       <view class="search-bar">
-        <text class="search-icon">🔍</text>
         <input
           class="search-input"
           type="text"
@@ -62,12 +75,12 @@
             <view class="info">
               <view class="row-top">
                 <text class="name">{{item.title}}</text>
+                <text class="category-flag">{{item.categoryDisplay || categoryMap[item.category] || item.category || '未分类'}}</text>
               </view>
               <view class="row-bottom">
-                <text class="category">{{item.categoryDisplay || categoryMap[item.category] || item.category || '未分类'}}</text>
                 <view class="row-actions">
                   <view class="owner-box">
-                    <image wx:if="{{item.ownerDisplayAvatar}}" class="owner-avatar" src="{{item.ownerDisplayAvatar}}" mode="aspectFill"></image>
+                    <image wx:if="{{item.ownerDisplayAvatar}}" class="owner-avatar" src="{{item.ownerDisplayAvatar}}" mode="aspectFill" lazy-load="true" webp></image>
                     <view wx:else class="owner-avatar owner-avatar-fallback">{{item.ownerDisplayName.slice(0,1)}}</view>
                     <text class="owner-name">{{item.ownerDisplayName}}</text>
                   </view>
@@ -84,14 +97,27 @@
         </view>
       </view>
 
-      <view wx:if="{{menuList.length === 0 && !loading}}" class="empty-state">
+      <view wx:if="{{!pageLoading && menuList.length === 0 && !loading}}" class="empty-state">
         <text>暂无菜品，快来添加吧</text>
         <button class="add-btn" bindtap="handleAdd">添加菜品</button>
       </view>
+      <view wx:if="{{!pageLoading && loading && menuList.length === 0}}" class="initial-loading cat-inline-loader">
+        <view class="loading-panel">
+          <cat-lottie-loader size="{{74}}"></cat-lottie-loader>
+        </view>
+      </view>
 
-      <view wx:if="{{loading && menuList.length > 0}}" class="load-more">加载中...</view>
-      <view wx:if="{{hasMore && !loading && menuList.length > 0}}" class="load-more">上拉加载更多...</view>
-      <view wx:if="{{!hasMore && menuList.length > 0}}" class="load-more">已加载全部</view>
+      <view wx:if="{{!pageLoading && loading && menuList.length > 0}}" class="load-more cat-inline-loader">
+        <cat-lottie-loader size="{{30}}"></cat-lottie-loader>
+      </view>
+      <view wx:if="{{!pageLoading && hasMore && !loading && menuList.length > 0}}" class="load-more">上拉加载更多...</view>
+      <view wx:if="{{!pageLoading && !hasMore && menuList.length > 0}}" class="load-more">已加载全部</view>
     </scroll-view>
+  </view>
+
+  <view wx:if="{{pageLoading}}" class="page-loading cat-loader">
+    <view class="loading-panel">
+      <cat-lottie-loader size="{{92}}"></cat-lottie-loader>
+    </view>
   </view>
 </view>

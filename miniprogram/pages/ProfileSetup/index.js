@@ -49,7 +49,6 @@ Page({
       success: async (res) => {
         const file = res.tempFiles && res.tempFiles[0]
         if (!file || !file.tempFilePath) return
-        wx.showLoading({ title: '上传中...', mask: true })
         try {
           const url = await uploadImage(file.tempFilePath, 'avatars')
           this.setData({ avatarUrl: url })
@@ -61,7 +60,6 @@ Page({
             showCancel: false
           })
         } finally {
-          wx.hideLoading()
         }
       }
     })
@@ -73,7 +71,6 @@ Page({
       wx.showToast({ title: '未获取到微信头像', icon: 'none' })
       return
     }
-    wx.showLoading({ title: '上传中...', mask: true })
     try {
       const url = await uploadImage(tempPath, 'avatars')
       this.setData({ avatarUrl: url })
@@ -85,7 +82,6 @@ Page({
         showCancel: false
       })
     } finally {
-      wx.hideLoading()
     }
   },
 

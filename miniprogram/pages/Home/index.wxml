@@ -1,5 +1,5 @@
 <view class="page">
-  <view class="scroll-body">
+  <scroll-view class="scroll-body" style="height: {{contentHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="top-safe" style="height: {{topSafeHeight}}px;"></view>
     <view class="section hero-card">
       <swiper class="hero-swiper" autoplay interval="3200" circular indicator-dots indicator-color="rgba(255,255,255,.45)" indicator-active-color="#ffffff">
@@ -73,5 +73,5 @@
     <view class="section action-box">
       <button class="order-btn" bindtap="goOrder">去点单</button>
     </view>
-  </view>
+  </scroll-view>
 </view>

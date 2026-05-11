@@ -1,8 +1,11 @@
 const apiStore = require('../../utils/apiStore')
+const { getTopSafeHeight, computeTopSafeTabPageContentHeight } = require('../../utils/safeArea')
+const { buildSharePayload, buildTimelinePayload } = require('../../utils/share')
 
 Page({
   data: {
     topSafeHeight: 0,
+    contentHeight: 0,
     banners: [],
     isPaired: false,
     myInfo: {
@@ -25,34 +28,40 @@ Page({
   },
 
   onLoad() {
-    this.setupTopSafeArea()
-    this.loadHomeData()
+    this.skipNextShow = true
+    this.lastHomeLoadedAt = 0
+    this.lastRankingLoadedAt = 0
+    this.lastRankingPeriod = ''
+    this.setupViewport()
+    this.loadHomeData({ force: true })
     this.refreshCartMap()
   },
 
-  setupTopSafeArea() {
-    let topSafeHeight = 0
-    try {
-      const menu = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null
-      const sys = wx.getSystemInfoSync ? wx.getSystemInfoSync() : {}
-      if (menu && menu.bottom) {
-        topSafeHeight = menu.bottom + 8
-      } else {
-        const status = Number(sys.statusBarHeight || 20)
-        topSafeHeight = status + 40
-      }
-    } catch (err) {
-      topSafeHeight = 52
-    }
-    this.setData({ topSafeHeight })
+  setupViewport() {
+    const topSafeHeight = getTopSafeHeight()
+    const metrics = computeTopSafeTabPageContentHeight()
+    this.setData({
+      topSafeHeight,
+      contentHeight: Number(metrics.contentHeight || 0)
+    })
   },
 
   onShow() {
-    this.loadHomeData()
+    this.setupViewport()
+    if (this.skipNextShow) {
+      this.skipNextShow = false
+      return
+    }
+    this.loadHomeData({ force: false })
     this.refreshCartMap()
   },
 
-  async loadHomeData() {
+  async loadHomeData(options = {}) {
+    const force = !!options.force
+    const now = Date.now()
+    if (!force && this.lastHomeLoadedAt && (now - this.lastHomeLoadedAt < 15000)) {
+      return
+    }
     try {
       const [pair, banners, popularDish] = await Promise.all([
         apiStore.getPairInfo(),
@@ -68,21 +77,29 @@ Page({
         popularDish
       })
 
-      await this.loadRanking(this.data.period)
+      await this.loadRanking(this.data.period, { force: force })
+      this.lastHomeLoadedAt = Date.now()
     } catch (err) {
       wx.showToast({ title: '首页数据加载失败', icon: 'none' })
     }
   },
 
-  async loadRanking(period) {
+  async loadRanking(period, options = {}) {
+    const force = !!options.force
+    const now = Date.now()
+    if (!force && this.lastRankingPeriod === period && this.lastRankingLoadedAt && (now - this.lastRankingLoadedAt < 15000)) {
+      return
+    }
     const rankingList = await apiStore.getDishRanking(period, 5)
     this.setData({ period, rankingList })
+    this.lastRankingPeriod = period
+    this.lastRankingLoadedAt = Date.now()
   },
 
   switchPeriod(e) {
     const { period } = e.currentTarget.dataset
     if (!period || period === this.data.period) return
-    this.loadRanking(period)
+    this.loadRanking(period, { force: true })
   },
 
   refreshCartMap() {
@@ -146,5 +163,13 @@ Page({
 
   goOrder() {
     wx.switchTab({ url: '/pages/Order/Order' })
+  },
+
+  onShareAppMessage() {
+    return buildSharePayload()
+  },
+
+  onShareTimeline() {
+    return buildTimelinePayload()
   }
 })

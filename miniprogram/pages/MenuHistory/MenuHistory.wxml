@@ -1,0 +1,62 @@
+<view class="page">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
+    <view class="back-btn" bindtap="handleBack">←</view>
+    <view class="title">点餐历史日历</view>
+    <view class="header-space"></view>
+  </view>
+
+  <view class="content">
+    <view class="calendar-card">
+      <view class="calendar-head">
+        <view class="month-btn" bindtap="handlePrevMonth">‹</view>
+        <text class="month-title">{{currentMonth}}</text>
+        <view class="month-btn" bindtap="handleNextMonth">›</view>
+      </view>
+
+      <view class="week-row">
+        <text wx:for="{{weekLabels}}" wx:key="*this" class="week-label">{{item}}</text>
+      </view>
+
+      <view class="days-grid">
+        <view
+          wx:for="{{calendarDays}}"
+          wx:key="key"
+          class="day-cell {{item.isEmpty ? 'is-empty' : ''}} {{item.isSelected ? 'is-selected' : ''}} {{item.hasHistory ? 'has-history' : ''}} {{item.isToday ? 'is-today' : ''}}"
+          data-datekey="{{item.dateKey}}"
+          bindtap="handleSelectDay"
+        >
+          <text class="day-text">{{item.day}}</text>
+          <view wx:if="{{item.hasHistory}}" class="day-dot"></view>
+          <text wx:if="{{item.hasHistory}}" class="day-count">{{item.count}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="record-card">
+      <view class="record-head">
+        <text class="record-title">{{selectedDateKey}} 点餐记录</text>
+        <text class="record-count">{{selectedOrders.length}} 单</text>
+      </view>
+
+      <view wx:if="{{selectedOrders.length === 0}}" class="empty">当天暂无点餐记录</view>
+
+      <view wx:for="{{selectedOrders}}" wx:key="_id" class="record-item" bindtap="viewOrderDetail" data-id="{{item._id}}">
+        <view class="record-row">
+          <text class="record-time">{{item.dateStr}}</text>
+          <text class="status status-{{item.status}}">{{item.statusText}}</text>
+        </view>
+        <text class="record-items">{{item.itemsText}}</text>
+        <text class="record-total">共 {{item.totalCount}} 份</text>
+        <view class="record-actions" catchtap="noop">
+          <view class="reorder-btn" catchtap="reorderOrder" data-id="{{item._id}}">再下一单</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="page-loading cat-loader">
+    <view class="loading-panel">
+      <cat-lottie-loader size="{{90}}"></cat-lottie-loader>
+    </view>
+  </view>
+</view>

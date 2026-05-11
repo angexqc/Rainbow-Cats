@@ -1,7 +1,11 @@
 {
   "navigationBarTitleText": "确认订单",
-  "navigationBarBackgroundColor": "#ffffff",
-  "backgroundColor": "#f7f7f7",
-  "usingComponents": {},
+  "navigationBarBackgroundColor": "#FDFEFD",
+  "backgroundColor": "#F2F8F2",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true,
+  "usingComponents": {
+    "cat-lottie-loader": "/components/CatLottieLoader/CatLottieLoader"
+  },
   "navigationStyle": "custom"
 }

@@ -10,13 +10,15 @@ page {
 
 .header {
   height: 56px;
-  padding: 0 16px;
+  padding: 0 var(--rc-page-gutter);
   box-sizing: border-box;
-  background-color: var(--rc-surface);
+  background-color: var(--rc-surface-glass);
   border-bottom: 1px solid var(--rc-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  backdrop-filter: blur(2px);
+  box-shadow: var(--rc-shadow-nav);
 }
 
 .back-btn,
@@ -28,9 +30,10 @@ page {
 }
 
 .title {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 600;
   color: var(--rc-text);
+  letter-spacing: 0.6px;
 }
 
 .content {
@@ -69,7 +72,7 @@ page {
 }
 
 .status-tag.status-confirmed {
-  background-color: #fff7f9;
+  background-color: var(--rc-primary-container);
   color: var(--rc-primary-strong);
 }
 
@@ -98,7 +101,7 @@ page {
   margin-top: 10px;
   padding: 10px 12px;
   border-radius: 8px;
-  background: #fafafa;
+  background: var(--rc-surface-2);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -122,7 +125,7 @@ page {
   width: 8px;
   height: 8px;
   border-radius: 4px;
-  background: #cfcfcf;
+  background: var(--rc-border-strong);
   margin-top: 4px;
 }
 
@@ -145,7 +148,7 @@ page {
 }
 
 .flow-meta.time {
-  color: #b3b3b3;
+  color: var(--rc-text-tertiary);
   flex-shrink: 0;
 }
 
@@ -176,7 +179,7 @@ page {
   width: 16px;
   height: 16px;
   border-radius: 8px;
-  background: #f2f2f2;
+  background: var(--rc-muted-bg);
   flex-shrink: 0;
 }
 
@@ -185,7 +188,7 @@ page {
   align-items: center;
   justify-content: center;
   font-size: 9px;
-  color: #8a8a8a;
+  color: var(--rc-text-secondary);
 }
 
 .flow-line {
@@ -193,7 +196,7 @@ page {
   width: 1px;
   flex: 1;
   min-height: 16px;
-  background: #d8d8d8;
+  background: var(--rc-border-strong);
 }
 
 .flow-point.active {
@@ -277,20 +280,20 @@ page {
   height: 32px;
   border-radius: 16px;
   border: 1px solid var(--rc-border);
-  background: #fff;
+  background: var(--rc-on-primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
 .like-icon-btn.active {
-  border-color: #ffd2dd;
-  background: #fff6f8;
+  border-color: var(--rc-border);
+  background: var(--rc-primary-container);
 }
 
 .like-icon {
   font-size: 16px;
-  color: #c7c7c7;
+  color: var(--rc-border-strong);
   line-height: 1;
 }
 
@@ -307,17 +310,17 @@ page {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #ffd2dd;
+  border: 1px solid var(--rc-border);
   color: var(--rc-primary-strong);
-  background: #fff;
+  background: var(--rc-on-primary);
 }
 
 .review-box {
   margin-top: 10px;
   padding: 8px 10px;
   border-radius: 8px;
-  background: #fff8fa;
-  border: 1px solid #ffe2e9;
+  background: var(--rc-primary-container);
+  border: 1px solid var(--rc-border);
 }
 
 .review-label {
@@ -334,6 +337,7 @@ page {
 .actions {
   margin-top: 2px;
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -348,9 +352,13 @@ page {
   justify-content: center;
 }
 
+.btn-reorder {
+  flex-basis: 100%;
+}
+
 .btn-primary {
   background-color: var(--rc-primary);
-  color: #ffffff;
+  color: var(--rc-on-primary);
 }
 
 .btn-cancel {

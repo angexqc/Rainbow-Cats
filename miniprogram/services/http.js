@@ -12,18 +12,13 @@ function getApiBase() {
   }
 }
 
-function beginLoading(text = '加载中...') {
-  if (loadingCount === 0) {
-    wx.showLoading({ title: text, mask: true })
-  }
+function beginLoading(text = '') {
+  void text
   loadingCount += 1
 }
 
 function endLoading() {
   loadingCount = Math.max(0, loadingCount - 1)
-  if (loadingCount === 0) {
-    wx.hideLoading()
-  }
 }
 
 function showErrorToast(message) {
@@ -150,7 +145,7 @@ function notifyAuthExpired(payload) {
   }
 }
 
-function request({ method = 'GET', path, data, loading = true, loadingText = '加载中...', errorToast = true, allowAutoLogin = true }) {
+function request({ method = 'GET', path, data, loading = true, loadingText = '', errorToast = true, allowAutoLogin = true }) {
   const run = (retried = false) => {
     const token = getAuthToken()
     return doRequest({ method, path, data, token }).catch(async (err) => {

@@ -1,0 +1,11 @@
+<view class="cat-lottie-loader {{animationType === 'splash' ? 'cat-lottie-loader--plain' : ''}}" style="width: {{size}}px; height: {{size}}px;">
+  <view wx:if="{{animationType !== 'splash'}}" class="cat-lottie-glow"></view>
+  <canvas
+    wx:if="{{!fallback}}"
+    id="catLottieCanvas"
+    type="2d"
+    class="cat-lottie-canvas"
+    style="width: {{size}}px; height: {{size}}px;"
+  ></canvas>
+  <image wx:else class="cat-lottie-fallback" src="/images/TabBar/nainiumao.png" mode="aspectFit"></image>
+</view>

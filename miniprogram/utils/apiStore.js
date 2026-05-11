@@ -27,6 +27,24 @@ const DEFAULT_CATEGORY_MAP = {
   dessert: '甜点',
   other: '其他'
 }
+const DEFAULT_CAT_NAME_PREFIX = [
+  '奶油', '薄荷', '糯米', '云朵', '栗子', '团团', '绒球', '布丁', '可可', '糖霜'
+]
+const DEFAULT_CAT_NAME_SUFFIX = [
+  '喵', '团子', '小猫', '球球', '布偶', '丸子', '奶糕', '咪咪', '崽崽', '豆豆'
+]
+const DEFAULT_CAT_AVATARS = [
+  '/images/TabBar/nainiumao.png',
+  '/images/TabBar/jumao.png',
+  '/images/TabBar/buoumao.png',
+  '/images/TabBar/wumaomao.png',
+  '/images/TabBar/sanhuamao.png',
+  '/images/TabBar/baimao.png',
+  '/images/TabBar/lanmao.png',
+  '/images/TabBar/heimao.png',
+  '/images/TabBar/xianluomao.png',
+  '/images/TabBar/gengduomaochong.png'
+]
 let lastCategorySyncAt = 0
 
 function getEntityScopeMap() {
@@ -122,6 +140,31 @@ function saveCategoryMap(map = {}) {
   return nextMap
 }
 
+function randomPick(list = []) {
+  if (!Array.isArray(list) || !list.length) return ''
+  const idx = Math.floor(Math.random() * list.length)
+  return list[idx]
+}
+
+function pad(num, length = 2) {
+  return String(num).padStart(length, '0')
+}
+
+function buildOrderNo(identity = {}, ts = Date.now()) {
+  const date = new Date(ts)
+  const stamp = [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate()),
+    pad(date.getHours()),
+    pad(date.getMinutes()),
+    pad(date.getSeconds())
+  ].join('')
+  const userId = String((identity && identity.userId) || '').trim()
+  const suffix = (userId.replace(/^u_/, '').slice(-4) || '0000').toUpperCase()
+  return `RC${stamp}${suffix}`
+}
+
 module.exports = {
   ensureMockDB() {
     return true
@@ -211,8 +254,35 @@ module.exports = {
   async ensureProfileReady() {
     const profile = await this.getMyProfile()
     const ready = this.isProfileReady(profile)
-    wx.setStorageSync(PROFILE_READY_KEY, ready)
-    return ready
+    if (ready) {
+      wx.setStorageSync(PROFILE_READY_KEY, true)
+      return true
+    }
+
+    const nickNameRaw = String((profile && profile.nickName) || '').trim()
+    const avatarRaw = String((profile && profile.avatarUrl) || '').trim()
+    const needNickName = !nickNameRaw || /^微信用户/i.test(nickNameRaw)
+    const needAvatar = !avatarRaw
+
+    const nextProfile = {
+      nickName: needNickName
+        ? `${randomPick(DEFAULT_CAT_NAME_PREFIX)}${randomPick(DEFAULT_CAT_NAME_SUFFIX)}`
+        : nickNameRaw,
+      avatarUrl: needAvatar ? randomPick(DEFAULT_CAT_AVATARS) : avatarRaw
+    }
+
+    try {
+      await this.updateMyProfile(nextProfile)
+    } catch (err) {
+      // Remote update may fail (e.g. network); keep a local default so first launch can continue.
+      const cached = wx.getStorageSync('authUser') || {}
+      const fallbackUser = { ...cached, ...nextProfile }
+      wx.setStorageSync('authUser', fallbackUser)
+      ensureWxIdentity(fallbackUser)
+    }
+
+    wx.setStorageSync(PROFILE_READY_KEY, true)
+    return true
   },
 
   getWxIdentity() {
@@ -221,6 +291,8 @@ module.exports = {
   },
 
   formatDate,
+
+  buildOrderNo,
 
   async getHomeBanners() {
     return withFallback(() => homeService.getBanners(SILENT_REMOTE), () => mockStore.getHomeBanners())
@@ -420,7 +492,19 @@ module.exports = {
   },
 
   async createOrder({ items, remark }) {
-    const created = await withFallback(() => orderService.create({ items, remark }, SILENT_REMOTE), () => mockStore.createOrder({ items, remark }))
+    const identity = this.getWxIdentity()
+    const authUser = wx.getStorageSync('authUser') || {}
+    const now = Date.now()
+    const payload = {
+      items,
+      remark,
+      creatorUserId: String((identity && identity.userId) || '').trim(),
+      creatorName: String((authUser && (authUser.nickName || authUser.username)) || (identity && identity.nickName) || '').trim(),
+      creatorAvatar: String((authUser && authUser.avatarUrl) || '').trim(),
+      orderNo: buildOrderNo(identity, now),
+      createdAt: now
+    }
+    const created = await withFallback(() => orderService.create(payload, SILENT_REMOTE), () => mockStore.createOrder(payload))
     if (created && created._id) {
       markEntityScope('orders', created._id, getActiveLinkId())
     }

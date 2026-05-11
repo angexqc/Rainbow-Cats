@@ -11,7 +11,7 @@
 .form-cell_input {
   width: 100%;
   font-size: small;
-  color: black;
+  color: var(--rc-text);
 }
 
 .footer {
@@ -20,7 +20,7 @@
   bottom: 0;
   display: flex;
   position: fixed;
-  border-top: lightgray solid 1px;
+  border-top: 1rpx solid var(--rc-hairline);
 }
 
 .footer view {
@@ -32,11 +32,11 @@
 }
 
 .reset {
-  color: #353535;
-  background: white;
+  color: var(--rc-primary-strong);
+  background: var(--rc-glass-strong);
 }
 
 .save {
-  color: white;
-  background: #353535;
+  color: var(--rc-on-primary);
+  background: var(--rc-primary);
 }

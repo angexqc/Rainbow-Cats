@@ -1,5 +1,9 @@
 {
   "navigationStyle": "custom",
-  "disableScroll": true
+  "disableScroll": true,
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true,
+  "usingComponents": {
+    "cat-lottie-loader": "/components/CatLottieLoader/CatLottieLoader"
+  }
 }
-

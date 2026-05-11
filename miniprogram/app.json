@@ -9,6 +9,7 @@
     "pages/MenuAdd/MenuAdd",
     "pages/MenuEdit/MenuEdit",
     "pages/MenuDetail/MenuDetail",
+    "pages/MenuHistory/MenuHistory",
     "pages/Order/Order",
     "pages/OrderConfirm/OrderConfirm",
     "pages/OrderHistory/OrderHistory",
@@ -31,17 +32,17 @@
     }
   ],
   "window": {
-    "backgroundColor": "#F7F7F7",
+    "backgroundColor": "#F4F7FB",
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#ff99aa",
+    "navigationBarBackgroundColor": "#F7FAFD",
     "navigationBarTitleText": "情侣点餐",
     "navigationBarTextStyle": "black",
     "navigationStyle": "custom",
     "enablePullDownRefresh": false
   },
   "tabBar": {
-    "color": "#1a1a1a",
-    "selectedColor": "#ff99aa",
+    "color": "#7D8D98",
+    "selectedColor": "#347C77",
     "list": [
       {
         "pagePath": "pages/Home/index",
@@ -73,7 +74,9 @@
         "iconPath": "images/TabBar/gengduomaochong.png",
         "text": "我的"
       }
-    ]
+    ],
+    "borderStyle": "white",
+    "backgroundColor": "#F7FAFD"
   },
   "lazyCodeLoading": "requiredComponents",
   "sitemapLocation": "sitemap.json",

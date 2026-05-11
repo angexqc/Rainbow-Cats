@@ -1,5 +1,5 @@
 page {
-  background: linear-gradient(160deg, #fff8fb 0%, #fff1f6 45%, #ffe9f2 100%);
+  background: radial-gradient(circle at 22% 14%, var(--rc-surface) 0%, var(--rc-bg) 34%, var(--rc-bg-elevated) 100%);
 }
 
 .page {
@@ -18,12 +18,12 @@ page {
   justify-content: center;
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 180ms ease, transform 180ms ease;
+  transition: opacity var(--rc-motion-fast) var(--rc-ease-out), transform var(--rc-motion-fast) var(--rc-ease-out);
 }
 
 .center-box.is-exiting {
-  opacity: 0;
-  transform: translateY(-6px);
+  opacity: 0.62;
+  transform: translateY(-4px);
 }
 
 .lottie-canvas {
@@ -33,22 +33,29 @@ page {
 
 .title {
   margin-top: 10px;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
-  color: #ff6c94;
-  letter-spacing: 0.8px;
+  color: var(--rc-primary-strong);
+  letter-spacing: 1.4px;
+  font-family: var(--rc-font-display);
+  animation: splash-title-rise var(--rc-motion-medium) var(--rc-ease-out) both;
 }
 
-.subtitle {
-  margin-top: 10px;
-  font-size: 13px;
-  color: #9b8892;
+@keyframes splash-title-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .fallback-tip {
   margin-top: 8px;
   font-size: 11px;
-  color: #b8a8b1;
+  color: var(--rc-text-secondary);
 }
 
 .fallback-dot-wrap {
@@ -63,7 +70,7 @@ page {
   width: 14px;
   height: 14px;
   border-radius: 7px;
-  background: #ff7ea0;
+  background: var(--rc-primary);
   animation: splash-dot 1.2s ease-in-out infinite;
 }
 

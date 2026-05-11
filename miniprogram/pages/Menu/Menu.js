@@ -1,17 +1,20 @@
 const app = getApp()
 const apiStore = require('../../utils/apiStore')
-const { getTopSafeHeight } = require('../../utils/safeArea')
+const { getTopSafeHeight, computeNavbarTabPageContentHeight } = require('../../utils/safeArea')
+const { buildSharePayload, buildTimelinePayload } = require('../../utils/share')
 
 Page({
   data: {
     topSafeHeight: 0,
+    contentHeight: 0,
+    pageLoading: true,
     menuList: [],
     keyword: '',
     currentCategory: '',
     loading: false,
     hasMore: true,
     page: 1,
-    pageSize: 20,
+    pageSize: 12,
     refresherTriggered: false,
     cartCount: 0,
     cartMap: {},
@@ -33,21 +36,54 @@ Page({
   },
 
   onLoad() {
-    this.setData({ topSafeHeight: getTopSafeHeight() })
-    this.syncIdentity()
-    this.refreshCategoryConfig()
-    this.refreshPairState()
-      .finally(() => this.loadMenuList())
-    this.refreshCartCount()
+    this.skipNextShow = true
+    this.lastEntryLoadedAt = 0
+    const topSafeHeight = getTopSafeHeight()
+    this.setData({
+      topSafeHeight,
+      contentHeight: computeNavbarTabPageContentHeight(topSafeHeight).contentHeight
+    })
+    this.runEntryLoad({ force: true, withOverlay: true })
   },
 
-  async onShow() {
+  onShow() {
+    const topSafeHeight = Number(this.data.topSafeHeight || getTopSafeHeight())
+    this.setData({
+      contentHeight: computeNavbarTabPageContentHeight(topSafeHeight).contentHeight
+    })
+    if (this.skipNextShow) {
+      this.skipNextShow = false
+      return
+    }
+    const now = Date.now()
+    if (this.lastEntryLoadedAt && this.data.menuList.length > 0 && now - this.lastEntryLoadedAt < 15000) {
+      this.syncIdentity()
+      this.refreshCartCount()
+      return
+    }
+    this.runEntryLoad({ force: false, withOverlay: false })
+  },
+
+  async runEntryLoad(options = {}) {
+    const withOverlay = !!options.withOverlay
+    this.entryLoadTicket = (this.entryLoadTicket || 0) + 1
+    const ticket = this.entryLoadTicket
     this.syncIdentity()
-    await this.refreshCategoryConfig()
-    await this.refreshPairState()
-    this.setData({ page: 1, hasMore: true })
-    this.loadMenuList()
-    this.refreshCartCount()
+    this.setData({
+      pageLoading: withOverlay,
+      page: 1,
+      hasMore: true
+    })
+    try {
+      await this.refreshCategoryConfig()
+      await this.refreshPairState()
+      await this.loadMenuList()
+      this.refreshCartCount()
+      this.lastEntryLoadedAt = Date.now()
+    } finally {
+      if (ticket !== this.entryLoadTicket) return
+      if (withOverlay) this.setData({ pageLoading: false })
+    }
   },
 
   async refreshPairState() {
@@ -138,7 +174,13 @@ Page({
 
       const rawList = this.data.page === 1 ? res.list : [...this.data.menuList, ...res.list]
       const listWithOwnerRole = (Array.isArray(rawList) ? rawList : []).map((item) => ({
-        ...item,
+        _id: item && item._id,
+        title: item && item.title,
+        image: item && item.image,
+        owner: item && item.owner,
+        ownerName: item && item.ownerName,
+        ownerAvatar: item && item.ownerAvatar,
+        category: item && item.category,
         ownerRole: String(item && item.owner) === String(this.data.selfUserId) ? 'me' : 'ta',
         ownerDisplayName: String(item && item.ownerName) || (String(item && item.owner) === String(this.data.selfUserId) ? '我' : '对方'),
         ownerDisplayAvatar: String(item && item.ownerAvatar) || '',
@@ -254,5 +296,17 @@ Page({
 
   goOrder() {
     wx.switchTab({ url: '/pages/Order/Order' })
+  },
+
+  goMenuHistory() {
+    wx.navigateTo({ url: '/pages/MenuHistory/MenuHistory' })
+  },
+
+  onShareAppMessage() {
+    return buildSharePayload()
+  },
+
+  onShareTimeline() {
+    return buildTimelinePayload()
   }
 })
