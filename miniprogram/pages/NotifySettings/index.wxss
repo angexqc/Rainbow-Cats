@@ -67,7 +67,7 @@ page {
 
 .block:active {
   transform: translateY(1px) scale(0.995);
-  box-shadow: 0 8px 18px rgba(138, 197, 138, 0.12);
+  box-shadow: 0 8px 18px rgba(45, 137, 87, 0.12);
 }
 
 .row {
@@ -124,7 +124,7 @@ page {
 
 .template-input:active {
   border-color: var(--rc-primary);
-  box-shadow: 0 0 0 3px rgba(160, 214, 160, 0.15);
+  box-shadow: 0 0 0 3px rgba(45, 137, 87, 0.14);
   background: var(--rc-surface);
 }
 
@@ -198,7 +198,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(242, 248, 242, 0.84);
+  background: rgba(244, 251, 247, 0.84);
   backdrop-filter: none;
   animation: notify-loading-fade var(--rc-motion-fast) var(--rc-ease-out) both;
 }
@@ -208,7 +208,7 @@ page {
   height: 134px;
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(223, 245, 233, 0.96);
+  border: 1px solid rgba(214, 242, 225, 0.92);
   box-shadow: 0 8px 20px rgba(57, 80, 96, 0.08);
   display: flex;
   align-items: center;
@@ -242,4 +242,34 @@ page {
   50% {
     opacity: 0.7;
   }
+}
+
+/* Figma Site settings polish. */
+.header {
+  background: transparent;
+  border-bottom: 0;
+  box-shadow: none;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.content {
+  padding: 12px 14px 86px;
+}
+
+.block {
+  border-radius: 28px;
+}
+
+.template-input,
+.template-preview {
+  border-radius: 18px;
+}
+
+.btn {
+  border-radius: 999px;
+  font-weight: 850;
 }

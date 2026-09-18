@@ -1,6 +1,9 @@
 <view class="page">
-  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
-    <view class="title">订单历史</view>
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 64}}px;">
+    <view class="header-title-group">
+      <view class="title">订单记录</view>
+      <view class="subtitle">按时间线收纳，不再拥挤</view>
+    </view>
     <view class="header-right"></view>
   </view>
 
@@ -54,7 +57,7 @@
         <view class="order-footer">
           <text class="order-credit">共 {{item.totalCount}} 份</text>
         </view>
-        <view class="feedback-row" catchtap="handleNoop">
+        <view class="feedback-row" catchtap="handleNoop" wx:if="{{item.status === 'completed'}}">
           <view
             class="like-icon-btn {{item.liked ? 'active' : ''}}"
             catchtap="toggleLike"

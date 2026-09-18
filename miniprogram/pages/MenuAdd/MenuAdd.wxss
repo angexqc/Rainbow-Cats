@@ -173,3 +173,62 @@ page {
   font-size: 18px;
   color: var(--rc-text-secondary);
 }
+
+/* Figma Site edit form. */
+.header {
+  background: transparent;
+  border-bottom: 0;
+  box-shadow: none;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.header-save {
+  border-radius: 999px;
+  background: var(--rc-primary);
+  color: var(--rc-on-primary);
+}
+
+.content {
+  padding: 10px 14px 86px;
+}
+
+.form-card {
+  border-radius: 28px;
+  padding: 18px;
+}
+
+.field {
+  gap: 7px;
+  margin-bottom: 16px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.input-wrap {
+  height: 46px;
+  border-radius: 18px;
+  background: var(--rc-surface-2);
+}
+
+.upload-box {
+  height: 168px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(45, 137, 87, 0.12), transparent 30%),
+    var(--rc-surface-2);
+}
+
+.upload-text {
+  font-weight: 850;
+}
+
+.textarea-wrap {
+  border-radius: 20px;
+}

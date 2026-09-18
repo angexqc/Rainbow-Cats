@@ -1,10 +1,11 @@
 const apiStore = require('../../utils/apiStore')
 const { uploadImage } = require('../../services/upload')
-const { getTopSafeHeight } = require('../../utils/safeArea')
+const { getTopSafeHeight, getCapsuleMetrics } = require('../../utils/safeArea')
 
 Page({
   data: {
     topSafeHeight: 0,
+    capsuleSafeRight: 104,
     title: '',
     image: '',
     desc: '',
@@ -15,11 +16,12 @@ Page({
   },
 
   onLoad() {
-    this.setData({ topSafeHeight: getTopSafeHeight() })
+    this.setData({ topSafeHeight: getTopSafeHeight(), capsuleSafeRight: getCapsuleMetrics().safeRight })
     this.refreshCategories()
   },
 
   onShow() {
+    this.setData({ topSafeHeight: getTopSafeHeight(), capsuleSafeRight: getCapsuleMetrics().safeRight })
     this.refreshCategories()
   },
 

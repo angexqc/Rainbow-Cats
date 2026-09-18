@@ -1,5 +1,6 @@
 const app = getApp()
 const apiStore = require('../../utils/apiStore')
+const cartStore = require('../../utils/cartStore')
 const { getTopSafeHeight } = require('../../utils/safeArea')
 
 function pad(n) {
@@ -218,7 +219,7 @@ Page({
       return
     }
 
-    const cart = wx.getStorageSync('cart') || {}
+    const cart = cartStore.getCart()
     const seed = Date.now()
     current.items.forEach((item, idx) => {
       const menuId = String(item.menuId || item._id || '').trim() || `calendar_${id}_${seed}_${idx}`
@@ -235,7 +236,7 @@ Page({
       }
     })
 
-    wx.setStorageSync('cart', cart)
+    cartStore.setCart(cart)
     wx.showToast({ title: '已加入购物车', icon: 'success' })
     setTimeout(() => {
       wx.switchTab({ url: '/pages/Order/Order' })

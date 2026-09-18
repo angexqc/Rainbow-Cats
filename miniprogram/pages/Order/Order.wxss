@@ -33,25 +33,94 @@ page {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   min-height: 34px;
+  min-width: 0;
+  flex-shrink: 1;
 }
 
+.header-wheel,
 .header-delete {
   width: 34px;
   height: 34px;
   border-radius: 17px;
   background: linear-gradient(180deg, var(--rc-surface) 0%, var(--rc-surface-2) 100%);
-  border: 1px solid #f0cfc9;
-  color: var(--rc-danger);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
   line-height: 1;
   transition: transform var(--rc-motion-micro) var(--rc-ease-spring), box-shadow var(--rc-motion-fast) var(--rc-ease-out), border-color var(--rc-motion-fast) var(--rc-ease-out), background-color var(--rc-motion-fast) var(--rc-ease-out);
 }
 
+.header-wheel {
+  position: relative;
+  border: 1px solid var(--rc-primary-container);
+  color: var(--rc-primary-strong);
+}
+
+.header-wheel-dial {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: conic-gradient(from -90deg, var(--rc-primary) 0deg 120deg, #bfe7cf 120deg 240deg, #8fd1c1 240deg 360deg);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.72);
+}
+
+.header-wheel-dial::after {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.header-wheel-dot {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.header-wheel-dot.dot-a {
+  top: 4px;
+  left: 9px;
+}
+
+.header-wheel-dot.dot-b {
+  right: 4px;
+  bottom: 6px;
+}
+
+.header-wheel-dot.dot-c {
+  left: 4px;
+  bottom: 6px;
+}
+
+.header-wheel-pointer {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin-left: -4px;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 7px solid var(--rc-primary-strong);
+  filter: drop-shadow(0 1px 1px rgba(45, 137, 87, 0.20));
+}
+
+.header-delete {
+  border: 1px solid rgba(226, 85, 111, 0.18);
+  color: var(--rc-danger);
+  font-size: 16px;
+}
+
+.header-wheel:active,
 .header-delete:active {
   transform: translateY(1px) scale(0.95);
 }
@@ -148,7 +217,7 @@ page {
   background: var(--rc-primary);
   border-color: var(--rc-primary);
   color: var(--rc-on-primary);
-  box-shadow: 0 6px 14px rgba(160, 214, 160, 0.16);
+  box-shadow: 0 6px 14px rgba(45, 137, 87, 0.16);
 }
 
 .thumb {
@@ -252,3 +321,130 @@ page {
   font-size: 13px;
   color: var(--rc-text-secondary);
 }
+
+/* Figma Site cart: airy compact list with floating submit bar. */
+.header {
+  background: transparent;
+  border-bottom: 0;
+  box-shadow: none;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.content {
+  padding-top: 8px;
+}
+
+.toolbar {
+  min-height: 44px;
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+
+.toolbar-text {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cart-list {
+  gap: 10px;
+  padding-bottom: 94px;
+}
+
+.cart-item {
+  min-height: 72px;
+  border-radius: 24px;
+  padding: 10px 12px;
+  gap: 10px;
+}
+
+.category-flag {
+  top: 8px;
+  right: 10px;
+  height: 22px;
+  border-radius: 999px;
+  padding: 0 9px;
+  background: var(--rc-primary-container);
+  color: var(--rc-primary-strong);
+  font-weight: 800;
+}
+
+.check {
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  line-height: 24px;
+  flex-shrink: 0;
+}
+
+.thumb {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+}
+
+.name {
+  max-width: 150px;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.item-actions {
+  margin-top: 8px;
+}
+
+.quantity-row {
+  gap: 6px;
+  border-radius: 999px;
+  background: var(--rc-surface-2);
+  padding: 2px;
+}
+
+.qty-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 13px;
+  line-height: 26px;
+  font-weight: 850;
+}
+
+.quantity {
+  min-width: 20px;
+  font-weight: 850;
+}
+
+.bottom-bar {
+  min-height: 58px;
+}
+
+.summary {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.submit-btn {
+  min-width: 128px;
+  height: 42px;
+  border-radius: 22px;
+}
+
+.empty-state {
+  gap: 8px;
+}
+
+.empty-title {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.header {
+  padding-left: var(--rc-page-gutter);
+  justify-content: space-between;
+}
+.header-title-group { flex: 0 0 auto; }
+.header-right { margin-left: auto; }
+.header-title-group,
+.header-right { transform: translateY(8px); }

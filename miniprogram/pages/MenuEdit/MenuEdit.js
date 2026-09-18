@@ -1,10 +1,11 @@
 const apiStore = require('../../utils/apiStore')
 const { uploadImage } = require('../../services/upload')
-const { getTopSafeHeight } = require('../../utils/safeArea')
+const { getTopSafeHeight, getCapsuleMetrics } = require('../../utils/safeArea')
 
 Page({
   data: {
     topSafeHeight: 0,
+    capsuleSafeRight: 104,
     menuId: '',
     title: '',
     image: '',
@@ -17,7 +18,7 @@ Page({
   },
 
   onLoad(options) {
-    this.setData({ topSafeHeight: getTopSafeHeight() })
+    this.setData({ topSafeHeight: getTopSafeHeight(), capsuleSafeRight: getCapsuleMetrics().safeRight })
     const { id } = options
     if (!id) {
       wx.showToast({ title: '参数错误', icon: 'none' })

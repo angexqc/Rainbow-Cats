@@ -1,6 +1,7 @@
 const app = getApp()
 const apiStore = require('../../utils/apiStore')
-const { getTopSafeHeight, computeNavbarTabPageContentHeight, getViewportMetrics } = require('../../utils/safeArea')
+const cartStore = require('../../utils/cartStore')
+const { getTopSafeHeight, getCapsuleMetrics, computeContentHeight, getViewportMetrics } = require('../../utils/safeArea')
 
 const ORDER_BOTTOM_BAR_HEIGHT = 72
 
@@ -8,6 +9,7 @@ Page({
   data: {
     topSafeHeight: 0,
     contentHeight: 0,
+    capsuleSafeRight: 104,
     bottomBarSafeHeight: 0,
     emptyStateHeight: 0,
     cart: {},
@@ -15,12 +17,6 @@ Page({
     selectedMap: {},
     selectedCount: 0,
     totalCount: 0,
-    menuPool: [],
-    wheelSlots: [],
-    wheelSpinning: false,
-    wheelRotate: 0,
-    wheelPicked: null,
-    wheelLoading: false,
     categoryMap: app.globalData ? app.globalData.menuCategoryMap : {
       main: '主食',
       drink: '饮品',
@@ -33,7 +29,6 @@ Page({
     this.lastCategorySyncAt = 0
     this.updateViewportMetrics()
     this.loadCart()
-    this.loadWheelMenuPool()
   },
 
   onShow() {
@@ -52,20 +47,18 @@ Page({
         categoryMap: app.globalData ? app.globalData.menuCategoryMap : this.data.categoryMap
       })
       this.loadCart()
-      this.loadWheelMenuPool()
     })
   },
 
   updateViewportMetrics() {
     const topSafeHeight = getTopSafeHeight()
-    const metrics = computeNavbarTabPageContentHeight(topSafeHeight)
+    const metrics = computeContentHeight({ topSafeHeight, bottomBarHeight: ORDER_BOTTOM_BAR_HEIGHT })
     const safeBottomInset = Number((getViewportMetrics() || {}).safeBottomInset || 0)
-    const contentHeight = Number(metrics.contentHeight || 0) - ORDER_BOTTOM_BAR_HEIGHT - safeBottomInset
-    const safeContentHeight = contentHeight > 0 ? contentHeight : 0
     this.setData({
       topSafeHeight,
+      capsuleSafeRight: getCapsuleMetrics().safeRight,
       bottomBarSafeHeight: safeBottomInset,
-      contentHeight: safeContentHeight,
+      contentHeight: Number(metrics.contentHeight || 0),
       emptyStateHeight: Number(metrics.contentHeight || 0)
     })
   },
@@ -84,7 +77,7 @@ Page({
   },
 
   loadCart() {
-    const cart = wx.getStorageSync('cart') || {}
+    const cart = cartStore.getCart()
     const cartItems = Object.values(cart)
       .filter((item) => item.menu)
       .map((item) => ({
@@ -104,115 +97,12 @@ Page({
     this.recalculateStats()
   },
 
-  async loadWheelMenuPool() {
-    if (this.data.wheelLoading) return
-    this.setData({ wheelLoading: true })
-    try {
-      const res = await apiStore.getMenuList({
-        available: true,
-        page: 1,
-        pageSize: 80
-      })
-      const source = Array.isArray(res.list) ? res.list : []
-      const menuPool = source
-        .filter((item) => item && item._id && item.title)
-        .map((item) => ({
-          _id: item._id,
-          title: item.title,
-          image: item.image || '',
-          desc: item.desc || '',
-          category: item.category || '',
-          categoryLabel: item.categoryLabel || '',
-          categoryDisplay: this.resolveCategoryLabel(item)
-        }))
-      this.setData({
-        menuPool,
-        wheelSlots: this.buildWheelSlots(menuPool),
-        wheelLoading: false
-      })
-    } catch (err) {
-      this.setData({ wheelLoading: false })
-    }
-  },
-
-  buildWheelSlots(menuPool = []) {
-    const source = Array.isArray(menuPool) ? menuPool.slice(0, 8) : []
-    const fallback = source.length ? source : [{ title: '等菜单' }]
-    const step = 360 / fallback.length
-    return fallback.map((item, index) => {
-      const angle = Math.round(index * step)
-      return {
-        key: item._id || `slot_${index}`,
-        title: item.title,
-        shortTitle: this.truncateWheelTitle(item.title),
-        style: `transform: rotate(${angle}deg) translateY(-92rpx) rotate(-${angle}deg);`
-      }
-    })
-  },
-
-  truncateWheelTitle(title) {
-    const text = String(title || '').trim()
-    return text.length > 5 ? `${text.slice(0, 5)}…` : text
-  },
-
-  spinWheel() {
-    if (this.data.wheelSpinning) return
-    const menuPool = this.data.menuPool || []
-    if (!menuPool.length) {
-      wx.showToast({ title: '暂无可选菜品', icon: 'none' })
-      this.loadWheelMenuPool()
-      return
-    }
-
-    const pickIndex = Math.floor(Math.random() * menuPool.length)
-    const picked = menuPool[pickIndex]
-    const slotCount = Math.max(1, Math.min(menuPool.length, 8))
-    const slotIndex = pickIndex % slotCount
-    const segment = 360 / slotCount
-    const targetAngle = 360 - (slotIndex * segment) - (segment / 2)
-    const rounds = 4 + Math.floor(Math.random() * 2)
-    const nextRotate = Number(this.data.wheelRotate || 0) + (rounds * 360) + targetAngle
-
-    this.setData({
-      wheelSpinning: true,
-      wheelPicked: null,
-      wheelRotate: nextRotate
-    })
-
-    clearTimeout(this.wheelTimer)
-    this.wheelTimer = setTimeout(() => {
-      this.setData({
-        wheelSpinning: false,
-        wheelPicked: picked
-      })
-    }, 1900)
-  },
-
-  addWheelPickedToCart() {
-    const picked = this.data.wheelPicked
-    if (!picked || !picked._id) {
-      this.spinWheel()
-      return
-    }
-    this.addMenuToCart(picked)
-  },
-
-  addMenuToCart(menu) {
-    if (!menu || !menu._id) return
-    const cart = wx.getStorageSync('cart') || {}
-    const id = menu._id
-    if (cart[id]) {
-      cart[id].count = Number(cart[id].count || 0) + 1
-    } else {
-      cart[id] = { menu, count: 1 }
-    }
-    wx.setStorageSync('cart', cart)
-    this.loadCart()
-    wx.showToast({ title: '已加入购物车', icon: 'success' })
+  goOrderWheel() {
+    wx.navigateTo({ url: '/pages/OrderWheel/OrderWheel' })
   },
 
   saveCart() {
-    wx.setStorageSync('cart', this.data.cart)
+    cartStore.setCart(this.data.cart)
   },
 
   recalculateStats() {
@@ -327,43 +217,10 @@ Page({
       return
     }
 
-    const lines = items.map((it) => `${it.title} x${it.count}`)
-    const content = `确认下单以下菜品？\n${lines.join('\n')}`
-
-    wx.showModal({
-      title: '确认下单',
-      content,
-      success: async (res) => {
-        if (!res.confirm) return
-
-        try {
-          await apiStore.requestOrderSubscribeAuthorization()
-          await apiStore.createOrder({
-            items: items.map((it) => ({
-              menuId: it.menuId,
-              title: it.title,
-              image: it.image,
-              desc: '',
-              count: it.count
-            })),
-            remark: ''
-          })
-
-          const cart = { ...this.data.cart }
-          items.forEach((it) => { delete cart[it.menuId] })
-          this.setData({ cart })
-          this.saveCart()
-          this.loadCart()
-
-          wx.showToast({ title: '下单成功', icon: 'success' })
-        } catch (err) {
-          wx.showToast({ title: '下单失败', icon: 'none' })
-        }
-      }
+    cartStore.setCheckout({
+      items: items.map((it) => ({ ...it, desc: it.desc || '' })),
+      idempotencyKey: `wx-${Date.now()}-${Math.random().toString(16).slice(2)}`
     })
-  },
-
-  onUnload() {
-    clearTimeout(this.wheelTimer)
+    wx.navigateTo({ url: '/pages/OrderConfirm/OrderConfirm' })
   }
 })

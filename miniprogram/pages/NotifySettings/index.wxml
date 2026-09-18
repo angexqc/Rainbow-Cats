@@ -1,5 +1,5 @@
 <view class="page">
-  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 64}}px;">
     <view class="back-btn" bindtap="handleBack">‹</view>
     <view class="title">通知设置</view>
     <view class="header-space"></view>
@@ -12,12 +12,12 @@
           <text class="label">下单通知</text>
           <text class="desc">下单后向对方发送微信订阅消息</text>
         </view>
-        <switch color="#4F9452" checked="{{notifyEnabled}}" bindchange="handleSwitchChange" />
+        <switch color="#43ad78" checked="{{notifyEnabled}}" bindchange="handleSwitchChange" />
       </view>
     </view>
 
     <view class="block">
-      <view class="input-row">
+      <view class="input-row" wx:if="{{isAdmin}}">
         <text class="status-label">下单通知模板</text>
         <picker
           mode="selector"
@@ -30,12 +30,12 @@
           </view>
         </picker>
       </view>
-      <view class="template-preview" wx:if="{{selectedTemplatePreview}}">
+      <view class="template-preview" wx:if="{{isAdmin && selectedTemplatePreview}}">
         <text class="preview-line">模板ID：{{selectedTemplatePreview.id}}</text>
         <text class="preview-line">内容：{{selectedTemplatePreview.content || '（无）'}}</text>
         <text class="preview-line">示例：{{selectedTemplatePreview.example || '（无）'}}</text>
       </view>
-      <button class="btn ghost" bindtap="saveTemplateId">保存模板ID</button>
+      <button wx:if="{{isAdmin}}" class="btn ghost" bindtap="saveTemplateId">保存模板ID</button>
 
       <view class="status-row">
         <text class="status-label">微信身份绑定</text>

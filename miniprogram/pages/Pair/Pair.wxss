@@ -250,7 +250,7 @@ page {
   border-radius: var(--rc-radius-card);
   border: 1px solid var(--rc-border);
   background: var(--rc-surface-2);
-  box-shadow: 0 4px 12px rgba(79, 148, 82, 0.16);
+  box-shadow: 0 4px 12px rgba(45, 137, 87, 0.16);
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -282,7 +282,7 @@ page {
   width: 24px;
   height: 24px;
   border-radius: 12px;
-  background: rgba(79, 148, 82, 0.16);
+  background: rgba(45, 137, 87, 0.16);
   color: var(--rc-primary-strong);
   font-size: 18px;
   line-height: 24px;
@@ -344,4 +344,91 @@ page {
 
 .unbind-btn {
   width: 100%;
+}
+
+/* Figma Site pairing states. */
+.header {
+  background: transparent;
+  border-bottom: 0;
+  box-shadow: none;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.content {
+  padding: 12px 14px 86px;
+  gap: 12px;
+}
+
+.unpaired-card,
+.paired-card,
+.qr-card,
+.code-card,
+.skip-entry {
+  border-radius: 28px;
+}
+
+.unpaired-card {
+  min-height: 118px;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255, 216, 136, 0.42), transparent 34%),
+    var(--rc-surface);
+}
+
+.card-title,
+.partner-name {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.section-title,
+.expire-tip,
+.skip-subtitle,
+.bind-time,
+.code-label {
+  font-weight: 750;
+}
+
+.qr-card {
+  min-height: 196px;
+}
+
+.qr-placeholder,
+.qr-image {
+  width: 142px;
+  height: 142px;
+  border-radius: 24px;
+}
+
+.qr-text,
+.code-text {
+  font-weight: 900;
+  letter-spacing: 1.4px;
+}
+
+.code-input,
+.bind-btn,
+.regen-btn,
+.home-btn,
+.unbind-btn {
+  height: 44px;
+  border-radius: 999px;
+}
+
+.skip-entry {
+  min-height: 68px;
+}
+
+.paired-card {
+  gap: 12px;
+}
+
+.avatar {
+  width: 62px;
+  height: 62px;
+  border-radius: 31px;
 }

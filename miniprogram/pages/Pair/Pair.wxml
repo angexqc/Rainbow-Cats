@@ -41,7 +41,7 @@
       <button class="biz-action biz-primary bind-btn" bindtap="handleBind" disabled="{{!canBind}}">绑定</button>
     </view>
 
-    <view wx:if="{{!isPaired}}" class="expire-tip">登录后配对码固定，可长期使用</view>
+    <view wx:if="{{!isPaired}}" class="expire-tip">配对码有有效期，过期后可重新生成</view>
     <view wx:if="{{!isPaired}}" class="skip-entry" bindtap="handleSkipPairing">
       <view class="skip-copy">
         <view class="skip-title">不匹配对象，直接进入首页</view>

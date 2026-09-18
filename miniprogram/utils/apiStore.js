@@ -6,6 +6,10 @@ const menuService = require('../services/menu')
 const menuCategoryService = require('../services/menuCategories')
 const orderService = require('../services/order')
 const notifyService = require('../services/notifications')
+const candidateService = require('../services/candidates')
+const preferenceService = require('../services/preferences')
+const menuMarksService = require('../services/menuMarks')
+const mealPlanService = require('../services/mealPlans')
 const {
   ensureWxIdentity,
   ensureWxIdentityAsync,
@@ -19,7 +23,6 @@ const {
 const ENABLE_FALLBACK = true
 const SILENT_REMOTE = { errorToast: false }
 const ENTITY_SCOPE_KEY = 'entity_scope_map_v1'
-const PAIR_CODE_SYNC_KEY = 'pair_code_synced_v1'
 const PROFILE_READY_KEY = 'profile_ready_v1'
 const DEFAULT_CATEGORY_MAP = {
   main: '主食',
@@ -198,10 +201,8 @@ module.exports = {
     try {
       const pair = await pairService.getInfo(SILENT_REMOTE)
       const currentCode = String((pair && pair.pairCode) || '').toUpperCase()
-      const codeSynced = !!wx.getStorageSync(PAIR_CODE_SYNC_KEY)
-      if (!/^[A-Z0-9]{8}$/.test(currentCode) && !codeSynced) {
+      if (!/^[A-Z0-9]{8}$/.test(currentCode)) {
         await pairService.generateCode(identity.wxId, SILENT_REMOTE)
-        wx.setStorageSync(PAIR_CODE_SYNC_KEY, true)
       }
     } catch (err) {
       // ignore pair bootstrap failure
@@ -236,10 +237,7 @@ module.exports = {
       nickName: String((payload && payload.nickName) || '').trim(),
       avatarUrl: String((payload && payload.avatarUrl) || '').trim()
     }
-    const res = await withFallback(
-      () => authService.updateProfile(next, SILENT_REMOTE),
-      () => ({ token: wx.getStorageSync('authToken') || '', user: { ...(wx.getStorageSync('authUser') || {}), ...next } })
-    )
+    const res = await authService.updateProfile(next, SILENT_REMOTE)
     if (res && res.token) {
       wx.setStorageSync('authToken', res.token)
     }
@@ -254,35 +252,8 @@ module.exports = {
   async ensureProfileReady() {
     const profile = await this.getMyProfile()
     const ready = this.isProfileReady(profile)
-    if (ready) {
-      wx.setStorageSync(PROFILE_READY_KEY, true)
-      return true
-    }
-
-    const nickNameRaw = String((profile && profile.nickName) || '').trim()
-    const avatarRaw = String((profile && profile.avatarUrl) || '').trim()
-    const needNickName = !nickNameRaw || /^微信用户/i.test(nickNameRaw)
-    const needAvatar = !avatarRaw
-
-    const nextProfile = {
-      nickName: needNickName
-        ? `${randomPick(DEFAULT_CAT_NAME_PREFIX)}${randomPick(DEFAULT_CAT_NAME_SUFFIX)}`
-        : nickNameRaw,
-      avatarUrl: needAvatar ? randomPick(DEFAULT_CAT_AVATARS) : avatarRaw
-    }
-
-    try {
-      await this.updateMyProfile(nextProfile)
-    } catch (err) {
-      // Remote update may fail (e.g. network); keep a local default so first launch can continue.
-      const cached = wx.getStorageSync('authUser') || {}
-      const fallbackUser = { ...cached, ...nextProfile }
-      wx.setStorageSync('authUser', fallbackUser)
-      ensureWxIdentity(fallbackUser)
-    }
-
-    wx.setStorageSync(PROFILE_READY_KEY, true)
-    return true
+    wx.setStorageSync(PROFILE_READY_KEY, ready)
+    return ready
   },
 
   getWxIdentity() {
@@ -299,14 +270,11 @@ module.exports = {
   },
 
   async addHomeBanner(url) {
-    return withFallback(() => homeService.addBanner(url, SILENT_REMOTE), () => ({ id: Date.now(), url, sortOrder: 0 }))
+    return homeService.addBanner(url, SILENT_REMOTE)
   },
 
   async deleteHomeBanner(url) {
-    return withFallback(
-      () => homeService.deleteBanner(url, SILENT_REMOTE),
-      () => mockStore.deleteHomeBanner(url)
-    )
+    return homeService.deleteBanner(url, SILENT_REMOTE)
   },
 
   async getPairInfo() {
@@ -330,16 +298,13 @@ module.exports = {
   },
 
   async generatePairCode(wxId = 'guest') {
-    const data = await withFallback(
-      () => pairService.generateCode(wxId, SILENT_REMOTE),
-      () => ({ pairCode: mockStore.generatePairCode() })
-    )
+    const data = await pairService.generateCode(wxId, SILENT_REMOTE)
     return data.pairCode
   },
 
   async bindPair(inputCode) {
     const identity = this.getWxIdentity()
-    const result = await withFallback(() => pairService.bind(inputCode, SILENT_REMOTE), () => mockStore.bindPair(inputCode))
+    const result = await pairService.bind(inputCode, SILENT_REMOTE)
     setPairContext({
       selfId: identity.userId,
       isPaired: true,
@@ -356,7 +321,7 @@ module.exports = {
 
   async unbindPair() {
     const identity = this.getWxIdentity()
-    const result = await withFallback(() => pairService.unbind(SILENT_REMOTE), () => mockStore.unbindPair())
+    const result = await pairService.unbind(SILENT_REMOTE)
     setPairContext({
       selfId: identity.userId,
       isPaired: false,
@@ -424,32 +389,15 @@ module.exports = {
   },
 
   async upsertMenuCategory(payload = {}) {
-    return withFallback(
-      () => menuCategoryService.upsert(payload, SILENT_REMOTE),
-      () => {
-        const key = String((payload && payload.key) || '').trim()
-        const label = String((payload && payload.label) || '').trim()
-        if (!key || !label) return null
-        const map = this.getMenuCategoryMap()
-        map[key] = label
-        this.setMenuCategoryMap(map)
-        return { key, label }
-      }
-    )
+    return menuCategoryService.upsert(payload, SILENT_REMOTE)
   },
 
   async reorderMenuCategories(keys = []) {
-    return withFallback(
-      () => menuCategoryService.reorder(keys, SILENT_REMOTE),
-      () => this.getMenuCategories()
-    )
+    return menuCategoryService.reorder(keys, SILENT_REMOTE)
   },
 
   async deleteMenuCategory(key) {
-    return withFallback(
-      () => menuCategoryService.remove(key, SILENT_REMOTE),
-      () => true
-    )
+    return menuCategoryService.remove(key, SILENT_REMOTE)
   },
 
   async getMenuList(params) {
@@ -469,10 +417,60 @@ module.exports = {
     return withFallback(() => menuService.detail(id, SILENT_REMOTE), () => mockStore.getMenuById(id))
   },
 
+  async getCandidates() {
+    const res = await withFallback(() => candidateService.list(SILENT_REMOTE), () => ({ list: [] }))
+    return Array.isArray(res) ? res : (Array.isArray(res.list) ? res.list : [])
+  },
+
+  async addCandidate(menuId) {
+    return candidateService.add(menuId, SILENT_REMOTE)
+  },
+
+  async removeCandidate(id) {
+    return candidateService.remove(id, SILENT_REMOTE)
+  },
+
+  async voteCandidate(id, choice) {
+    return candidateService.vote(id, choice, SILENT_REMOTE)
+  },
+
+  async getFoodPreferences() {
+    return preferenceService.get(SILENT_REMOTE)
+  },
+
+  async getPartnerFoodPreferences() {
+    return preferenceService.getPartner(SILENT_REMOTE)
+  },
+
+  async updateFoodPreferences(payload) {
+    return preferenceService.update(payload, SILENT_REMOTE)
+  },
+
+  async getMenuMarks(kind) {
+    const res = await withFallback(() => menuMarksService.list(kind, SILENT_REMOTE), () => ({ list: [] }))
+    return Array.isArray(res) ? res : (Array.isArray(res.list) ? res.list : [])
+  },
+
+  async addMenuMark(kind, menuId) {
+    return menuMarksService.add(kind, menuId, SILENT_REMOTE)
+  },
+
+  async removeMenuMark(kind, menuId) {
+    return menuMarksService.remove(kind, menuId, SILENT_REMOTE)
+  },
+
+  async getMealPlans(options = {}) {
+    const res = await withFallback(() => mealPlanService.list({ history: !!options.history, page: options.page || 1, pageSize: options.pageSize || 100 }, SILENT_REMOTE), () => ({ list: [] }))
+    return Array.isArray(res) ? res : (Array.isArray(res.list) ? res.list : [])
+  },
+  async createMealPlan(payload) { return mealPlanService.create(payload, SILENT_REMOTE) },
+  async updateMealPlan(id, payload) { return mealPlanService.update(id, payload, SILENT_REMOTE) },
+  async deleteMealPlan(id) { return mealPlanService.remove(id, SILENT_REMOTE) },
+
   async addMenu(payload) {
     const identity = this.getWxIdentity()
     const ownedPayload = { ...payload, owner: identity.userId }
-    const created = await withFallback(() => menuService.create(ownedPayload, SILENT_REMOTE), () => mockStore.addMenu(ownedPayload))
+    const created = await menuService.create(ownedPayload, SILENT_REMOTE)
     if (created && created._id) {
       markEntityScope('menus', created._id, getActiveLinkId())
     }
@@ -480,31 +478,32 @@ module.exports = {
   },
 
   async updateMenu(id, payload) {
-    return withFallback(() => menuService.update(id, payload, SILENT_REMOTE), () => mockStore.updateMenu(id, payload))
+    return menuService.update(id, payload, SILENT_REMOTE)
   },
 
   async deleteMenu(id) {
-    return withFallback(() => menuService.remove(id, SILENT_REMOTE), () => mockStore.deleteMenu(id))
+    return menuService.remove(id, SILENT_REMOTE)
   },
 
   async toggleMenuStatus(id, available) {
     return this.updateMenu(id, { available })
   },
 
-  async createOrder({ items, remark }) {
+  async createOrder({ items, remark, idempotencyKey }) {
     const identity = this.getWxIdentity()
     const authUser = wx.getStorageSync('authUser') || {}
     const now = Date.now()
     const payload = {
       items,
       remark,
+      idempotencyKey,
       creatorUserId: String((identity && identity.userId) || '').trim(),
       creatorName: String((authUser && (authUser.nickName || authUser.username)) || (identity && identity.nickName) || '').trim(),
       creatorAvatar: String((authUser && authUser.avatarUrl) || '').trim(),
       orderNo: buildOrderNo(identity, now),
       createdAt: now
     }
-    const created = await withFallback(() => orderService.create(payload, SILENT_REMOTE), () => mockStore.createOrder(payload))
+    const created = await orderService.create(payload, SILENT_REMOTE)
     if (created && created._id) {
       markEntityScope('orders', created._id, getActiveLinkId())
     }
@@ -529,11 +528,11 @@ module.exports = {
   },
 
   async updateOrderStatus(id, action) {
-    return withFallback(() => orderService.updateStatus(id, action, SILENT_REMOTE), () => mockStore.updateOrderStatus(id, action))
+    return orderService.updateStatus(id, action, SILENT_REMOTE)
   },
 
   async setOrderFeedback(id, payload) {
-    return withFallback(() => orderService.feedback(id, payload, SILENT_REMOTE), () => mockStore.setOrderFeedback(id, payload))
+    return orderService.feedback(id, payload, SILENT_REMOTE)
   },
 
   async getDishRanking(period = 'week', limit = 5) {
@@ -562,16 +561,7 @@ module.exports = {
     const nextPayload = (payload && typeof payload === 'object')
       ? payload
       : { notifyEnabled: !!payload }
-    return withFallback(
-      () => notifyService.updateSettings(nextPayload, SILENT_REMOTE),
-      () => ({
-        userId: '',
-        wxOpenId: '',
-        notifyEnabled: !!nextPayload.notifyEnabled,
-        templateOrderCreated: String(nextPayload.templateOrderCreated || ''),
-        wechatConfigured: false
-      })
-    )
+    return notifyService.updateSettings(nextPayload, SILENT_REMOTE)
   },
 
   async bindNotifyWxSessionWithLoginCode() {
@@ -582,16 +572,19 @@ module.exports = {
       })
     })
     if (!loginCode) return null
-    return withFallback(
-      () => notifyService.bindWxSession(loginCode, SILENT_REMOTE),
-      () => null
-    )
+    return notifyService.bindWxSession(loginCode, SILENT_REMOTE)
   },
 
   async requestOrderSubscribeAuthorization() {
-    const settings = await this.getNotifySettings()
+    let settings
+    try {
+      settings = await this.getNotifySettings()
+    } catch (err) {
+      // Notification availability must never block order creation.
+      return { requested: false, accepted: false, reason: 'SETTINGS_UNAVAILABLE' }
+    }
     const templateId = String(settings.templateOrderCreated || '').trim()
-    if (!templateId) {
+    if (!templateId || typeof wx.requestSubscribeMessage !== 'function') {
       return { requested: false, accepted: false, reason: 'TEMPLATE_MISSING' }
     }
 
@@ -612,6 +605,6 @@ module.exports = {
   },
 
   async sendNotifyTest() {
-    return withFallback(() => notifyService.sendTest(SILENT_REMOTE), () => ({ sent: false, reason: 'MOCK' }))
+    return notifyService.sendTest(SILENT_REMOTE)
   }
 }

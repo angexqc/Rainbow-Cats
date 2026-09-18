@@ -1,5 +1,5 @@
 <view class="page">
-  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 64}}px;">
     <view class="back-btn" bindtap="handleBack">←</view>
     <view class="title">订单详情</view>
     <view class="header-space"></view>
@@ -56,7 +56,7 @@
       <view class="remark-text">{{order.remark}}</view>
     </view>
 
-    <view class="card" catchtap="handleNoop">
+    <view class="card" catchtap="handleNoop" wx:if="{{order.status === 'completed'}}">
       <view class="section-title">点赞与评价</view>
       <view class="feedback-row">
         <view class="like-icon-btn {{order.liked ? 'active' : ''}}" catchtap="toggleLike" aria-label="点赞">

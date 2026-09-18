@@ -1,0 +1,62 @@
+<view class="page">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 64}}px;">
+    <view class="header-back" bindtap="goBack">‹</view>
+    <view class="title">随机点餐</view>
+    <view class="header-placeholder"></view>
+  </view>
+
+  <scroll-view
+    class="content"
+    style="height: {{contentHeight}}px;"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+  >
+    <view class="hero-card">
+      <view class="hero-kicker">不知道吃什么？</view>
+      <view class="hero-title">让小猫帮你转一个</view>
+      <view class="hero-desc">从当前可点菜单里随机抽一道，满意就直接加入购物车。</view>
+    </view>
+
+    <view class="wheel-card">
+      <view class="wheel-header">
+        <view>
+          <view class="wheel-title">今天吃什么</view>
+          <view class="wheel-subtitle">{{menuPool.length ? '已准备 ' + menuPool.length + ' 道可选菜品' : '正在准备可选菜品'}}</view>
+        </view>
+        <view class="wheel-refresh {{wheelLoading || wheelSpinning ? 'disabled' : ''}}" bindtap="loadWheelMenuPool">换一批</view>
+      </view>
+
+      <view class="wheel-stage">
+        <view class="wheel-pointer"></view>
+        <view class="wheel-dial {{wheelSpinning ? 'spinning' : ''}}" style="transform: rotate({{wheelRotate}}deg);">
+          <view wx:for="{{wheelSlots}}" wx:key="key" class="wheel-slot" style="{{item.style}}">
+            <text class="wheel-slot-text">{{item.shortTitle}}</text>
+          </view>
+        </view>
+        <view class="wheel-center {{wheelLoading || wheelSpinning ? 'disabled' : ''}}" bindtap="spinWheel">
+          <text wx:if="{{wheelLoading}}">加载中</text>
+          <text wx:elif="{{wheelSpinning}}">转动中</text>
+          <text wx:else>开始转</text>
+        </view>
+      </view>
+
+      <view class="wheel-result">
+        <view wx:if="{{wheelPicked}}" class="wheel-picked">
+          <image wx:if="{{wheelPicked.image}}" class="wheel-picked-img" src="{{wheelPicked.image}}" mode="aspectFill" lazy-load="true" webp></image>
+          <view class="wheel-picked-info">
+            <view class="wheel-picked-label">转到了</view>
+            <view class="wheel-picked-title">{{wheelPicked.title}}</view>
+            <view class="wheel-picked-category">{{wheelPicked.categoryDisplay || categoryMap[wheelPicked.category] || wheelPicked.category || '未分类'}}</view>
+          </view>
+          <view class="wheel-picked-actions">
+            <view class="biz-action biz-primary wheel-add" bindtap="addWheelPickedToCart">加入购物车</view>
+            <view class="biz-action biz-secondary wheel-again" bindtap="spinWheel">再转一次</view>
+          </view>
+        </view>
+        <view wx:elif="{{wheelLoading}}" class="wheel-placeholder">正在加载可选菜品</view>
+        <view wx:else class="wheel-placeholder">点一下开始随机</view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

@@ -1,0 +1,37 @@
+<view class="page">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 64}}px;">
+    <view class="back-btn" bindtap="handleBack">‹</view>
+    <view class="title">一起选菜</view>
+    <view class="header-space"></view>
+  </view>
+  <scroll-view class="content" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="intro">
+      <text class="eyebrow">今天吃什么</text>
+      <text class="headline">把纠结变成共同选择</text>
+      <text class="desc">先说想不想吃，看到默契菜单后再放进购物车。</text>
+      <text wx:if="{{lastSyncText}}" class="sync-text">{{lastSyncText}}</text>
+    </view>
+    <view wx:if="{{candidates.length}}" class="candidate-list">
+      <view wx:for="{{candidates}}" wx:key="id" class="candidate-card">
+        <image class="thumb" src="{{item.menu.image}}" mode="aspectFill" lazy-load="true"></image>
+        <view class="body">
+          <view class="title-row"><text class="dish-title">{{item.menu.title}}</text><text class="result">{{resultMap[item.result]}}</text></view>
+          <text class="meta">{{item.menu.categoryLabel || item.menu.category}} · {{item.menu.available ? '现在可点' : '已下架'}}</text>
+          <text wx:if="{{item.preferenceConflicts.length}}" class="conflict">可能涉及忌口：{{item.preferenceConflicts.join('、')}}</text>
+          <view class="vote-state">
+            <text>我：{{item.myChoice ? choiceMap[item.myChoice] : '还没选'}}</text>
+            <text>TA：{{item.partnerChoice ? choiceMap[item.partnerChoice] : '还没选'}}</text>
+          </view>
+          <view class="choice-row">
+            <view wx:for="{{choiceOptions}}" wx:for-item="choice" wx:key="key" class="choice {{item.myChoice === choice.key ? 'selected' : ''}}" data-id="{{item.id}}" data-choice="{{choice.key}}" bindtap="choose">{{choice.label}}</view>
+            <view wx:if="{{item.result === 'recommended' || item.result === 'possible'}}" class="add" data-id="{{item.id}}" bindtap="addToCart">加入购物车</view>
+            <view class="remove" data-id="{{item.id}}" bindtap="remove">移除</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:elif="{{!loading}}" class="empty">还没有候选菜，去菜单里挑一道吧。</view>
+    <view wx:if="{{loading}}" class="loading">正在同步你们的选择…</view>
+    <button wx:if="{{candidates.length}}" class="checkout" bindtap="addMatchesToCart">把共同选择加入购物车</button>
+  </scroll-view>
+</view>

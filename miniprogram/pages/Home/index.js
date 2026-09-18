@@ -1,5 +1,6 @@
 const apiStore = require('../../utils/apiStore')
-const { getTopSafeHeight, computeTopSafeTabPageContentHeight } = require('../../utils/safeArea')
+const cartStore = require('../../utils/cartStore')
+const { getContentTopSafeHeight, computeTopSafeTabPageContentHeight } = require('../../utils/safeArea')
 const { buildSharePayload, buildTimelinePayload } = require('../../utils/share')
 
 Page({
@@ -7,6 +8,7 @@ Page({
     topSafeHeight: 0,
     contentHeight: 0,
     banners: [],
+    heroCurrent: 0,
     isPaired: false,
     myInfo: {
       nickName: '我',
@@ -16,6 +18,12 @@ Page({
       nickName: '待配对',
       avatarUrl: ''
     },
+    coupleCartCount: 0,
+    candidateCount: 0,
+    matchedCandidateCount: 0,
+    pendingOrderCount: 0,
+    pendingOrder: null,
+    lastSyncText: '',
     period: 'week',
     rankPeriods: [
       { key: 'week', label: '周榜' },
@@ -38,7 +46,7 @@ Page({
   },
 
   setupViewport() {
-    const topSafeHeight = getTopSafeHeight()
+    const topSafeHeight = getContentTopSafeHeight()
     const metrics = computeTopSafeTabPageContentHeight()
     this.setData({
       topSafeHeight,
@@ -63,18 +71,29 @@ Page({
       return
     }
     try {
-      const [pair, banners, popularDish] = await Promise.all([
+      const [pair, banners, popularDish, candidates, orders] = await Promise.all([
         apiStore.getPairInfo(),
         apiStore.getHomeBanners(),
-        apiStore.getMostPopularDish()
+        apiStore.getMostPopularDish(),
+        apiStore.getCandidates(),
+        apiStore.getOrderList({ status: 'pending', page: 1, pageSize: 3 })
       ])
+      const pendingOrders = Array.isArray(orders && orders.list) ? orders.list : []
+      const nowText = new Date().toTimeString().slice(0, 5)
 
       this.setData({
         banners,
         isPaired: pair.isPaired,
         myInfo: pair.myInfo || this.data.myInfo,
         partnerInfo: pair.partnerInfo || this.data.partnerInfo,
-        popularDish
+        popularDish,
+        candidateCount: Array.isArray(candidates) ? candidates.length : 0,
+        matchedCandidateCount: Array.isArray(candidates)
+          ? candidates.filter((item) => item.result === 'recommended' || item.result === 'possible').length
+          : 0,
+        pendingOrderCount: Number(orders && orders.total || pendingOrders.length),
+        pendingOrder: pendingOrders[0] || null,
+        lastSyncText: `${nowText} 已同步`
       })
 
       await this.loadRanking(this.data.period, { force: force })
@@ -102,9 +121,14 @@ Page({
     this.loadRanking(period, { force: true })
   },
 
+  onHeroChange(e) {
+    this.setData({ heroCurrent: Number(e.detail.current || 0) })
+  },
+
   refreshCartMap() {
-    const cart = wx.getStorageSync('cart') || {}
-    this.setData({ cartMap: cart })
+    const cart = cartStore.getCart()
+    const coupleCartCount = Object.values(cart).reduce((sum, item) => sum + Number(item && item.count || 0), 0)
+    this.setData({ cartMap: cart, coupleCartCount })
   },
 
   async getMenuFromDish(dish) {
@@ -134,26 +158,26 @@ Page({
     const menu = await this.getMenuFromDish(dish)
     if (!menu) return
 
-    const cart = wx.getStorageSync('cart') || {}
+    const cart = cartStore.getCart()
     if (cart[menu._id]) {
       cart[menu._id].count += 1
     } else {
       cart[menu._id] = { menu, count: 1 }
     }
-    wx.setStorageSync('cart', cart)
+    cartStore.setCart(cart)
     this.setData({ cartMap: cart })
   },
 
   decreaseDish(e) {
     const { id } = e.currentTarget.dataset
-    const cart = wx.getStorageSync('cart') || {}
+    const cart = cartStore.getCart()
     if (!cart[id]) return
     if (cart[id].count > 1) {
       cart[id].count -= 1
     } else {
       delete cart[id]
     }
-    wx.setStorageSync('cart', cart)
+    cartStore.setCart(cart)
     this.setData({ cartMap: cart })
   },
 
@@ -163,6 +187,26 @@ Page({
 
   goOrder() {
     wx.switchTab({ url: '/pages/Order/Order' })
+  },
+
+  goMenu() {
+    wx.switchTab({ url: '/pages/Menu/Menu' })
+  },
+
+  goWheel() {
+    wx.navigateTo({ url: '/pages/OrderWheel/OrderWheel' })
+  },
+
+  goCandidates() {
+    wx.navigateTo({ url: '/pages/Candidates/Candidates' })
+  },
+
+  goPendingOrder() {
+    if (this.data.pendingOrder && this.data.pendingOrder._id) {
+      wx.navigateTo({ url: `/pages/OrderDetail/OrderDetail?id=${this.data.pendingOrder._id}` })
+      return
+    }
+    wx.switchTab({ url: '/pages/OrderHistory/OrderHistory' })
   },
 
   onShareAppMessage() {

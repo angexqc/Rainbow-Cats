@@ -1,6 +1,6 @@
 const apiStore = require('../../utils/apiStore')
 const { uploadImage } = require('../../services/upload')
-const { getTopSafeHeight, computeNavbarTabPageContentHeight } = require('../../utils/safeArea')
+const { getTopSafeHeight, getCapsuleMetrics, computeNavbarTabPageContentHeight } = require('../../utils/safeArea')
 
 const DEFAULT_CATEGORY_MAP = {
   main: '主食',
@@ -13,10 +13,15 @@ Page({
   data: {
     topSafeHeight: 0,
     contentHeight: 0,
+    capsuleSafeRight: 104,
     banners: [],
     bannerCurrent: 0,
     categoryEntries: [],
+    profile: { nickName: '', avatarUrl: '' },
+    profileInitial: '我',
+    partnerInfo: { nickName: '', avatarUrl: '' },
     isPaired: false,
+    isAdmin: false,
     draggingCategoryIndex: -1,
     dragPreviewIndex: -1,
     dragInsertIndex: -1,
@@ -27,6 +32,7 @@ Page({
     const topSafeHeight = getTopSafeHeight()
     this.setData({
       topSafeHeight,
+      capsuleSafeRight: getCapsuleMetrics().safeRight,
       contentHeight: computeNavbarTabPageContentHeight(topSafeHeight).contentHeight
     })
     this.loadPageData()
@@ -35,6 +41,7 @@ Page({
   onShow() {
     const topSafeHeight = Number(this.data.topSafeHeight || getTopSafeHeight())
     this.setData({
+      capsuleSafeRight: getCapsuleMetrics().safeRight,
       contentHeight: computeNavbarTabPageContentHeight(topSafeHeight).contentHeight
     })
     this.loadPageData()
@@ -42,17 +49,22 @@ Page({
 
   async loadPageData() {
     try {
-      const [banners, pair, categories] = await Promise.all([
+      const [banners, pair, categories, profile] = await Promise.all([
         apiStore.getHomeBanners(),
         apiStore.getPairInfo(),
-        apiStore.getMenuCategories()
+        apiStore.getMenuCategories(),
+        apiStore.getMyProfile()
       ])
       const normalizedBanners = this.normalizeBanners(banners)
       this.applyCategoryEntries(categories)
       this.setData({
         banners: normalizedBanners,
         bannerCurrent: 0,
-        isPaired: !!(pair && pair.isPaired)
+        isPaired: !!(pair && pair.isPaired),
+        profile: profile || this.data.profile,
+        profileInitial: String((profile && profile.nickName) || '我').slice(0, 1),
+        partnerInfo: (pair && pair.partnerInfo) || this.data.partnerInfo,
+        isAdmin: !!((wx.getStorageSync('authUser') || {}).isAdmin)
       })
     } catch (err) {
       wx.showToast({ title: '加载失败', icon: 'none' })
@@ -358,6 +370,22 @@ Page({
 
   goProfileSetup() {
     wx.navigateTo({ url: '/pages/ProfileSetup/index?from=my' })
+  },
+
+  goNotifySettings() {
+    wx.navigateTo({ url: '/pages/NotifySettings/index' })
+  },
+
+  goFoodPreferences() {
+    wx.navigateTo({ url: '/pages/FoodPreferences/FoodPreferences' })
+  },
+
+  goSavedMenus() {
+    wx.navigateTo({ url: '/pages/SavedMenus/SavedMenus' })
+  },
+
+  goMealPlans() {
+    wx.navigateTo({ url: '/pages/MealPlans/MealPlans' })
   },
 
   unbindPair() {

@@ -366,3 +366,75 @@ page {
   border: 1px solid var(--rc-primary);
   color: var(--rc-primary);
 }
+
+/* Figma Site order detail. */
+.header {
+  background: transparent;
+  border-bottom: 0;
+  box-shadow: none;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.content {
+  padding: 12px 14px 92px;
+  gap: 12px;
+}
+
+.status-card,
+.card {
+  border-radius: 24px;
+  padding: 16px;
+}
+
+.status-card {
+  background:
+    radial-gradient(circle at 90% 18%, rgba(255, 216, 136, 0.34), transparent 34%),
+    var(--rc-surface);
+}
+
+.status-tag {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 6px 11px;
+  font-weight: 850;
+}
+
+.timeline-flow {
+  border-radius: 18px;
+}
+
+.item-row {
+  align-items: center;
+  border-radius: 18px;
+  background: var(--rc-surface-2);
+  padding: 8px;
+}
+
+.item-thumb {
+  width: 54px;
+  height: 54px;
+  border-radius: 17px;
+}
+
+.item-name {
+  font-weight: 850;
+}
+
+.total-credit {
+  color: var(--rc-primary);
+  font-weight: 900;
+}
+
+.review-box {
+  border-radius: 18px;
+}
+
+.btn {
+  height: 42px;
+  border-radius: 999px;
+  font-weight: 850;
+}

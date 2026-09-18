@@ -1,6 +1,7 @@
 const apiStore = require('./utils/apiStore')
 const { setAuthExpiredHandler } = require('./services/http')
 const { buildSharePayload, buildTimelinePayload } = require('./utils/share')
+const { selectApiBase } = require('./services/apiBase')
 
 const DEFAULT_CATEGORY_MAP = {
   main: '主食',
@@ -8,15 +9,6 @@ const DEFAULT_CATEGORY_MAP = {
   dessert: '甜点',
   other: '其他'
 }
-const DEFAULT_API_BASE_URL = 'https://wubaihappyfood.top/api'
-
-function normalizeApiBase(url) {
-  const raw = String(url || '').trim().replace(/\/+$/, '')
-  if (!raw) return ''
-  if (/^http:\/\//i.test(raw)) return raw.replace(/^http:\/\//i, 'https://')
-  return raw
-}
-
 const NativePage = Page
 
 function ensureGlobalShareMenus() {
@@ -87,16 +79,11 @@ App({
   },
 
   onLaunch() {
-    this.prepareLaunchState().catch(() => {})
     try {
-      const currentApiBase = normalizeApiBase(wx.getStorageSync('apiBaseUrl') || '')
-      if (!currentApiBase) {
-        wx.setStorageSync('apiBaseUrl', DEFAULT_API_BASE_URL)
-      } else {
-        wx.setStorageSync('apiBaseUrl', currentApiBase)
-      }
+      const currentApiBase = selectApiBase(wx.getStorageSync('apiBaseUrl') || '', wx)
+      wx.setStorageSync('apiBaseUrl', currentApiBase)
     } catch (err) {
-      wx.setStorageSync('apiBaseUrl', DEFAULT_API_BASE_URL)
+      wx.setStorageSync('apiBaseUrl', selectApiBase('', wx))
     }
     this.globalData = {
       // 默认走 Node API；网络不可用时 apiStore 会回退到本地 mockStore。
@@ -134,5 +121,6 @@ App({
       wx.switchTab({ url: '/pages/Home/index' })
     })
 
+    this.prepareLaunchState().catch(() => {})
   }
 })

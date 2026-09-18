@@ -13,11 +13,15 @@ Page({
     templateList: [],
     templatePickerOptions: [],
     selectedTemplateIndex: -1,
-    selectedTemplatePreview: null
+    selectedTemplatePreview: null,
+    isAdmin: false
   },
 
   onLoad() {
-    this.setData({ topSafeHeight: getTopSafeHeight() })
+    this.setData({
+      topSafeHeight: getTopSafeHeight(),
+      isAdmin: !!((wx.getStorageSync('authUser') || {}).isAdmin)
+    })
     this.loadSettings()
   },
 
@@ -129,6 +133,10 @@ Page({
   },
 
   async saveTemplateId() {
+    if (!this.data.isAdmin) {
+      wx.showToast({ title: '仅管理员可修改模板', icon: 'none' })
+      return
+    }
     const templateId = String(this.data.templateOrderCreated || '').trim()
     if (!templateId) {
       wx.showToast({ title: '请先选择模板', icon: 'none' })

@@ -77,7 +77,7 @@ page {
 .remark-section:active,
 .summary-section:active {
   transform: translateY(1px) scale(0.995);
-  box-shadow: 0 8px 18px rgba(138, 197, 138, 0.12);
+  box-shadow: 0 8px 18px rgba(45, 137, 87, 0.12);
 }
 
 .order-items {
@@ -146,7 +146,7 @@ page {
 
 .remark-input:focus {
   border-color: var(--rc-primary);
-  box-shadow: 0 0 0 3px rgba(160, 214, 160, 0.16);
+  box-shadow: 0 0 0 3px rgba(45, 137, 87, 0.16);
   background: var(--rc-surface);
 }
 
@@ -210,7 +210,7 @@ page {
   position: absolute;
   inset: 0;
   z-index: 30;
-  background: rgba(242, 248, 242, 0.86);
+  background: rgba(244, 251, 247, 0.86);
   backdrop-filter: none;
   animation: confirm-loading-fade var(--rc-motion-fast) var(--rc-ease-out) both;
 }
@@ -220,7 +220,7 @@ page {
   height: 140px;
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(223, 245, 233, 0.96);
+  border: 1px solid rgba(214, 242, 225, 0.92);
   box-shadow: 0 8px 20px rgba(57, 80, 96, 0.08);
   display: flex;
   align-items: center;
@@ -257,3 +257,62 @@ page {
     opacity: 1;
   }
 }
+
+/* Figma Site confirm order. */
+.header {
+  background: transparent;
+  border-bottom: 0;
+  box-shadow: none;
+}
+
+.content {
+  padding: 12px 14px 92px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.order-items,
+.remark-section,
+.summary-section,
+.confirm-tip {
+  border-radius: 24px;
+  background: var(--rc-surface);
+  border: 1rpx solid var(--rc-border-strong);
+  box-shadow: var(--rc-shadow-card);
+  padding: 14px;
+}
+
+.order-item {
+  border-radius: 18px;
+  background: var(--rc-surface-2);
+}
+
+.item-thumb {
+  border-radius: 16px;
+}
+
+.remark-input {
+  border-radius: 18px;
+}
+
+.amount {
+  color: var(--rc-primary);
+  font-weight: 900;
+}
+
+.btn {
+  height: 44px;
+  border-radius: 999px;
+  font-weight: 900;
+}
+.collab-context { display:flex; align-items:center; gap:10px; margin:0 0 16px; padding:12px; border-radius:12px; background:var(--rc-primary-container); }
+.collab-person { display:flex; align-items:center; gap:6px; color:var(--rc-primary-strong); font-size:12px; font-weight:700; }
+.collab-person image,.collab-person text { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--rc-surface); color:var(--rc-primary-strong); font-size:12px; }
+.collab-person label { max-width:72px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.collab-arrow { color:var(--rc-primary-strong); font-size:18px; }
+.collab-status { margin-left:auto; color:var(--rc-primary-strong); font-size:11px; }
+.notify-result,.conflict-tip { display:block; margin-top:6px; color:var(--rc-text-secondary); font-size:11px; line-height:1.5; }
+.conflict-tip { color:var(--rc-warning); }

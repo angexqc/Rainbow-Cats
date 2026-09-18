@@ -1,0 +1,14 @@
+<view class="page">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 64}}px;">
+    <view class="back" bindtap="handleBack">‹</view><view class="title">口味与忌口</view><view class="space"></view>
+  </view>
+  <scroll-view class="content" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="block"><view class="label">辣度偏好</view><view class="options"><view wx:for="{{spiceOptions}}" wx:key="key" class="option {{spiceLevel === item.key ? 'active' : ''}}" data-key="{{item.key}}" bindtap="selectSpice">{{item.label}}</view></view></view>
+    <view class="block"><view class="label">饮食类型</view><view class="options"><view wx:for="{{dietOptions}}" wx:key="key" class="option {{dietType === item.key ? 'active' : ''}}" data-key="{{item.key}}" bindtap="selectDiet">{{item.label}}</view></view></view>
+    <view class="block"><view class="label">喜欢的口味</view><view class="options"><view wx:for="{{flavorOptions}}" wx:key="value" class="option {{item.selected ? 'active' : ''}}" data-value="{{item.value}}" bindtap="toggleFlavor">{{item.value}}</view></view></view>
+    <view class="block"><view class="label">今天不想吃</view><textarea class="input" value="{{avoidText}}" bindinput="onAvoidInput" placeholder="用顿号或逗号分隔，例如：香菜、肥肉" maxlength="300"></textarea></view>
+    <view class="block warning"><view class="label">过敏食材</view><textarea class="input" value="{{allergyText}}" bindinput="onAllergyInput" placeholder="例如：花生、虾、牛奶" maxlength="300"></textarea><view class="hint">下单前会再次提醒；这里只做个人记录，不提供医疗建议。</view></view>
+    <view class="block row"><view><view class="label">共享给伴侣</view><view class="hint">关闭时，伴侣只能看到未共享状态。</view></view><switch checked="{{shareWithPartner}}" color="#43ad78" bindchange="onShareChange"></switch></view>
+    <button class="save" loading="{{saving}}" disabled="{{saving}}" bindtap="save">保存偏好</button>
+  </scroll-view>
+</view>

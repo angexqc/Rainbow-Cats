@@ -1,5 +1,5 @@
 <view class="page">
-  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; padding-right: {{capsuleSafeRight}}px; height: {{topSafeHeight + 64}}px;">
     <view class="header-side">
       <view class="icon-action" bindtap="handleCancel">‹</view>
     </view>
@@ -48,7 +48,7 @@
         <view class="label">上架状态</view>
         <view class="input-wrap toggle-wrap">
           <text class="toggle-label">立即上架</text>
-          <switch color="#4F9452" checked="{{available}}" bindchange="onToggleAvailable" />
+          <switch color="#43ad78" checked="{{available}}" bindchange="onToggleAvailable" />
         </view>
       </view>
     </view>

@@ -11,38 +11,28 @@
     "pages/MenuDetail/MenuDetail",
     "pages/MenuHistory/MenuHistory",
     "pages/Order/Order",
+    "pages/OrderWheel/OrderWheel",
     "pages/OrderConfirm/OrderConfirm",
     "pages/OrderHistory/OrderHistory",
-    "pages/OrderDetail/OrderDetail"
-  ],
-  "subPackages": [
-    {
-      "root": "pages_legacy",
-      "pages": [
-        "Account/index",
-        "MainPage/index",
-        "Market/index",
-        "MarketAdd/index",
-        "MarketDetail/index",
-        "ItemDetail/index",
-        "Mission/index",
-        "MissionAdd/index",
-        "MissionDetail/index"
-      ]
-    }
+    "pages/OrderDetail/OrderDetail",
+    "pages/NotifySettings/index",
+    "pages/Candidates/Candidates",
+    "pages/FoodPreferences/FoodPreferences",
+    "pages/SavedMenus/SavedMenus",
+    "pages/MealPlans/MealPlans"
   ],
   "window": {
-    "backgroundColor": "#F4F7FB",
+    "backgroundColor": "#F3FBF6",
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#F7FAFD",
+    "navigationBarBackgroundColor": "#EEF8F2",
     "navigationBarTitleText": "情侣点餐",
     "navigationBarTextStyle": "black",
     "navigationStyle": "custom",
     "enablePullDownRefresh": false
   },
   "tabBar": {
-    "color": "#7D8D98",
-    "selectedColor": "#347C77",
+    "color": "#71877A",
+    "selectedColor": "#2F9B66",
     "list": [
       {
         "pagePath": "pages/Home/index",
@@ -76,7 +66,7 @@
       }
     ],
     "borderStyle": "white",
-    "backgroundColor": "#F7FAFD"
+    "backgroundColor": "#F4FBF7"
   },
   "lazyCodeLoading": "requiredComponents",
   "sitemapLocation": "sitemap.json",

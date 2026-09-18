@@ -1,4 +1,5 @@
-const DEFAULT_API_BASE = 'http://127.0.0.1:3100/api'
+const { LOCAL_API_BASE_URL } = require('./apiBase')
+const DEFAULT_API_BASE = LOCAL_API_BASE_URL
 let loadingCount = 0
 let reloginPromise = null
 let authExpiredHandler = null

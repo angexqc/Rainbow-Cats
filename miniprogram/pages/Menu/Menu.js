@@ -1,12 +1,14 @@
 const app = getApp()
 const apiStore = require('../../utils/apiStore')
-const { getTopSafeHeight, computeNavbarTabPageContentHeight } = require('../../utils/safeArea')
+const cartStore = require('../../utils/cartStore')
+const { getTopSafeHeight, getCapsuleMetrics, computeNavbarTabPageContentHeight } = require('../../utils/safeArea')
 const { buildSharePayload, buildTimelinePayload } = require('../../utils/share')
 
 Page({
   data: {
     topSafeHeight: 0,
     contentHeight: 0,
+    capsuleSafeRight: 104,
     pageLoading: true,
     menuList: [],
     keyword: '',
@@ -17,7 +19,10 @@ Page({
     pageSize: 12,
     refresherTriggered: false,
     cartCount: 0,
+    unconfirmedCount: 0,
     cartMap: {},
+    favoriteMap: {},
+    wishMap: {},
     isPaired: false,
     ownerFilter: '',
     ownerFilters: [
@@ -41,6 +46,7 @@ Page({
     const topSafeHeight = getTopSafeHeight()
     this.setData({
       topSafeHeight,
+      capsuleSafeRight: getCapsuleMetrics().safeRight,
       contentHeight: computeNavbarTabPageContentHeight(topSafeHeight).contentHeight
     })
     this.runEntryLoad({ force: true, withOverlay: true })
@@ -49,6 +55,7 @@ Page({
   onShow() {
     const topSafeHeight = Number(this.data.topSafeHeight || getTopSafeHeight())
     this.setData({
+      capsuleSafeRight: getCapsuleMetrics().safeRight,
       contentHeight: computeNavbarTabPageContentHeight(topSafeHeight).contentHeight
     })
     if (this.skipNextShow) {
@@ -59,6 +66,7 @@ Page({
     if (this.lastEntryLoadedAt && this.data.menuList.length > 0 && now - this.lastEntryLoadedAt < 15000) {
       this.syncIdentity()
       this.refreshCartCount()
+      this.loadMenuMarks()
       return
     }
     this.runEntryLoad({ force: false, withOverlay: false })
@@ -77,6 +85,7 @@ Page({
     try {
       await this.refreshCategoryConfig()
       await this.refreshPairState()
+      await this.loadMenuMarks()
       await this.loadMenuList()
       this.refreshCartCount()
       this.lastEntryLoadedAt = Date.now()
@@ -127,6 +136,22 @@ Page({
     }
   },
 
+  async loadMenuMarks() {
+    try {
+      const [favorites, wishes] = await Promise.all([
+        apiStore.getMenuMarks('favorite'),
+        apiStore.getMenuMarks('wish')
+      ])
+      const favoriteMap = {}
+      const wishMap = {}
+      ;(favorites || []).forEach((item) => { favoriteMap[item.menuId] = true })
+      ;(wishes || []).forEach((item) => { wishMap[item.menuId] = true })
+      this.setData({ favoriteMap, wishMap })
+    } catch (err) {
+      // keep current marks when the network is unavailable
+    }
+  },
+
   resolveCategoryLabel(itemOrKey, map = {}) {
     if (itemOrKey && typeof itemOrKey === 'object') {
       const directLabel = String(itemOrKey.categoryLabel || '').trim()
@@ -169,24 +194,19 @@ Page({
         keyword: this.data.keyword,
         available: true,
         page: this.data.page,
-        pageSize: this.data.pageSize
+        pageSize: this.data.pageSize,
+        owner: this.data.ownerFilter === 'me' ? 'self' : this.data.ownerFilter === 'ta' ? 'partner' : ''
       })
 
       const rawList = this.data.page === 1 ? res.list : [...this.data.menuList, ...res.list]
       const listWithOwnerRole = (Array.isArray(rawList) ? rawList : []).map((item) => ({
-        _id: item && item._id,
-        title: item && item.title,
-        image: item && item.image,
-        owner: item && item.owner,
-        ownerName: item && item.ownerName,
-        ownerAvatar: item && item.ownerAvatar,
-        category: item && item.category,
+        ...(item || {}),
         ownerRole: String(item && item.owner) === String(this.data.selfUserId) ? 'me' : 'ta',
-        ownerDisplayName: String(item && item.ownerName) || (String(item && item.owner) === String(this.data.selfUserId) ? '我' : '对方'),
-        ownerDisplayAvatar: String(item && item.ownerAvatar) || '',
+        ownerDisplayName: String((item && item.ownerName) || '').trim() || (String(item && item.owner) === String(this.data.selfUserId) ? '我' : '对方'),
+        ownerDisplayAvatar: String((item && item.ownerAvatar) || '').trim(),
         categoryDisplay: this.resolveCategoryLabel(item, this.data.categoryMap)
       }))
-      const list = this.getFilteredMenuList(listWithOwnerRole)
+      const list = listWithOwnerRole
 
       this.setData({
         menuList: list,
@@ -260,21 +280,21 @@ Page({
     const menu = this.data.menuList.find((m) => m._id === id)
     if (!menu) return
 
-    const cart = wx.getStorageSync('cart') || {}
+    const cart = cartStore.getCart()
     if (cart[id]) {
       cart[id].count += 1
     } else {
       cart[id] = { menu, count: 1 }
     }
 
-    wx.setStorageSync('cart', cart)
+    cartStore.setCart(cart)
     this.refreshCartCount()
     wx.showToast({ title: '已加入购物车', icon: 'success' })
   },
 
   cancelOrderItem(e) {
     const { id } = e.currentTarget.dataset
-    const cart = wx.getStorageSync('cart') || {}
+    const cart = cartStore.getCart()
     if (!cart[id]) return
 
     if (cart[id].count > 1) {
@@ -283,19 +303,59 @@ Page({
       delete cart[id]
     }
 
-    wx.setStorageSync('cart', cart)
+    cartStore.setCart(cart)
     this.refreshCartCount()
     wx.showToast({ title: '已取消一份', icon: 'none' })
   },
 
   refreshCartCount() {
-    const cart = wx.getStorageSync('cart') || {}
+    const cart = cartStore.getCart()
     const cartCount = Object.values(cart).reduce((sum, item) => sum + Number(item.count || 0), 0)
     this.setData({ cartCount, cartMap: cart })
+    this.refreshUnconfirmedCount()
+  },
+
+  async refreshUnconfirmedCount() {
+    try {
+      const res = await apiStore.getOrderList({ status: 'pending' })
+      const list = Array.isArray(res) ? res : ((res && res.list) || [])
+      this.setData({ unconfirmedCount: list.length })
+    } catch (e) { this.setData({ unconfirmedCount: 0 }) }
   },
 
   goOrder() {
     wx.switchTab({ url: '/pages/Order/Order' })
+  },
+
+  goCandidates() {
+    wx.navigateTo({ url: '/pages/Candidates/Candidates' })
+  },
+
+  async addToCandidate(e) {
+    const id = String(e.currentTarget.dataset.id || '').trim()
+    if (!id) return
+    try {
+      await apiStore.addCandidate(id)
+      wx.showToast({ title: '已加入候选', icon: 'success' })
+    } catch (err) {
+      wx.showToast({ title: '加入候选失败', icon: 'none' })
+    }
+  },
+
+  async toggleMenuMark(e) {
+    const id = String(e.currentTarget.dataset.id || '')
+    const kind = String(e.currentTarget.dataset.kind || '')
+    if (!id || !['favorite', 'wish'].includes(kind)) return
+    const key = kind === 'favorite' ? 'favoriteMap' : 'wishMap'
+    const marked = !!this.data[key][id]
+    try {
+      if (marked) await apiStore.removeMenuMark(kind, id)
+      else await apiStore.addMenuMark(kind, id)
+      this.setData({ [`${key}.${id}`]: !marked })
+      wx.showToast({ title: marked ? '已移除' : (kind === 'favorite' ? '已收藏' : '已加入想吃'), icon: 'none' })
+    } catch (err) {
+      wx.showToast({ title: '操作失败', icon: 'none' })
+    }
   },
 
   goMenuHistory() {

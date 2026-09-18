@@ -93,7 +93,7 @@ Page({
   computeContentHeight(topSafeHeight, metrics = {}) {
     const screenHeight = Number(metrics.screenHeight || this.data.screenHeight || 0)
     const tabBarHeight = Number(metrics.tabBarHeight || this.data.tabBarHeight || 0)
-    const headerHeight = Number(topSafeHeight || 0) + 56
+    const headerHeight = Number(topSafeHeight || 0) + 64
     const baseHeight = screenHeight > 0 ? screenHeight : Number(metrics.windowHeight || this.data.windowHeight || 0)
     const nextHeight = baseHeight - headerHeight - tabBarHeight
     return nextHeight > 0 ? nextHeight : 0
@@ -297,11 +297,11 @@ Page({
     wx.showModal({
       title: '评价订单',
       editable: true,
-      placeholderText: '输入你的评价（最多50字）',
+      placeholderText: '输入你的评价（最多200字）',
       content: current.review || '',
       success: async (res) => {
         if (!res.confirm) return
-        const text = (res.content || '').trim().slice(0, 50)
+        const text = (res.content || '').trim().slice(0, 200)
         try {
           await apiStore.setOrderFeedback(id, { review: text })
           this.loadOrderList()

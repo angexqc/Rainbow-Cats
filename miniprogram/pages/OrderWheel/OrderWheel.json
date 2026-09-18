@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "随机点餐",
+  "navigationBarBackgroundColor": "#FDFEFD",
+  "backgroundColor": "#F2F8F2",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true,
+  "usingComponents": {},
+  "navigationStyle": "custom"
+}

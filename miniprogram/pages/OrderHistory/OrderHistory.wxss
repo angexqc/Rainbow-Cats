@@ -69,7 +69,7 @@ page {
   background-color: var(--rc-primary);
   border-color: var(--rc-primary);
   color: var(--rc-on-primary);
-  box-shadow: 0 6px 14px rgba(160, 214, 160, 0.20);
+  box-shadow: 0 6px 14px rgba(45, 137, 87, 0.18);
 }
 
 .chip:active {
@@ -297,7 +297,7 @@ page {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(138, 197, 138, 0.08);
+  box-shadow: 0 4px 10px rgba(45, 137, 87, 0.08);
   transition: transform var(--rc-motion-micro) var(--rc-ease-spring), background-color var(--rc-motion-fast) var(--rc-ease-out), border-color var(--rc-motion-fast) var(--rc-ease-out), box-shadow var(--rc-motion-fast) var(--rc-ease-out);
 }
 
@@ -393,9 +393,93 @@ page {
   height: 136px;
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(223, 245, 233, 0.96);
+  border: 1px solid rgba(214, 242, 225, 0.92);
   box-shadow: 0 8px 20px rgba(57, 80, 96, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Figma Site order history: timeline cards, less chrome. */
+.header {
+  background: transparent;
+  border-bottom: 0;
+  box-shadow: none;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.content {
+  padding-top: 8px;
+}
+
+.status-tabs {
+  margin-bottom: 12px;
+}
+
+.chip {
+  height: 30px;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.order-list {
+  gap: 12px;
+  padding-bottom: 86px;
+}
+
+.order-item {
+  border-radius: 24px;
+  padding: 14px;
+}
+
+.order-time {
+  font-weight: 750;
+}
+
+.status-tag {
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.order-items {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.timeline-flow {
+  border-radius: 18px;
+  background: var(--rc-surface-2);
+  border-color: rgba(45, 137, 87, 0.10);
+}
+
+.order-footer {
+  justify-content: space-between;
+}
+
+.order-credit {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.like-icon-btn,
+.feedback-btn {
+  border-radius: 999px;
+}
+
+.like-icon-btn.active {
+  background: var(--rc-primary-container);
+}
+
+.like-icon-btn.active .like-icon {
+  color: var(--rc-primary);
+}
+
+.review-box {
+  border-radius: 18px;
 }

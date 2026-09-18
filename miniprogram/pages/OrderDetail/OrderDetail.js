@@ -1,5 +1,6 @@
 const app = getApp()
 const apiStore = require('../../utils/apiStore')
+const cartStore = require('../../utils/cartStore')
 const { getTopSafeHeight } = require('../../utils/safeArea')
 
 Page({
@@ -63,9 +64,9 @@ Page({
       })
 
       const isCreator = order.creatorRole === 'me'
-      const canCancel = ['pending', 'confirmed'].includes(order.status)
-      const canConfirm = order.status === 'pending'
-      const canComplete = order.status === 'confirmed'
+      const canCancel = isCreator && ['pending', 'confirmed'].includes(order.status)
+      const canConfirm = !isCreator && order.status === 'pending'
+      const canComplete = !isCreator && order.status === 'confirmed'
 
       this.setData({ order, isCreator, canCancel, canConfirm, canComplete })
     } catch (err) {
@@ -132,7 +133,7 @@ Page({
       return
     }
 
-    const cart = wx.getStorageSync('cart') || {}
+    const cart = cartStore.getCart()
     const fallbackSeed = Date.now()
     order.items.forEach((item, idx) => {
       const menuId = String(item.menuId || item._id || '').trim() || `order_${this.data.orderId}_${fallbackSeed}_${idx}`
@@ -149,7 +150,7 @@ Page({
       }
     })
 
-    wx.setStorageSync('cart', cart)
+    cartStore.setCart(cart)
     wx.showToast({ title: '已加入购物车', icon: 'success' })
     setTimeout(() => {
       wx.switchTab({ url: '/pages/Order/Order' })
@@ -174,11 +175,11 @@ Page({
     wx.showModal({
       title: '评价订单',
       editable: true,
-      placeholderText: '输入你的评价（最多50字）',
+      placeholderText: '输入你的评价（最多200字）',
       content: order.review || '',
       success: async (res) => {
         if (!res.confirm) return
-        const text = (res.content || '').trim().slice(0, 50)
+        const text = (res.content || '').trim().slice(0, 200)
         try {
           await apiStore.setOrderFeedback(this.data.orderId, { review: text })
           this.loadOrderDetail()

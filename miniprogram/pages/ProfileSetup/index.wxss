@@ -128,3 +128,49 @@ page {
 .save::after {
   border: none;
 }
+
+/* Figma Site profile setup. */
+.header {
+  background: transparent;
+  border-bottom: 0;
+  box-shadow: none;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.content {
+  padding: 12px 14px 86px;
+}
+
+.tip {
+  border-radius: 24px;
+  background: var(--rc-surface);
+  box-shadow: var(--rc-shadow-card);
+  font-weight: 750;
+}
+
+.avatar-wrap,
+.form-item {
+  border-radius: 28px;
+  background: var(--rc-surface);
+  box-shadow: var(--rc-shadow-card);
+}
+
+.avatar {
+  width: 92px;
+  height: 92px;
+  border-radius: 32px;
+}
+
+.ghost,
+.save {
+  border-radius: 999px;
+  font-weight: 850;
+}
+
+.input {
+  border-radius: 18px;
+}

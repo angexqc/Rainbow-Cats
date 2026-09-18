@@ -1,4 +1,5 @@
 const apiStore = require('../../utils/apiStore')
+const { getTopSafeHeight } = require('../../utils/safeArea')
 
 Page({
   data: {
@@ -6,6 +7,7 @@ Page({
     headerHeight: 56,
     isPaired: false,
     pairCode: '',
+    pairCodeExpiresAt: 0,
     qrImageUrl: '',
     inputCode: '',
     canBind: false,
@@ -53,14 +55,11 @@ Page({
 
   setupHeaderLayout() {
     try {
-      const menu = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null
-      const sys = wx.getSystemInfoSync ? wx.getSystemInfoSync() : {}
-      const statusBarHeight = Number((menu && menu.top) || sys.statusBarHeight || 20)
-      const navHeight = Number((menu && menu.height) || 32)
-      const headerHeight = statusBarHeight + navHeight + 10
+      const statusBarHeight = getTopSafeHeight()
+      const headerHeight = statusBarHeight + 64
       this.setData({ statusBarHeight, headerHeight })
     } catch (err) {
-      this.setData({ statusBarHeight: 20, headerHeight: 62 })
+      this.setData({ statusBarHeight: 28, headerHeight: 92 })
     }
   },
 
@@ -81,6 +80,7 @@ Page({
     this.setData({
       isPaired: nextIsPaired,
       pairCode: shownCode,
+      pairCodeExpiresAt: Number(pair.pairCodeExpiresAt || 0),
       qrImageUrl: this.makeQrImageUrl(shownCode),
       partnerInfo: pair.partnerInfo || {},
       waitingPairing: !nextIsPaired
@@ -169,6 +169,14 @@ Page({
       }
       if (bizCode === 14004) {
         wx.showToast({ title: '不能绑定自己', icon: 'none' })
+        return
+      }
+      if (bizCode === 14005) {
+        wx.showToast({ title: '配对码已过期，请重新生成', icon: 'none' })
+        return
+      }
+      if (bizCode === 14006) {
+        wx.showToast({ title: '配对码已使用，请重新生成', icon: 'none' })
         return
       }
       wx.showToast({ title: '绑定失败', icon: 'none' })

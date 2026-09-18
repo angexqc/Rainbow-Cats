@@ -1,11 +1,53 @@
 <view class="page">
-  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
-    <view class="title">我的</view>
-    <view class="header-right"></view>
+  <view class="header" style="padding-top: {{topSafeHeight}}px; padding-right: {{capsuleSafeRight}}px; height: {{topSafeHeight + 64}}px;">
+    <view class="header-title-group">
+      <view class="title">我的</view>
+      <view class="subtitle">情侣空间和个人设置</view>
+    </view>
   </view>
 
-  <scroll-view class="content" style="height: {{contentHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
-    <view class="section block">
+  <view class="profile-fixed">
+    <view class="profile-hero">
+      <view class="profile-person">
+        <image wx:if="{{profile.avatarUrl}}" class="profile-avatar" src="{{profile.avatarUrl}}" mode="aspectFill"></image>
+        <view wx:else class="profile-avatar profile-avatar-fallback">{{profileInitial}}</view>
+        <view class="profile-person-copy">
+          <text class="profile-role">我</text>
+          <text class="profile-name">{{profile.nickName || '未设置昵称'}}</text>
+        </view>
+      </view>
+      <view class="profile-connector">+</view>
+      <view class="profile-person partner-person">
+        <image wx:if="{{partnerInfo.avatarUrl}}" class="profile-avatar" src="{{partnerInfo.avatarUrl}}" mode="aspectFill"></image>
+        <view wx:else class="profile-avatar profile-avatar-fallback muted">{{isPaired ? 'TA' : '?'}}</view>
+        <view class="profile-person-copy">
+          <text class="profile-role">{{isPaired ? 'TA' : '未配对'}}</text>
+          <text class="profile-name">{{partnerInfo.nickName || (isPaired ? '配对对象' : '先去配对')}}</text>
+        </view>
+      </view>
+      <view class="profile-hero-foot">
+        <text>{{isPaired ? '你们已连接，可以一起管理菜单和订单' : '绑定另一半后共享点餐空间'}}</text>
+        <button class="profile-edit-btn" bindtap="goProfileSetup">编辑资料</button>
+      </view>
+    </view>
+  </view>
+
+  <scroll-view class="content" scroll-y enhanced show-scrollbar="{{false}}">
+
+    <view class="section block quick-actions">
+      <view class="block-head">
+        <text class="block-title">常用入口</text>
+        <text class="block-desc">两列排列，快速进入</text>
+      </view>
+      <view class="action-grid">
+        <button class="biz-action biz-secondary profile-btn" bindtap="goNotifySettings">通知设置</button>
+        <button class="biz-action biz-secondary profile-btn" bindtap="goFoodPreferences">口味与忌口</button>
+        <button class="biz-action biz-secondary profile-btn" bindtap="goSavedMenus">收藏与想吃</button>
+        <button class="biz-action biz-secondary profile-btn" bindtap="goMealPlans">用餐计划</button>
+      </view>
+    </view>
+
+    <view class="section block" wx:if="{{isAdmin}}">
       <view class="block-head">
         <text class="block-title">轮播图管理</text>
         <text class="block-desc">当前 {{banners.length}} 张</text>
@@ -26,7 +68,7 @@
             <image
               class="banner-thumb {{bannerCurrent === idx ? 'is-active' : 'is-inactive'}}"
               src="{{item.url}}"
-              mode="aspectFill"
+              mode="aspectFit"
               lazy-load="true"
               webp
               data-url="{{item.url}}"
@@ -73,14 +115,6 @@
       </view>
       <view class="drag-tip">拖动左侧“☰”可调整顺序，松手即完成排序</view>
       <button class="biz-action biz-secondary reset-category-btn" bindtap="resetCategories">恢复默认分类</button>
-    </view>
-
-    <view class="section block">
-      <view class="block-head">
-        <text class="block-title">个人资料</text>
-        <text class="block-desc">昵称与头像</text>
-      </view>
-      <button class="biz-action biz-secondary profile-btn" bindtap="goProfileSetup">编辑资料</button>
     </view>
 
     <view class="section block danger-block">

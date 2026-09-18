@@ -1,5 +1,5 @@
 <view class="page">
-  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 56}}px;">
+  <view class="header" style="padding-top: {{topSafeHeight}}px; height: {{topSafeHeight + 64}}px;">
     <text bindtap="handleBack">←</text>
     <text>确认订单</text>
     <text></text>
@@ -7,6 +7,13 @@
 
   <view class="content" wx:if="{{cartItems && cartItems.length > 0}}">
     <view class="section-title">订单明细</view>
+
+    <view wx:if="{{pair && pair.isPaired}}" class="collab-context">
+      <view class="collab-person"><image wx:if="{{pair.myInfo.avatarUrl}}" src="{{pair.myInfo.avatarUrl}}" mode="aspectFill"></image><text wx:else>我</text><label>我</label></view>
+      <view class="collab-arrow">→</view>
+      <view class="collab-person"><image wx:if="{{pair.partnerInfo.avatarUrl}}" src="{{pair.partnerInfo.avatarUrl}}" mode="aspectFill"></image><text wx:else>TA</text><label>{{pair.partnerInfo.nickName || 'TA'}}</label></view>
+        <text class="collab-status">待 TA 确认</text>
+    </view>
 
     <view class="order-items">
       <view wx:for="{{cartItems}}" wx:key="menuId" class="order-item">
@@ -42,6 +49,8 @@
 
     <view class="confirm-tip">
       <text>确认后将生成订单并进入待确认状态</text>
+      <text class="notify-result">{{notifyResultText}}</text>
+      <text wx:if="{{conflictTerms.length}}" class="conflict-tip">可能涉及：{{conflictTerms.join('、')}}，请自行确认</text>
     </view>
 
     <button class="btn biz-action biz-primary" bindtap="handleConfirm">确认下单</button>

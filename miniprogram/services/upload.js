@@ -1,4 +1,5 @@
 const { getApiBase } = require('./http')
+const { isAllowedUploadApiBase } = require('./apiBase')
 
 function getWxLoginCode() {
   return new Promise((resolve) => {
@@ -85,8 +86,8 @@ function ensureAuthToken(forceRefresh = false) {
 
 function uploadImage(filePath, folder = 'menus') {
   const base = String(getApiBase() || '').trim()
-  if (!/^https:\/\//i.test(base)) {
-    return Promise.reject(new Error('上传地址必须是 HTTPS，请检查 apiBaseUrl 配置'))
+  if (!isAllowedUploadApiBase(base)) {
+    return Promise.reject(new Error('远程上传地址必须使用 HTTPS；本地调试仅支持 localhost 或 127.0.0.1'))
   }
   const url = `${base}/upload/image?folder=${encodeURIComponent(folder)}`
   const doUpload = (token, retry = true) =>

@@ -1,22 +1,58 @@
 <view class="page">
   <scroll-view class="scroll-body" style="height: {{contentHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="top-safe" style="height: {{topSafeHeight}}px;"></view>
-    <view class="section hero-card">
-      <swiper class="hero-swiper" autoplay interval="3200" circular indicator-dots indicator-color="rgba(255,255,255,.45)" indicator-active-color="#ffffff">
+    <view class="magazine-hero kawaii-hero">
+      <view class="blob blob-pink"></view><view class="blob blob-mint"></view>
+      <view class="petal petal-a">✦</view><view class="petal petal-b">✿</view>
+      <view class="kawaii-mascot" aria-label="彩虹猫吉祥物"><view class="mascot-ear left"></view><view class="mascot-ear right"></view><view class="mascot-face"><view class="mascot-eye"></view><view class="mascot-eye"></view><view class="mascot-blush left"></view><view class="mascot-blush right"></view><text class="mascot-mouth">ω</text></view></view>
+      <view class="hero-copy"><text class="hero-kicker">RAINBOW CATS · DAILY</text><text class="hero-heading">今天，想吃点什么？</text><text class="hero-caption">和喜欢的人一起，把每一餐变成小小冒险</text></view>
+      <view class="anime-spark spark-one"></view><view class="anime-spark spark-two"></view>
+      <view class="hero-sticker" aria-label="彩虹猫">
+        <view class="cat-ear cat-ear-left"></view><view class="cat-ear cat-ear-right"></view>
+        <view class="cat-face"><view class="cat-eye"></view><view class="cat-eye"></view><view class="cat-mouth">ω</view></view>
+      </view>
+      <swiper class="magazine-swiper" autoplay interval="3600" duration="780" circular previous-margin="72rpx" next-margin="72rpx" indicator-dots="{{false}}" bindchange="onHeroChange">
         <swiper-item wx:for="{{banners}}" wx:key="*this">
-          <image class="hero-image" src="{{item}}" mode="aspectFill" lazy-load="true" webp></image>
-          <view class="hero-mask"></view>
+          <view class="magazine-slide {{index === heroCurrent ? 'current' : ''}}">
+            <image class="magazine-image" src="{{item}}" mode="aspectFill" lazy-load="true" webp></image>
+          </view>
         </swiper-item>
       </swiper>
-      <view class="hero-copy">
-        <text class="hero-title">今天也一起好好吃饭</text>
-        <text class="hero-sub">情侣每日菜品点单记录</text>
+    </view>
+
+    <view class="couple-pulse section" bindtap="goPair">
+      <view class="couple-pulse-avatars">
+        <image wx:if="{{myInfo.avatarUrl}}" class="couple-avatar" src="{{myInfo.avatarUrl}}" mode="aspectFill"></image>
+        <view wx:else class="couple-avatar couple-avatar-fallback">我</view>
+        <view class="couple-link">+</view>
+        <image wx:if="{{partnerInfo.avatarUrl}}" class="couple-avatar" src="{{partnerInfo.avatarUrl}}" mode="aspectFill"></image>
+        <view wx:else class="couple-avatar couple-avatar-fallback muted">{{isPaired ? 'TA' : '?'}}</view>
+      </view>
+      <view class="couple-pulse-copy">
+        <text class="couple-pulse-title">{{isPaired ? '你们的饭饭小组' : '先和另一半连上线'}}</text>
+        <text class="couple-pulse-sub">{{isPaired ? '购物车里有 ' + coupleCartCount + ' 份待确认，选好后一起下单' : '绑定后可以一起选菜、确认订单'}}</text>
+      </view>
+      <text class="couple-pulse-arrow">›</text>
+    </view>
+
+    <view class="home-stats section">
+      <view class="home-stat">
+        <text class="home-stat-number">{{rankingList.length}}</text>
+        <text class="home-stat-label">上榜菜品</text>
+      </view>
+      <view class="home-stat mint">
+        <text class="home-stat-number">{{popularDish ? popularDish.count : 0}}</text>
+        <text class="home-stat-label">回购次数</text>
+      </view>
+      <view class="home-stat yellow">
+        <text class="home-stat-number">{{period === 'week' ? '周' : (period === 'month' ? '月' : '年')}}</text>
+        <text class="home-stat-label">当前榜单</text>
       </view>
     </view>
 
-    <view class="section rank-card">
+    <view class="section rank-card first-section">
       <view class="card-head">
-        <text class="card-title">菜品点单排行</text>
+        <text class="card-title">高频回购</text>
         <view class="period-switch">
           <view wx:for="{{rankPeriods}}" wx:key="key" class="period-chip {{period === item.key ? 'active' : ''}}" data-period="{{item.key}}" bindtap="switchPeriod">{{item.label}}</view>
         </view>
@@ -71,7 +107,8 @@
     </view>
 
     <view class="section action-box">
-      <button class="order-btn" bindtap="goOrder">去点单</button>
+      <button class="order-btn order-btn-secondary" bindtap="goWheel">随机点餐</button>
+      <button class="order-btn" bindtap="goMenu">查看菜单</button>
     </view>
   </scroll-view>
 </view>
