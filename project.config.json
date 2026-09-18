@@ -5,7 +5,7 @@
         "include": []
     },
     "setting": {
-        "urlCheck": true,
+    "urlCheck": false,
         "es6": false,
         "enhance": true,
         "postcss": true,
@@ -51,10 +51,8 @@
     "compileType": "miniprogram",
     "libVersion": "3.14.3",
     "appid": "wx858cff8a74dc9d7b",
-    "projectname": "DailyMissions",
+    "projectname": "RainbowCatsFood",
     "miniprogramRoot": "miniprogram/",
-    "cloudfunctionRoot": "cloudfunctions/",
-    "cloudfunctionTemplateRoot": "cloudfunctionTemplate/",
     "condition": {},
     "srcMiniprogramRoot": "miniprogram/",
     "editorSetting": {
